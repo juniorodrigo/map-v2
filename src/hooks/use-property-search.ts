@@ -1,21 +1,26 @@
 import { useQuery } from '@tanstack/react-query';
 import { useDatabase } from '@/contexts/DatabaseContext';
 import type { PropertyFilters, PropertySearchResponse } from '@/types/property';
+import type { SessionData } from '@/contexts/SessionProvider';
 
 interface UsePropertySearchParams {
 	filters: PropertyFilters;
 	enabled?: boolean;
+	sessionData?: SessionData;
 }
 
-export function usePropertySearch({ filters, enabled = true }: UsePropertySearchParams) {
+export function usePropertySearch({ filters, enabled = true, sessionData }: UsePropertySearchParams) {
 	const { database } = useDatabase();
 
+	console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX usePropertySearch - Session Info:', sessionData);
+
 	return useQuery({
-		queryKey: ['properties', 'search', database, filters],
+		queryKey: ['properties', 'search', database, filters, sessionData],
 		queryFn: async () => {
 			const requestBody = {
 				filters,
 				dbName: database,
+				sessionData,
 			};
 
 			const response = await fetch('/api/properties/search', {

@@ -22,8 +22,6 @@ function MapContent() {
 	const isMobile = useIsMobile();
 	const { session } = useSession();
 
-	// Inicializar filtros con datos del usuario si están disponibles
-	// Acá se inician los defaults de los filtros
 	const [filters, setFilters] = React.useState({
 		propertyType: [] as string[],
 		priceRange: [5000, 10000000] as [number, number],
@@ -37,12 +35,10 @@ function MapContent() {
 	const consecutiveEmptySearchesRef = React.useRef(0);
 	const lastSearchKeyRef = React.useRef<string | null>(null);
 
-	// Efecto para inicializar filtros con datos del usuario
 	React.useEffect(() => {
 		if (!filtersInitialized && session.userInfo?.requirement_info) {
 			const requirement = session.userInfo.requirement_info;
 
-			// Valores con fallbacks seguros
 			const minPrice = requirement.minimum_price ?? 5000;
 			const maxPrice = requirement.maximum_price ?? 10000000;
 			const userCurrency = requirement.currency || 'MXN';
@@ -75,6 +71,7 @@ function MapContent() {
 	const { data, isLoading, error, isFetched } = usePropertySearch({
 		filters: searchFilters,
 		enabled: canSearch,
+		sessionData: session,
 	});
 
 	React.useEffect(() => {
@@ -97,7 +94,6 @@ function MapContent() {
 							marginTop: '40px',
 						},
 					});
-					// Resetear contador si se encuentran resultados
 					consecutiveEmptySearchesRef.current = 0;
 				} else {
 					toast.error('No se encontraron propiedades', {
@@ -128,7 +124,6 @@ function MapContent() {
 			currency: string;
 			operationType: string[];
 		}) => {
-			// console.log('🔄 MapLayout - Filtros actualizados por usuario:', newFilters);
 			setFilters(newFilters);
 		},
 		[]
@@ -146,7 +141,6 @@ function MapContent() {
 		if (!selectedOwnerId || !data) return [];
 		const ownerCluster = data.owners?.find((o) => o.ownerId === selectedOwnerId);
 		const properties = ownerCluster?.properties.filter((p) => p._id !== selectedProperty?._id) || [];
-		// Usar el primer tipo de operación seleccionado para la conversión
 		return propertyDataArrayToPropertyArray(properties, filters.operationType[0] || 'venta');
 	}, [selectedOwnerId, data, filters.operationType, selectedProperty]);
 

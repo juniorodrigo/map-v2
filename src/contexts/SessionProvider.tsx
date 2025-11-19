@@ -5,7 +5,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { UserInfo } from '@/service/mongo/user';
 import { OwnerSettings } from '@/service/firebase/owner';
 
-interface SessionData {
+export interface SessionData {
 	token: string | null;
 	userId?: string;
 	userEmail?: string;
@@ -178,9 +178,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 	}, [pathname, searchParams, session.token, validateToken, router]);
 
 	// Log del sessionData para evaluación
-	useEffect(() => {
-		console.log('📊 SessionData actualizado:', session);
-	}, [session]);
+	// useEffect(() => {
+	// 	console.log('📊 SessionData actualizado:', session);
+	// }, [session]);
 
 	const value = React.useMemo(
 		() => ({
