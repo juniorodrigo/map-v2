@@ -1,6 +1,6 @@
 'use client';
 
-import MapLayout from '@/components/layout/MapLayout';
+import MapLayout from '@/components/layout/MapLayoutGu';
 import { useSession } from '@/contexts/SessionProvider';
 import { notFound } from 'next/navigation';
 import { useEffect } from 'react';

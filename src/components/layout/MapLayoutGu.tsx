@@ -227,7 +227,6 @@ function MapContent() {
 				</div>
 			)}
 
-			{/* Results Count - Desktop (>= 1024px) */}
 			{data && !isLoading && canSearch && (
 				<>
 					<div className="hidden lg:block absolute bottom-4 left-4 z-20 bg-white/95 px-4 py-2 rounded-full shadow-lg">
@@ -236,16 +235,17 @@ function MapContent() {
 						</span>
 					</div>
 
-					{/* Results Count - Mobile & Tablet (< 1024px) - centered at bottom */}
-					<div className="lg:hidden absolute bottom-20 left-1/2 -translate-x-1/2 z-20 bg-white/95 px-4 py-1.5 rounded-full shadow-lg">
-						<span className="text-xs font-medium whitespace-nowrap">
-							{data.total} propiedades • {data.owners?.length || 0} propietarios
-						</span>
-					</div>
+					{/* Mostrar cantidad de propietarios solo con modo marketmeet*/}
+					{session.searchType == 'marketmeet' && (
+						<div className="lg:hidden absolute bottom-20 left-1/2 -translate-x-1/2 z-20 bg-white/95 px-4 py-1.5 rounded-full shadow-lg">
+							<span className="text-xs font-medium whitespace-nowrap">
+								{data.total} propiedades • {data.owners?.length || 0} propietarios
+							</span>
+						</div>
+					)}
 				</>
 			)}
 
-			{/* Property Sheet - Right Side (when property selected) */}
 			<PropertySheet
 				property={displayProperty}
 				isOpen={!!displayProperty}
