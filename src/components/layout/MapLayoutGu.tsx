@@ -133,6 +133,7 @@ function MapContent() {
 		setSelectedOwnerId(clusterId);
 		const ownerCluster = data?.owners?.find((o) => o.ownerId === clusterId);
 		if (ownerCluster && ownerCluster.properties.length > 0) {
+			console.log('ID de la propiedad:', ownerCluster.properties[0]._id);
 			setSelectedProperty(ownerCluster.properties[0]);
 		}
 	};
@@ -173,6 +174,7 @@ function MapContent() {
 						propertyCount={owner.propertyCount}
 						ownerId={owner.ownerId}
 						ownerName={owner.ownerName}
+						isSelected={selectedOwnerId === owner.ownerId}
 						onClick={() => handleMarkerClick(owner.ownerId)}
 					/>
 				))}
