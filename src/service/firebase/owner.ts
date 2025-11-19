@@ -1,7 +1,7 @@
 import { firebaseClient } from './client';
 
 export interface OwnerSettings {
-	search_mode: 'own_properties' | 'all_properties' | 'own_and_associations';
+	included_properties: 'own_properties' | 'all_properties' | 'own_and_associations';
 	associations_to_include_in_search?: string[];
 	allowed_comission_percentages?: string[];
 }
@@ -42,7 +42,7 @@ export async function getOwnerInfoByFirebaseId(ownerFirebaseId: string) {
 	// Caso todas las propiedades (que comparten comisión)
 	if (guSettings.global_associations && guSettings.owner_properties == false && guSettings.my_associations == false) {
 		ownerSettings = {
-			search_mode: 'all_properties',
+			included_properties: 'all_properties',
 			allowed_comission_percentages: convertCommissionLabelsToNumbers(guSettings.commissions_look),
 		};
 	}
@@ -54,13 +54,13 @@ export async function getOwnerInfoByFirebaseId(ownerFirebaseId: string) {
 		guSettings.my_associations == false
 	) {
 		ownerSettings = {
-			search_mode: 'own_properties',
+			included_properties: 'own_properties',
 		};
 	}
 	// Caso mis propiedades y asociaciones (como está bugeado, lo dejaré así)
 	else {
 		ownerSettings = {
-			search_mode: 'own_and_associations',
+			included_properties: 'own_and_associations',
 			associations_to_include_in_search: guSettings.associations_to_look || [],
 			allowed_comission_percentages: convertCommissionLabelsToNumbers(guSettings.commissions_look),
 		};
