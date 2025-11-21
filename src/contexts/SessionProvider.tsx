@@ -5,6 +5,9 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { UserInfo } from '@/service/mongo/user';
 import { OwnerSettings } from '@/service/firebase/owner';
 
+type marketmeetSearchSubtypes = 'default';
+type guSearchSubtypes = 'similar-properties' | 'normal-search' | 'shared-comission';
+
 export interface SessionData {
 	token: string | null;
 	userId?: string;
@@ -13,7 +16,7 @@ export interface SessionData {
 	userInfo: UserInfo | null;
 	ownerSettings: OwnerSettings | null;
 	searchType?: 'marketmeet' | 'end-user';
-	searchSubType?: 'similar-properties' | 'owner-properties' | 'normal-search';
+	searchSubType?: marketmeetSearchSubtypes | guSearchSubtypes;
 }
 
 interface SessionContextType {
@@ -38,7 +41,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 	});
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [validationAttempted, setValidationAttempted] = useState(false);
 
 	const validateToken = useCallback(
 		async (token: string): Promise<{ success: boolean; data?: any; error?: string }> => {
@@ -92,34 +94,62 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 		setError(null);
 	}, []);
 
-	// Efecto principal para manejar search params y token
-	useEffect(() => {
+	// Calcular searchType y searchSubType una sola vez
+	const searchParams_memo = React.useMemo(() => {
 		const tokenFromUrl = searchParams.get('token');
 		const searchParam = searchParams.get('search');
 		const firstPathSegment = pathname.split('/')[1];
 
 		let searchType: 'marketmeet' | 'end-user' | undefined;
-		let searchSubType: 'similar-properties' | 'owner-properties' | 'normal-search' | undefined;
+		let searchSubType: marketmeetSearchSubtypes | guSearchSubtypes | undefined;
+		let isValidSubType = true;
+
+		// Si estamos en not-found, no validar nada
+		if (pathname === '/not-found') {
+			return { tokenFromUrl, searchType, searchSubType, isValidSubType: true };
+		}
 
 		// Detectar searchType basado en el path
 		if (firstPathSegment === 'marketmeet') {
 			searchType = 'marketmeet';
 		} else if (firstPathSegment === 'gu') {
 			searchType = 'end-user';
+		} else {
+			isValidSubType = false;
 		}
 
-		// Detectar searchSubType basado en query parameter
-		if (searchParam === 'similar') {
-			searchSubType = 'similar-properties';
-		} else if (searchParam === 'owner') {
-			searchSubType = 'owner-properties';
+		if (searchType === 'marketmeet') {
+			searchSubType = 'default';
+		} else if (searchType === 'end-user') {
+			if (searchParam === 'similar') {
+				searchSubType = 'similar-properties';
+			} else if (!searchParam || searchParam === 'shared') {
+				searchSubType = 'shared-comission';
+			} else if (!searchParam) {
+				searchSubType = 'normal-search';
+			} else {
+				isValidSubType = false;
+			}
 		} else {
-			searchSubType = 'normal-search';
+			searchParam ? (searchSubType = 'default') : (isValidSubType = false);
 		}
+
+		return { tokenFromUrl, searchType, searchSubType, isValidSubType };
+	}, [searchParams, pathname]);
+
+	// Efecto principal para manejar search params y token
+	useEffect(() => {
+		const { tokenFromUrl, searchType, searchSubType, isValidSubType } = searchParams_memo;
 
 		const processSession = async () => {
 			setIsLoading(true);
 			setError(null);
+
+			// Si el subType no es válido, redirigir a 404
+			if (isValidSubType === false) {
+				router.push('/not-found');
+				return;
+			}
 
 			if (tokenFromUrl && tokenFromUrl !== session.token) {
 				console.log('🔍 Token detectado en URL, validando...');
@@ -146,7 +176,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 						searchType,
 						searchSubType,
 					});
-					// Redirigir a 404 en caso de error
 					router.push('/not-found');
 				}
 			} else if (!tokenFromUrl) {
@@ -161,8 +190,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 					ownerSettings: null,
 				}));
 				router.push('/not-found');
-			} else {
-				// Token ya validado, solo actualizar search
+			} else if (session.searchType !== searchType || session.searchSubType !== searchSubType) {
 				setSession((prev) => ({
 					...prev,
 					searchType,
@@ -171,16 +199,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 			}
 
 			setIsLoading(false);
-			setValidationAttempted(true);
 		};
 
 		processSession();
-	}, [pathname, searchParams, session.token, validateToken, router]);
-
-	// Log del sessionData para evaluación
-	// useEffect(() => {
-	// 	console.log('📊 SessionData actualizado:', session);
-	// }, [session]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [searchParams_memo, validateToken, router]);
 
 	const value = React.useMemo(
 		() => ({
@@ -192,6 +215,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 		}),
 		[session, isLoading, error, validateToken, clearSession]
 	);
+
 	return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
 

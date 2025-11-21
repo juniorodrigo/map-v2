@@ -17,7 +17,7 @@ import toast from 'react-hot-toast';
 
 export type SearchType = 'gu' | 'marketmeet';
 
-interface MapContentConfig {
+export interface MapContentConfig {
 	searchType: SearchType;
 	renderResultsBadges?: (data: any, total: number, ownersCount: number) => React.ReactNode;
 	onMarkerClick?: (clusterId: string, ownerCluster: any) => void;
