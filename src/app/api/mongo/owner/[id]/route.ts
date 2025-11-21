@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const ownerId = params.id;
+		const { id: ownerId } = await params;
 
 		if (!ownerId) {
 			return NextResponse.json({ success: false, error: 'ID del owner es requerido' }, { status: 400 });
