@@ -112,18 +112,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 		// Detectar searchType basado en el path
 		if (firstPathSegment === 'marketmeet') {
 			searchType = 'marketmeet';
+			searchSubType = 'default';
 		} else if (firstPathSegment === 'gu') {
 			searchType = 'end-user';
-		} else {
-			isValidSubType = false;
-		}
-
-		if (searchType === 'marketmeet') {
-			searchSubType = 'default';
-		} else if (searchType === 'end-user') {
 			if (searchParam === 'similar') {
 				searchSubType = 'similar-properties';
-			} else if (!searchParam || searchParam === 'shared') {
+			} else if (searchParam === 'shared') {
 				searchSubType = 'shared-comission';
 			} else if (!searchParam) {
 				searchSubType = 'normal-search';
@@ -131,7 +125,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 				isValidSubType = false;
 			}
 		} else {
-			searchParam ? (searchSubType = 'default') : (isValidSubType = false);
+			isValidSubType = false;
 		}
 
 		return { tokenFromUrl, searchType, searchSubType, isValidSubType };
@@ -139,6 +133,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
 	// Efecto principal para manejar search params y token
 	useEffect(() => {
+		// Si estamos en not-found, no hacer nada
+		if (pathname === '/not-found') {
+			setIsLoading(false);
+			return;
+		}
+
 		const { tokenFromUrl, searchType, searchSubType, isValidSubType } = searchParams_memo;
 
 		const processSession = async () => {

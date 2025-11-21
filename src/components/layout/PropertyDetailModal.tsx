@@ -33,12 +33,12 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent className="max-w-[95vw]! w-[1400px]! max-h-[95vh]! p-0 overflow-hidden">
+			<DialogContent className="max-w-[95vw] w-full md:w-[1400px] max-h-[95vh] p-0 overflow-hidden">
 				<div className="h-full flex flex-col max-h-[95vh]">
 					{/* Header del Modal - Compacto */}
-					<DialogHeader className="px-6 pt-6 pb-3 border-b shrink-0">
+					<DialogHeader className="px-4 md:px-6 pt-4 md:pt-6 pb-3 border-b shrink-0">
 						<div className="space-y-2 pr-8">
-							<DialogTitle className="text-2xl font-bold">{property.title}</DialogTitle>
+							<DialogTitle className="text-lg md:text-2xl font-bold">{property.title}</DialogTitle>
 							<p className="flex items-center gap-1.5 text-sm text-muted-foreground">
 								<MdLocationOn className="size-4" />
 								{property.address}
@@ -48,8 +48,8 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 
 					{/* Contenido del Modal - Scrollable */}
 					<div className="flex-1 overflow-y-auto">
-						<div className="p-6">
-							<div className="grid grid-cols-[1.2fr_0.8fr] gap-8">
+						<div className="p-4 md:p-6">
+							<div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-4 md:gap-8">
 								{/* Columna Izquierda - Imágenes */}
 								<div className="space-y-4">
 									{/* Carousel Principal */}
@@ -70,7 +70,7 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 												<CarouselContent>
 													{property.images.map((img, index) => (
 														<CarouselItem key={index}>
-															<div className="relative aspect-16/10 rounded-xl overflow-hidden bg-gray-100">
+															<div className="relative aspect-video lg:aspect-16/10 rounded-xl overflow-hidden bg-gray-100">
 																<img
 																	src={img}
 																	alt={`${property.title} - Imagen ${index + 1}`}
@@ -104,7 +104,7 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 
 											{/* Galería de miniaturas */}
 											{property.images.length > 1 && (
-												<div className="grid grid-cols-6 gap-2">
+												<div className="grid grid-cols-4 md:grid-cols-6 gap-2">
 													{property.images.slice(0, 12).map((img, index) => (
 														<button
 															key={index}
@@ -122,8 +122,8 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 											)}
 										</div>
 									) : (
-										<div className="aspect-16/10 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
-											<MdLocationOn className="size-16 text-gray-400" />
+										<div className="aspect-video lg:aspect-16/10 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
+											<MdLocationOn className="size-12 md:size-16 text-gray-400" />
 										</div>
 									)}
 								</div>
@@ -131,21 +131,21 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 								{/* Columna Derecha - Información */}
 								<div className="space-y-5">
 									{/* Precio Grande */}
-									<div className="bg-gray-50 rounded-xl p-5">
+									<div className="bg-gray-50 rounded-xl p-4 md:p-5">
 										<p className="text-sm text-muted-foreground mb-2">Precio</p>
 										<div className="flex items-baseline gap-2 mb-1">
-											<span className="text-4xl font-bold">
+											<span className="text-2xl md:text-4xl font-bold">
 												{property.currency}
 												{property.price}
 											</span>
-											<span className="text-xl text-muted-foreground">/{property.operation}</span>
+											<span className="text-base md:text-xl text-muted-foreground">/{property.operation}</span>
 										</div>
 										{property.rating && <Badge className="mt-3 text-sm py-1 px-3">⭐ {property.rating}</Badge>}
 									</div>
 
 									{/* Botones de Acción */}
 									<div>
-										<div className="grid grid-cols-3 gap-2">
+										<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 											<Button
 												variant="outline"
 												className="h-11 text-sm font-semibold rounded-lg"
@@ -181,22 +181,28 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 
 									{/* Características Principales */}
 									<div>
-										<h3 className="text-base font-semibold mb-3">Características</h3>
-										<div className="grid grid-cols-3 gap-3">
-											<div className="flex flex-col items-center p-3 bg-gray-50 rounded-xl">
-												<MdBed className="size-6 text-muted-foreground mb-1.5" />
-												<div className="text-xl font-bold">{property.bedrooms}</div>
-												<div className="text-xs text-muted-foreground text-center mt-1">Recámaras</div>
+										<h3 className="text-sm md:text-base font-semibold mb-3">Características</h3>
+										<div className="grid grid-cols-3 gap-2 md:gap-3">
+											<div className="flex flex-col items-center p-2 md:p-3 bg-gray-50 rounded-xl">
+												<MdBed className="size-5 md:size-6 text-muted-foreground mb-1 md:mb-1.5" />
+												<div className="text-lg md:text-xl font-bold">{property.bedrooms}</div>
+												<div className="text-[10px] md:text-xs text-muted-foreground text-center mt-0.5 md:mt-1">
+													Recámaras
+												</div>
 											</div>
-											<div className="flex flex-col items-center p-3 bg-gray-50 rounded-xl">
-												<MdBathtub className="size-6 text-muted-foreground mb-1.5" />
-												<div className="text-xl font-bold">{property.bathrooms}</div>
-												<div className="text-xs text-muted-foreground text-center mt-1">Baños</div>
+											<div className="flex flex-col items-center p-2 md:p-3 bg-gray-50 rounded-xl">
+												<MdBathtub className="size-5 md:size-6 text-muted-foreground mb-1 md:mb-1.5" />
+												<div className="text-lg md:text-xl font-bold">{property.bathrooms}</div>
+												<div className="text-[10px] md:text-xs text-muted-foreground text-center mt-0.5 md:mt-1">
+													Baños
+												</div>
 											</div>
-											<div className="flex flex-col items-center p-3 bg-gray-50 rounded-xl">
-												<MdSquareFoot className="size-6 text-muted-foreground mb-1.5" />
-												<div className="text-xl font-bold">{property.area}</div>
-												<div className="text-xs text-muted-foreground text-center mt-1">m²</div>
+											<div className="flex flex-col items-center p-2 md:p-3 bg-gray-50 rounded-xl">
+												<MdSquareFoot className="size-5 md:size-6 text-muted-foreground mb-1 md:mb-1.5" />
+												<div className="text-lg md:text-xl font-bold">{property.area}</div>
+												<div className="text-[10px] md:text-xs text-muted-foreground text-center mt-0.5 md:mt-1">
+													m²
+												</div>
 											</div>
 										</div>
 									</div>

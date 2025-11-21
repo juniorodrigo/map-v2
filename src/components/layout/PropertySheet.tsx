@@ -50,16 +50,20 @@ export function PropertySheet({
 
 	// Calcular altura dinámica del sheet - reducido para evitar espacios
 	const hasDescription = property.description && property.description.trim().length > 0;
-	const sheetHeight = hasSimilarProperties ? 'h-[68vh]' : hasDescription ? 'h-[60vh]' : 'h-[50vh]';
+	const sheetHeight = hasSimilarProperties ? 'h-[75vh]' : hasDescription ? 'h-[65vh]' : 'h-[55vh]';
 
 	return (
-		<div className={`fixed right-4 top-4 z-30 w-[30vw] ${sheetHeight} animate-in slide-in-from-right duration-300`}>
-			<div className="h-full bg-white shadow-2xl rounded-2xl p-3 flex flex-col gap-3 relative">
-				{/* Top Section - Altura dinámica según propiedades similares */}
-				<div className={hasSimilarProperties ? 'h-[60%]' : 'h-full'} style={{ display: 'flex', gap: '0.75rem' }}>
+		<div
+			className={`fixed top-4 z-30 w-full md:w-[40vw] lg:w-[30vw] max-w-[600px] ${sheetHeight} animate-in slide-in-from-right duration-300 left-1/2 -translate-x-1/2 md:translate-x-0 md:right-4 md:left-auto px-4 md:px-0`}
+		>
+			<div className="h-full flex flex-col gap-3 md:gap-0 md:bg-white md:shadow-2xl md:rounded-2xl md:p-3 relative">
+				{/* Top Section - Altura dinámica según propiedades similares - Card separada en móvil */}
+				<div
+					className={`${hasSimilarProperties ? 'flex-1 md:h-[60%]' : 'h-full'} flex flex-col md:flex-row gap-3 bg-white shadow-2xl rounded-2xl p-3`}
+				>
 					{/* Left Column - Image Carousel con Shadcn (bloque final recomendado) */}
 					{/* Left Column - Image Carousel: fill parent's height and adapt images */}
-					<div className="w-1/2 relative rounded-xl overflow-hidden bg-gray-100 h-full">
+					<div className="w-full md:w-1/2 relative rounded-xl overflow-hidden bg-gray-100 aspect-video md:h-full md:aspect-auto">
 						{property.images && property.images.length > 0 ? (
 							<Carousel className="w-full h-full" opts={{ loop: true, align: 'start' }}>
 								<CarouselContent className="h-full ml-0">
@@ -102,13 +106,13 @@ export function PropertySheet({
 					</div>
 
 					{/* Right Column - Property Info (Compact) */}
-					<div className="w-1/2 overflow-y-auto flex flex-col">
+					<div className="w-full md:w-1/2 overflow-y-auto flex flex-col">
 						{/* Header with Actions */}
 						<div className="flex items-start justify-between mb-2">
 							<div className="flex-1">
 								{/* rating omitted in sheet UI by design */}
-								<h2 className="text-lg font-bold leading-tight mb-1">{property.title}</h2>
-								<p className="flex items-center gap-1 text-xs text-muted-foreground">
+								<h2 className="text-base md:text-lg font-bold leading-tight mb-1">{property.title}</h2>
+								<p className="flex items-center gap-1 text-[11px] md:text-xs text-muted-foreground">
 									<MdLocationOn className="size-3.5" />
 									{property.address}
 								</p>
@@ -124,65 +128,62 @@ export function PropertySheet({
 								</Button>
 							</div>
 						</div>
-
 						{/* Property Stats */}
-						<div className="flex items-center gap-3 mb-2 pb-2 border-b">
-							<div className="flex items-center gap-1.5">
-								<MdBed className="size-4 text-muted-foreground" />
+						<div className="flex items-center gap-2 md:gap-3 pb-2 border-b">
+							<div className="flex items-center gap-1 md:gap-1.5">
+								<MdBed className="size-3.5 md:size-4 text-muted-foreground" />
 								<div>
-									<div className="text-base font-semibold">{property.bedrooms}</div>
-									<div className="text-[10px] text-muted-foreground leading-none">Recámaras</div>
+									<div className="text-sm md:text-base font-semibold">{property.bedrooms}</div>
+									<div className="text-[9px] md:text-[10px] text-muted-foreground leading-none">Recámaras</div>
 								</div>
 							</div>
-							<div className="flex items-center gap-1.5">
-								<MdBathtub className="size-4 text-muted-foreground" />
+							<div className="flex items-center gap-1 md:gap-1.5">
+								<MdBathtub className="size-3.5 md:size-4 text-muted-foreground" />
 								<div>
-									<div className="text-base font-semibold">{property.bathrooms}</div>
-									<div className="text-[10px] text-muted-foreground leading-none">Baños</div>
+									<div className="text-sm md:text-base font-semibold">{property.bathrooms}</div>
+									<div className="text-[9px] md:text-[10px] text-muted-foreground leading-none">Baños</div>
 								</div>
 							</div>
-							<div className="flex items-center gap-1.5">
-								<MdSquareFoot className="size-4 text-muted-foreground" />
+							<div className="flex items-center gap-1 md:gap-1.5">
+								<MdSquareFoot className="size-3.5 md:size-4 text-muted-foreground" />
 								<div>
-									<div className="text-base font-semibold">{property.area}</div>
-									<div className="text-[10px] text-muted-foreground leading-none">m²</div>
+									<div className="text-sm md:text-base font-semibold">{property.area}</div>
+									<div className="text-[9px] md:text-[10px] text-muted-foreground leading-none">m²</div>
 								</div>
 							</div>
 						</div>
-
 						{/* Description */}
 						{property.description && (
-							<div className="mb-2 flex-1 overflow-hidden">
+							<div className="mt-2 mb-2 overflow-hidden">
 								<h3 className="text-xs font-semibold mb-1">Descripción</h3>
-								<p className="text-xs text-muted-foreground leading-relaxed line-clamp-4">{property.description}</p>
+								<p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{property.description}</p>
 							</div>
 						)}
-
 						{/* Price and CTA - Bottom of column */}
-						<div className="mt-auto space-y-2">
-							<div className="mb-2">
+						<div className="mt-2 space-y-1.5 md:space-y-2">
+							<div className="mb-1 md:mb-2">
 								<p className="text-[10px] text-muted-foreground mb-0.5">Precio</p>
 								<div className="flex items-baseline gap-1">
-									<span className="text-2xl font-bold">
+									<span className="text-xl md:text-2xl font-bold">
 										{property.currency}
 										{property.price}
 									</span>
-									<span className="text-sm text-muted-foreground">/{property.operation}</span>
+									<span className="text-xs md:text-sm text-muted-foreground">/{property.operation}</span>
 								</div>
 							</div>
 							<ContactAgentButton
 								propertyId={property.id}
 								userOwnerId={property.user_owner}
-								className="w-full h-10 text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+								className="w-full h-9 md:h-10 text-xs md:text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
 								style={{ backgroundColor: '#8F7BBD' }}
 							>
-								<MdWhatsapp className="size-4" />
+								<MdWhatsapp className="size-3.5 md:size-4" />
 								Contactar Agente
 							</ContactAgentButton>
 							<Button
 								onClick={() => setIsDetailModalOpen(true)}
 								variant="outline"
-								className="w-full h-10 text-sm font-semibold rounded-lg border-2 hover:bg-gray-50 transition-colors"
+								className="w-full h-9 md:h-10 text-xs md:text-sm font-semibold rounded-lg border-2 hover:bg-gray-50 transition-colors"
 								style={{ borderColor: '#8F7BBD', color: '#8F7BBD' }}
 							>
 								Ver detalles completos
@@ -191,12 +192,20 @@ export function PropertySheet({
 					</div>
 				</div>
 
-				{/* Bottom Section - 40% Height - Similar Properties Carousel - Solo si hay propiedades */}
+				{/* Bottom Section - Similar Properties Carousel - Card separada en móvil */}
 				{hasSimilarProperties && (
-					<div className="h-[40%] flex flex-col pt-3 border-t">
-						<h3 className="text-sm font-semibold mb-2 px-1">Otras propiedades cerca</h3>
+					<div className="flex-1 md:h-[40%] flex flex-col bg-white shadow-2xl md:shadow-none rounded-2xl p-3 md:pt-3 md:border-t md:bg-transparent">
+						<div className="flex items-center justify-between mb-2 px-1">
+							<h3 className="text-sm font-semibold">Otras propiedades cerca</h3>
+							<div className="flex items-center gap-1 text-xs text-muted-foreground md:hidden">
+								<span>Desliza</span>
+								<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+								</svg>
+							</div>
+						</div>
 						{/* Horizontal Scrollable Carousel (swipeable) */}
-						<div className="flex-1">
+						<div className="flex-1 relative">
 							<Carousel opts={{ align: 'start', loop: false }} className="w-full">
 								<CarouselContent className="-ml-3">
 									{similarProperties.map((similar) => (
@@ -269,6 +278,12 @@ export function PropertySheet({
 								</CarouselContent>
 								{/* arrows removed: swipe-only carousel for similar properties */}
 							</Carousel>
+						</div>
+						{/* Indicador de scroll horizontal para móvil */}
+						<div className="md:hidden mt-2 flex justify-center gap-1">
+							<div className="h-1 w-12 bg-gray-300 rounded-full"></div>
+							<div className="h-1 w-2 bg-gray-400 rounded-full"></div>
+							<div className="h-1 w-2 bg-gray-300 rounded-full"></div>
 						</div>
 					</div>
 				)}
