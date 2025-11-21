@@ -1,6 +1,4 @@
 'use client';
-
-import React from 'react';
 import { AdvancedMarker } from '@vis.gl/react-google-maps';
 
 interface OwnerMarkerProps {
@@ -25,7 +23,6 @@ export default function OwnerMarker({
 			<div
 				className="flex items-center justify-center w-12 h-12 text-white rounded-full shadow-lg cursor-pointer hover:scale-110 transition-transform duration-200 border-2 border-white"
 				style={{ backgroundColor: isSelected ? '#3b82f6' : '#8F7BBD' }}
-				title={ownerName || `Owner ${ownerId}`}
 			>
 				<span className="text-sm font-bold">{propertyCount}</span>
 			</div>
