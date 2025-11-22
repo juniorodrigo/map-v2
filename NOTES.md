@@ -26,3 +26,6 @@ Se encontró un BUG en el cambio de configuración de "mis propiedades más las 
 Hay propiedades que indican que comparten comisión, pero su comisión displayed es 0
 
 Se está definiendo que si es que no se especifica el monto de comisión, elegir todos
+
+- FILTRO MANUAL TEXTO PRECIO
+-

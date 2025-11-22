@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { ValidationError } from '@/lib/errors';
-import { getPropertiesByOwner } from '@/service/mongo/property';
+import { getPropertiesByOwner } from '@/service/properties/property';
 
 export async function GET(request: NextRequest) {
 	try {

@@ -1,28 +1,39 @@
-import { mongoClient } from './client';
-import type { PropertyFilters, PropertyData, OwnerCluster } from '@/types/property';
-import { propertyTypeCodesToLabels, operationTypeCodesToLabels } from '@/lib/property-type-mappings';
+import { OwnerCluster, PropertyData, PropertyFilters } from '@/types/property';
+import { hardconstants } from './constants';
+import { operationTypeCodesToLabels, propertyTypeCodesToLabels } from '@/lib/property-type-mappings';
 
-const BLOCKED_USERS = [
-	'OqkLCzbW5cSU04PTMD8ZeutfPn92',
-	'ntF4AdS3olRn4RcwLxR1WX2Frzk2',
-	'qxAy6R8j3BOz4XvRrGC4MDLSe163',
-	'foMpZUSrXIWcwDANEbb4P1kuyuA2',
-	'BvcLPMX8Q1Z2w1Q5OaJKVX6JmMt2',
-	'pRtfiHYCvnU7Wnhk9hNDFQwQgXW2',
-	'iNtCkHZaQWgvAFH4wqmwiWrz4Kj1',
-	'gjKoxhawuTawCEX9DWA4kEybo6g1',
-	'knB0AKoChta4IvHEhexYB9HXIbq2',
-	'QHiH5c02UOaURQ525k7UyxYNZQY2',
-	'ojycsZOt9FSWZSCeI9KeHHRwEjj2',
-	'Obi7peAZqjPwI6vnp4VWrT6tj253',
-	'stbasNSsKbeOTjdDZCxiM3TNx762',
-];
+export function divideIntoSubClusters(cluster: OwnerCluster): OwnerCluster[] {
+	const maxClusterSize = 10;
+	const properties = cluster.properties;
 
-const USD_TO_MXN_RATE = 19.3;
+	const sortedProperties = [...properties].sort((a, b) => a.location.coordinates[1] - b.location.coordinates[1]);
+
+	const subClusters: OwnerCluster[] = [];
+
+	for (let i = 0; i < sortedProperties.length; i += maxClusterSize) {
+		const subProperties = sortedProperties.slice(i, i + maxClusterSize);
+
+		const avgLat = subProperties.reduce((sum, p) => sum + p.location.coordinates[1], 0) / subProperties.length;
+		const avgLng = subProperties.reduce((sum, p) => sum + p.location.coordinates[0], 0) / subProperties.length;
+
+		const subClusterIndex = Math.floor(i / maxClusterSize);
+		const uniqueOwnerId = `${cluster.ownerId}_sub${subClusterIndex}`;
+
+		subClusters.push({
+			ownerId: uniqueOwnerId,
+			ownerName: cluster.ownerName,
+			position: { lat: avgLat, lng: avgLng },
+			propertyCount: subProperties.length,
+			properties: subProperties,
+		});
+	}
+
+	return subClusters;
+}
 
 export function buildPropertyFilter(filters: PropertyFilters): Record<string, unknown> {
 	const filter: Record<string, unknown> = {
-		user_owner: { $nin: BLOCKED_USERS },
+		user_owner: { $nin: hardconstants.BLOCKED_USERS },
 
 		$or: [
 			{ gga: true, ad_status: { $in: ['Borrador', 'Publicado'] } },
@@ -119,8 +130,8 @@ export function buildPropertyFilter(filters: PropertyFilters): Record<string, un
 			priceConditions.push({
 				currency: 'USD',
 				price: {
-					$gte: minPrice / USD_TO_MXN_RATE,
-					$lte: maxPrice / USD_TO_MXN_RATE,
+					$gte: minPrice / hardconstants.USD_TO_MXN_RATE,
+					$lte: maxPrice / hardconstants.USD_TO_MXN_RATE,
 				},
 			});
 		} else {
@@ -131,8 +142,8 @@ export function buildPropertyFilter(filters: PropertyFilters): Record<string, un
 			priceConditions.push({
 				currency: 'MXN',
 				price: {
-					$gte: minPrice * USD_TO_MXN_RATE,
-					$lte: maxPrice * USD_TO_MXN_RATE,
+					$gte: minPrice * hardconstants.USD_TO_MXN_RATE,
+					$lte: maxPrice * hardconstants.USD_TO_MXN_RATE,
 				},
 			});
 		}
@@ -147,20 +158,6 @@ export function buildPropertyFilter(filters: PropertyFilters): Record<string, un
 	}
 
 	return filter;
-}
-
-export async function searchProperties(
-	filters: PropertyFilters,
-	dbName: string = 'gu'
-): Promise<{ total: number; properties: PropertyData[] }> {
-	const filter = buildPropertyFilter(filters);
-	const collection = 'property_data';
-
-	const total = await mongoClient.count(collection, filter, dbName);
-
-	const properties = (await mongoClient.find(collection, filter, dbName)) as PropertyData[];
-
-	return { total, properties };
 }
 
 export function groupPropertiesByOwner(properties: PropertyData[]): OwnerCluster[] {
@@ -203,50 +200,4 @@ export function groupPropertiesByOwner(properties: PropertyData[]): OwnerCluster
 	}
 
 	return finalClusters;
-}
-
-function divideIntoSubClusters(cluster: OwnerCluster): OwnerCluster[] {
-	const maxClusterSize = 10;
-	const properties = cluster.properties;
-
-	const sortedProperties = [...properties].sort((a, b) => a.location.coordinates[1] - b.location.coordinates[1]);
-
-	const subClusters: OwnerCluster[] = [];
-
-	for (let i = 0; i < sortedProperties.length; i += maxClusterSize) {
-		const subProperties = sortedProperties.slice(i, i + maxClusterSize);
-
-		const avgLat = subProperties.reduce((sum, p) => sum + p.location.coordinates[1], 0) / subProperties.length;
-		const avgLng = subProperties.reduce((sum, p) => sum + p.location.coordinates[0], 0) / subProperties.length;
-
-		const subClusterIndex = Math.floor(i / maxClusterSize);
-		const uniqueOwnerId = `${cluster.ownerId}_sub${subClusterIndex}`;
-
-		subClusters.push({
-			ownerId: uniqueOwnerId,
-			ownerName: cluster.ownerName,
-			position: { lat: avgLat, lng: avgLng },
-			propertyCount: subProperties.length,
-			properties: subProperties,
-		});
-	}
-
-	return subClusters;
-}
-
-export async function getPropertiesByOwner(ownerId: string, dbName: string = 'gu'): Promise<PropertyData[]> {
-	const filter = {
-		user_owner: ownerId,
-		$or: [
-			{ gga: true, ad_status: { $in: ['Borrador', 'Publicado'] } },
-			{
-				$or: [{ gga: false }, { gga: { $exists: false } }],
-				ad_status: 'Publicado',
-			},
-		],
-	};
-
-	const properties = (await mongoClient.find('property_data', filter, dbName)) as PropertyData[];
-
-	return properties;
 }

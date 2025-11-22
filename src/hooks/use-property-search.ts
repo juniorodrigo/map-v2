@@ -11,9 +11,6 @@ interface UsePropertySearchParams {
 
 export function usePropertySearch({ filters, enabled = true, sessionData }: UsePropertySearchParams) {
 	const { database } = useDatabase();
-
-	console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX usePropertySearch - Session Info:', sessionData);
-
 	return useQuery({
 		queryKey: ['properties', 'search', database, filters, sessionData],
 		queryFn: async () => {

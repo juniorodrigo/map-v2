@@ -191,9 +191,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 					);
 				})}
 			</MapContainer>
-
 			<SearchBar />
-
 			<div className="absolute bottom-4 left-4 z-20 lg:hidden">
 				<FilterSidebar
 					propertyType={filters.propertyType}
@@ -203,7 +201,6 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 					onFiltersChange={handleFiltersChange}
 				/>
 			</div>
-
 			<FloatingFilterBar
 				propertyType={filters.propertyType}
 				priceRange={filters.priceRange}
@@ -211,38 +208,31 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 				operationType={filters.operationType}
 				onFiltersChange={handleFiltersChange}
 			/>
-
 			<FloatingControls />
-
 			{!canSearch && (
 				<div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 bg-[#c4443b] text-white px-3 lg:px-4 py-2 rounded-full shadow-lg max-w-md text-center">
 					<span className="text-xs lg:text-sm font-semibold leading-tight">
-						{!searchLocation && 'Busca una ubicación'} Selecciona
-						{searchLocation && filters.propertyType.length === 0 && ' tipo de propiedad'}{' '}
+						{!searchLocation && 'Busca una ubicación'}
 						{searchLocation &&
-							filters.propertyType.length === 0 &&
-							searchLocation &&
-							filters.operationType.length === 0 &&
-							' y '}
+							(filters.propertyType.length === 0 || filters.operationType.length === 0) &&
+							'Selecciona'}
+						{searchLocation && filters.propertyType.length === 0 && ' tipo de propiedad'}
+						{searchLocation && filters.propertyType.length === 0 && filters.operationType.length === 0 && ' y '}
 						{searchLocation && filters.operationType.length === 0 && ' tipo de operación'}
 					</span>
 				</div>
-			)}
-
+			)}{' '}
 			{isLoading && canSearch && (
 				<div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 bg-white/95 px-3 lg:px-4 py-2 rounded-full shadow-lg max-w-md text-center">
 					<span className="text-xs lg:text-sm font-medium">Buscando propiedades...</span>
 				</div>
 			)}
-
 			{error && canSearch && (
 				<div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 bg-red-500/95 text-white px-3 lg:px-4 py-2 rounded-full shadow-lg max-w-md text-center">
 					<span className="text-xs lg:text-sm font-medium">Error al buscar propiedades</span>
 				</div>
 			)}
-
 			{data && !isLoading && canSearch && config.renderResultsBadges?.(data, data.total, data.owners?.length || 0)}
-
 			<PropertySheet
 				property={displayProperty}
 				isOpen={!!displayProperty}

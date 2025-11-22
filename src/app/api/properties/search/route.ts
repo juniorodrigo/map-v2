@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { ValidationError } from '@/lib/errors';
-import { searchProperties, groupPropertiesByOwner } from '@/service/mongo/property';
+import { searchProperties } from '@/service/properties/property';
 import type { PropertyFilters } from '@/types/property';
+import { groupPropertiesByOwner } from '@/utils/properties';
 
 export async function POST(request: NextRequest) {
 	try {
