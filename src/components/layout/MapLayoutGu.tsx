@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { APIProvider } from '@vis.gl/react-google-maps';
-import { MapProvider } from './MapContext';
+import { MapProvider } from '../../contexts/MapContext';
 import { MapContentBase } from './MapContentBase';
 import { guMapConfig } from './MapConfig';
 import { Toaster } from 'react-hot-toast';

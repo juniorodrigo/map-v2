@@ -3,7 +3,7 @@
 import React from 'react';
 import { MdAdd, MdRemove, MdMyLocation } from 'react-icons/md';
 import { Button } from '@/components/ui/button';
-import { useMap } from './MapContext';
+import { useMap } from '../../contexts/MapContext';
 
 export default function FloatingControls() {
 	const { zoomIn, zoomOut, centerOnUserLocation } = useMap();

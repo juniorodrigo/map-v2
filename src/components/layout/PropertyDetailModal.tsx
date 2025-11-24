@@ -26,10 +26,6 @@ interface ModalActionsProps {
 	property: Property;
 }
 
-/**
- * Componente separado para los botones de acción del modal
- * Permite intercambiar fácilmente por otra botonera
- */
 function ModalActions({ property }: ModalActionsProps) {
 	return (
 		<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -37,9 +33,7 @@ function ModalActions({ property }: ModalActionsProps) {
 				variant="outline"
 				className="h-11 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
 				disabled
-				onClick={() => {
-					/* TODO: Implementar ficha técnica */
-				}}
+				onClick={() => {}}
 			>
 				Agendar Cita
 			</Button>
@@ -48,9 +42,7 @@ function ModalActions({ property }: ModalActionsProps) {
 				propertyId={property.id}
 				userOwnerId={property.user_owner}
 				className="h-11 text-sm font-semibold rounded-lg transition-opacity flex items-center justify-center gap-2 bg-[#8F7BBD]"
-				onClick={() => {
-					console.log('Click acá');
-				}}
+				onClick={() => {}}
 			>
 				<MdWhatsapp className="size-4" />
 				Contactar
@@ -60,9 +52,7 @@ function ModalActions({ property }: ModalActionsProps) {
 				variant="ghost"
 				className="h-11 text-sm font-semibold rounded-lg transition-opacity bg-red-700 text-white hover:bg-red-800 hover:text-white"
 				disabled
-				onClick={() => {
-					console.log('No me interesa clicked');
-				}}
+				onClick={() => {}}
 			>
 				No me interesa
 			</Button>

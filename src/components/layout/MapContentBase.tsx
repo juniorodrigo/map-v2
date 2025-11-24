@@ -7,7 +7,7 @@ import FloatingControls from './FloatingControls';
 import { FloatingFilterBar } from './FloatingFilterBar';
 import { FilterSidebar } from './FilterSidebar';
 import { PropertyPreviewDialog } from './PropertyPreview';
-import { useMap } from './MapContext';
+import { useMap } from '../../contexts/MapContext';
 import { ClusteredMarkers } from './ClusteredMarkers';
 import { usePropertySearch } from '@/hooks/use-property-search';
 import { propertyDataToProperty, propertyDataArrayToPropertyArray } from '@/lib/property-utils';

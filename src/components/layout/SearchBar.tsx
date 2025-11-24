@@ -3,7 +3,7 @@
 import React from 'react';
 import { MdSearch, MdLocationOn } from 'react-icons/md';
 import { Input } from '@/components/ui/input';
-import { useMap } from './MapContext';
+import { useMap } from '../../contexts/MapContext';
 import { useDatabase } from '@/contexts/DatabaseContext';
 
 interface PlacePrediction {
