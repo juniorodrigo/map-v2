@@ -1,6 +1,6 @@
 'use client';
 
-import MapLayout from '@/components/layout/MapLayoutGu';
+import MapLayout from '@/components/layout/MapLayout';
 import { useSession } from '@/contexts/SessionProvider';
 import { notFound } from 'next/navigation';
 import { useEffect } from 'react';
@@ -8,7 +8,6 @@ import { useEffect } from 'react';
 export default function GuPage() {
 	const { session, isLoading } = useSession();
 
-	// Redirigir a 404 si no está autenticado después de cargar
 	useEffect(() => {
 		if (!isLoading && !session.isAuthenticated) {
 			notFound();

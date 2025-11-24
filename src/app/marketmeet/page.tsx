@@ -1,6 +1,6 @@
 'use client';
 
-import MapLayout from '@/components/layout/MapLayoutMarketmeet';
+import MapLayout from '@/components/layout/MapLayout';
 import { useSession } from '@/contexts/SessionProvider';
 import { notFound } from 'next/navigation';
 import { useEffect } from 'react';

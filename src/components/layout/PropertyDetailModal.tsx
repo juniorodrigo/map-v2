@@ -15,6 +15,7 @@ import {
 import ContactAgentButton from '@/components/layout/ContactAgentButton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Property } from './PropertyPreview';
+import { useSession } from '@/contexts/SessionProvider';
 
 interface PropertyDetailModalProps {
 	property: Property;
@@ -62,6 +63,10 @@ function ModalActions({ property }: ModalActionsProps) {
 
 export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetailModalProps) {
 	const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+	const { session, isLoading } = useSession();
+
+	const isMarketmeet = session.searchType == 'marketmeet';
+	console.log('Is MARKETMEET', isMarketmeet, 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
 
 	React.useEffect(() => {
 		if (isOpen) {
