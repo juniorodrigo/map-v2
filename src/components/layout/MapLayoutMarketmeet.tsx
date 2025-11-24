@@ -4,7 +4,7 @@ import React from 'react';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import { MapProvider } from './MapContext';
 import { MapContentBase } from './MapContentBase';
-import { marketmeetMapConfig } from './map-configs';
+import { marketmeetMapConfig } from './MapConfig';
 import { Toaster } from 'react-hot-toast';
 
 export default function MapLayout() {

@@ -6,9 +6,9 @@ import SearchBar from './SearchBar';
 import FloatingControls from './FloatingControls';
 import { FloatingFilterBar } from './FloatingFilterBar';
 import { FilterSidebar } from './FilterSidebar';
-import { PropertySheet } from './PropertySheet';
+import { PropertyPreviewDialog } from './PropertyPreview';
 import { useMap } from './MapContext';
-import OwnerMarker from './OwnerMarker';
+import { ClusteredMarkers } from './ClusteredMarkers';
 import { usePropertySearch } from '@/hooks/use-property-search';
 import { propertyDataToProperty, propertyDataArrayToPropertyArray } from '@/lib/property-utils';
 import { useSession } from '@/contexts/SessionProvider';
@@ -74,8 +74,14 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		[filters, searchLocation]
 	);
 
+	// Permitir búsqueda inicial sin filtros para cargar todas las propiedades
 	const canSearch = React.useMemo(() => {
-		return !!searchLocation && filters.propertyType.length > 0 && filters.operationType.length > 0;
+		// Si no hay ubicación de búsqueda, permitir búsqueda sin ubicación específica
+		// Si hay ubicación, validar que haya filtros seleccionados
+		if (!searchLocation) {
+			return true; // Permitir búsqueda inicial sin ubicación para traer todas las propiedades
+		}
+		return filters.propertyType.length > 0 && filters.operationType.length > 0;
 	}, [searchLocation, filters.propertyType, filters.operationType]);
 
 	const { data, isLoading, error, isFetched } = usePropertySearch({
@@ -176,20 +182,11 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	return (
 		<>
 			<MapContainer>
-				{data?.owners?.map((owner) => {
-					const additionalProps = config.markerProps?.(owner.ownerId, selectedOwnerId) || {};
-					return (
-						<OwnerMarker
-							key={owner.ownerId}
-							position={owner.position}
-							propertyCount={owner.propertyCount}
-							ownerId={owner.ownerId}
-							ownerName={owner.ownerName}
-							onClick={() => handleMarkerClick(owner.ownerId)}
-							{...additionalProps}
-						/>
-					);
-				})}
+				<ClusteredMarkers
+					owners={data?.owners || []}
+					selectedOwnerId={selectedOwnerId}
+					onMarkerClick={handleMarkerClick}
+				/>
 			</MapContainer>
 			<SearchBar />
 			<div className="absolute bottom-4 left-4 z-20 lg:hidden">
@@ -209,16 +206,13 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 				onFiltersChange={handleFiltersChange}
 			/>
 			<FloatingControls />
-			{!canSearch && (
+			{!canSearch && searchLocation && (
 				<div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 bg-[#c4443b] text-white px-3 lg:px-4 py-2 rounded-full shadow-lg max-w-md text-center">
 					<span className="text-xs lg:text-sm font-semibold leading-tight">
-						{!searchLocation && 'Busca una ubicación'}
-						{searchLocation &&
-							(filters.propertyType.length === 0 || filters.operationType.length === 0) &&
-							'Selecciona'}
-						{searchLocation && filters.propertyType.length === 0 && ' tipo de propiedad'}
-						{searchLocation && filters.propertyType.length === 0 && filters.operationType.length === 0 && ' y '}
-						{searchLocation && filters.operationType.length === 0 && ' tipo de operación'}
+						{(filters.propertyType.length === 0 || filters.operationType.length === 0) && 'Selecciona'}
+						{filters.propertyType.length === 0 && ' tipo de propiedad'}
+						{filters.propertyType.length === 0 && filters.operationType.length === 0 && ' y '}
+						{filters.operationType.length === 0 && ' tipo de operación'}
 					</span>
 				</div>
 			)}{' '}
@@ -233,7 +227,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 				</div>
 			)}
 			{data && !isLoading && canSearch && config.renderResultsBadges?.(data, data.total, data.owners?.length || 0)}
-			<PropertySheet
+			<PropertyPreviewDialog
 				property={displayProperty}
 				isOpen={!!displayProperty}
 				onClose={() => {
