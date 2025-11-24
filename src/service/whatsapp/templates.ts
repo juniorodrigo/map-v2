@@ -244,14 +244,7 @@ No responder a este mensaje!`;
 	}
 
 	generateWhatsAppUrl(ownerNumber: string, propertyId: string, deviceType: 'desktop' | 'mobile' | 'ios'): string {
-		const basePublicLink = env.properties.publicLink || '';
-
-		if (!basePublicLink) {
-			logger.error('PROPERTY_PUBLIC_LINK no está configurado en variables de entorno');
-			throw new AppError('Configuración de enlaces de propiedades incompleta', 500);
-		}
-
-		const message = `Hola, vengo desde *Market Meet*, estoy interesado en la propiedad que tienes publicada link: ${basePublicLink}${propertyId}`;
+		const message = `Hola, vengo desde el mapa de Ungga, estoy interesado en la propiedad que tienes publicada en el mapa de Ungga.com. Es la propiedad con el id: ${propertyId}`;
 
 		const encodedMessage = encodeURIComponent(message);
 

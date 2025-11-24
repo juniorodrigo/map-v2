@@ -52,7 +52,7 @@ function PropertyActions({ property, onViewDetails }: PropertyActionsProps) {
 				style={{ backgroundColor: '#8F7BBD' }}
 			>
 				<MdWhatsapp className="size-4" />
-				Contactar Agente
+				Solicitar Información
 			</ContactAgentButton>
 			<Button
 				onClick={onViewDetails}

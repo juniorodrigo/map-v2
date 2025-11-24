@@ -43,7 +43,6 @@ function ModalActions({ property }: ModalActionsProps) {
 				propertyId={property.id}
 				userOwnerId={property.user_owner}
 				className="h-11 text-sm font-semibold rounded-lg transition-opacity flex items-center justify-center gap-2 bg-[#8F7BBD]"
-				onClick={() => {}}
 			>
 				<MdWhatsapp className="size-4" />
 				Contactar
