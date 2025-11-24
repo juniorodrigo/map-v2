@@ -199,7 +199,7 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 								</div>
 
 								{/* Información del Agente y Comisión */}
-								{!isMarketmeet && (
+								{isMarketmeet && (
 									<div className="flex items-center justify-between py-3 bg-gray-50 rounded-lg">
 										<div className="flex items-center gap-2">
 											<span className="text-sm font-medium text-gray-700">De:</span>
