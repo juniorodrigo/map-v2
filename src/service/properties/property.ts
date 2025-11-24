@@ -16,23 +16,6 @@ export async function searchProperties(
 	return { total, properties };
 }
 
-export async function getPropertiesByOwner(ownerId: string, dbName: string = 'gu'): Promise<PropertyData[]> {
-	const filter = {
-		user_owner: ownerId,
-		$or: [
-			{ gga: true, ad_status: { $in: ['Borrador', 'Publicado'] } },
-			{
-				$or: [{ gga: false }, { gga: { $exists: false } }],
-				ad_status: 'Publicado',
-			},
-		],
-	};
-
-	const properties = (await mongoClient.find('property_data', filter, dbName)) as PropertyData[];
-
-	return properties;
-}
-
 // TODO:
 export async function markPropertyAsViewed(propertyId: string, viewerId: string, dbName: string = 'gu'): Promise<void> {
 	await mongoClient.updateOne(

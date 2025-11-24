@@ -45,34 +45,3 @@ export function usePropertySearch({ filters, enabled = true, sessionData }: UseP
 		gcTime: 1000 * 60 * 10,
 	});
 }
-
-interface UseOwnerPropertiesParams {
-	ownerId: string;
-	enabled?: boolean;
-}
-
-export function useOwnerProperties({ ownerId, enabled = true }: UseOwnerPropertiesParams) {
-	const { database } = useDatabase();
-
-	return useQuery({
-		queryKey: ['properties', 'owner', database, ownerId],
-		queryFn: async () => {
-			const response = await fetch(`/api/properties/owner?ownerId=${ownerId}&dbName=${database}`);
-
-			if (!response.ok) {
-				throw new Error('Error al obtener propiedades del propietario');
-			}
-
-			const data = await response.json();
-
-			if (!data.success) {
-				throw new Error(data.error || 'Error desconocido');
-			}
-
-			return data.data;
-		},
-		enabled: enabled && !!ownerId,
-		staleTime: 1000 * 60 * 5,
-		gcTime: 1000 * 60 * 10,
-	});
-}
