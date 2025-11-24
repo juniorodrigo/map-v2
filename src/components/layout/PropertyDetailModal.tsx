@@ -36,6 +36,7 @@ function ModalActions({ property }: ModalActionsProps) {
 			<Button
 				variant="outline"
 				className="h-11 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+				disabled
 				onClick={() => {
 					/* TODO: Implementar ficha técnica */
 				}}
@@ -58,6 +59,7 @@ function ModalActions({ property }: ModalActionsProps) {
 			<Button
 				variant="ghost"
 				className="h-11 text-sm font-semibold rounded-lg transition-opacity bg-red-700 text-white hover:bg-red-800 hover:text-white"
+				disabled
 				onClick={() => {
 					console.log('No me interesa clicked');
 				}}
