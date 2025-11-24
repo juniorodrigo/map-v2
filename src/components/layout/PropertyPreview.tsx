@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { PropertyDetailModal } from './PropertyDetailModal';
-import ContactAgentButton from '@/components/ui/ContactAgentButton';
+import ContactAgentButton from '@/components/layout/ContactAgentButton';
 
 export interface Property {
 	id: string;
@@ -157,7 +157,7 @@ export function PropertyPreviewDialog({
 						</div>
 
 						{/* Stats Grid */}
-						<div className="flex items-center gap-4 md:gap-6 py-3 border-y">
+						<div className="flex items-center justify-between py-3 border-y w-full px-4">
 							<div className="flex items-center gap-2">
 								<div className="p-2 rounded-lg bg-gray-100">
 									<MdBed className="size-5 text-gray-700" />

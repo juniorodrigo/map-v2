@@ -12,7 +12,7 @@ import {
 	CarouselPrevious,
 	type CarouselApi,
 } from '@/components/ui/carousel';
-import ContactAgentButton from '@/components/ui/ContactAgentButton';
+import ContactAgentButton from '@/components/layout/ContactAgentButton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Property } from './PropertyPreview';
 
@@ -40,28 +40,29 @@ function ModalActions({ property }: ModalActionsProps) {
 					/* TODO: Implementar ficha técnica */
 				}}
 			>
-				Ficha técnica
+				Agendar Cita
 			</Button>
 
 			<ContactAgentButton
 				propertyId={property.id}
 				userOwnerId={property.user_owner}
-				className="h-11 text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-				style={{ backgroundColor: '#8F7BBD' }}
+				className="h-11 text-sm font-semibold rounded-lg transition-opacity flex items-center justify-center gap-2 bg-[#8F7BBD]"
+				onClick={() => {
+					console.log('Click acá');
+				}}
 			>
 				<MdWhatsapp className="size-4" />
-				Contactar Agente
+				Contactar
 			</ContactAgentButton>
 
 			<Button
 				variant="ghost"
-				className="h-11 text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity"
-				style={{ backgroundColor: '#c62323ff', color: 'white' }}
+				className="h-11 text-sm font-semibold rounded-lg transition-opacity bg-red-700 text-white hover:bg-red-800 hover:text-white"
 				onClick={() => {
-					/* TODO: Implementar "No interesa" */
+					console.log('No me interesa clicked');
 				}}
 			>
-				No interesa
+				No me interesa
 			</Button>
 		</div>
 	);
@@ -92,10 +93,10 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 					</DialogHeader>
 
 					{/* Contenido del Modal - Scrollable */}
-					<div className="flex-1 overflow-y-auto">
+					<div className="flex-1 overflow-y-auto scrollbar-hide">
 						<div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr]">
 							{/* Columna Izquierda - Imágenes (Más grande) */}
-							<div className="p-5 md:p-6 lg:border-r">
+							<div className="p-5 md:px-4 py-3 lg:border-r">
 								{property.images && property.images.length > 0 ? (
 									<div className="space-y-4 group">
 										{/* Carousel Principal - Más grande */}
@@ -142,7 +143,6 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 											)}
 										</Carousel>
 
-										{/* Galería de miniaturas - Carousel horizontal scrolleable */}
 										{property.images.length > 1 && (
 											<Carousel
 												className="w-full"
@@ -187,47 +187,49 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 							</div>
 
 							{/* Columna Derecha - Información */}
-							<div className="p-5 md:p-6 space-y-6">
-								{/* Precio Grande */}
-								<div className="bg-linear-to-br from-gray-50 to-gray-100 rounded-xl p-5">
-									<p className="text-sm text-muted-foreground mb-2">Precio</p>
-									<div className="flex items-baseline gap-2">
-										<span className="text-3xl md:text-4xl font-bold">
-											{property.currency}
-											{property.price}
-										</span>
-										<span className="text-lg text-muted-foreground">/{property.operation}</span>
+							<div className="p-5 md:p-6 space-y-4">
+								{/* Precio Compacto */}
+								<div className="flex items-baseline justify-between">
+									<div>
+										<p className="text-xs text-muted-foreground mb-1">Precio</p>
+										<div className="flex items-baseline gap-2">
+											<span className="text-2xl md:text-3xl font-bold">
+												{property.currency}
+												{property.price}
+											</span>
+											<span className="text-sm text-muted-foreground">/{property.operation}</span>
+										</div>
 									</div>
-									{property.rating && <Badge className="mt-3 text-sm py-1.5 px-3 bg-white">⭐ {property.rating}</Badge>}
+									{property.rating && <Badge className="text-sm py-1.5 px-3">⭐ {property.rating}</Badge>}
 								</div>
 
-								{/* Botones de Acción - Componente separado */}
-								<ModalActions property={property} />
-
-								{/* Características Principales */}
-								<div>
-									<h3 className="text-base font-semibold mb-4">Características</h3>
-									<div className="grid grid-cols-3 gap-3">
-										<div className="flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-											<div className="p-2 bg-white rounded-lg mb-2">
-												<MdBed className="size-6 text-gray-700" />
-											</div>
-											<div className="text-xl font-bold">{property.bedrooms}</div>
-											<div className="text-xs text-muted-foreground text-center mt-1">Recámaras</div>
+								{/* Características en línea - Diseño horizontal compacto */}
+								<div className="flex items-center justify-between py-3 border-y w-full px-4">
+									<div className="flex items-center gap-2">
+										<div className="p-2 rounded-lg bg-gray-100">
+											<MdBed className="size-5 text-gray-700" />
 										</div>
-										<div className="flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-											<div className="p-2 bg-white rounded-lg mb-2">
-												<MdBathtub className="size-6 text-gray-700" />
-											</div>
-											<div className="text-xl font-bold">{property.bathrooms}</div>
-											<div className="text-xs text-muted-foreground text-center mt-1">Baños</div>
+										<div>
+											<div className="text-base md:text-lg font-bold">{property.bedrooms}</div>
+											<div className="text-xs text-muted-foreground">Recámaras</div>
 										</div>
-										<div className="flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-											<div className="p-2 bg-white rounded-lg mb-2">
-												<MdSquareFoot className="size-6 text-gray-700" />
-											</div>
-											<div className="text-xl font-bold">{property.area}</div>
-											<div className="text-xs text-muted-foreground text-center mt-1">m²</div>
+									</div>
+									<div className="flex items-center gap-2">
+										<div className="p-2 rounded-lg bg-gray-100">
+											<MdBathtub className="size-5 text-gray-700" />
+										</div>
+										<div>
+											<div className="text-base md:text-lg font-bold">{property.bathrooms}</div>
+											<div className="text-xs text-muted-foreground">Baños</div>
+										</div>
+									</div>
+									<div className="flex items-center gap-2">
+										<div className="p-2 rounded-lg bg-gray-100">
+											<MdSquareFoot className="size-5 text-gray-700" />
+										</div>
+										<div>
+											<div className="text-base md:text-lg font-bold">{property.area}</div>
+											<div className="text-xs text-muted-foreground">m²</div>
 										</div>
 									</div>
 								</div>
@@ -243,16 +245,19 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 								)}
 
 								{/* Información Adicional */}
-								<div className="space-y-0 border-t pt-4">
-									<div className="flex justify-between py-3 border-b">
+								<div className="space-y-0 border-t py-4 border-b ">
+									<div className="flex justify-between py-1">
 										<span className="text-sm text-muted-foreground">Tipo de propiedad</span>
 										<span className="text-sm font-semibold capitalize">{property.type}</span>
 									</div>
-									<div className="flex justify-between py-3">
+									<div className="flex justify-between py-1">
 										<span className="text-sm text-muted-foreground">Operación</span>
 										<span className="text-sm font-semibold capitalize">{property.operation}</span>
 									</div>
 								</div>
+
+								{/* Botones de Acción - Componente separado */}
+								<ModalActions property={property} />
 							</div>
 						</div>
 					</div>
