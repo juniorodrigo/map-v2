@@ -62,10 +62,9 @@ function ModalActions({ property }: ModalActionsProps) {
 
 export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetailModalProps) {
 	const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
-	const { session, isLoading } = useSession();
+	const { session } = useSession();
 
 	const isMarketmeet = session.searchType == 'marketmeet';
-	console.log('Is MARKETMEET', isMarketmeet, 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
 
 	React.useEffect(() => {
 		if (isOpen) {
@@ -198,6 +197,29 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 									</div>
 									{property.rating && <Badge className="text-sm py-1.5 px-3">⭐ {property.rating}</Badge>}
 								</div>
+
+								{/* Información del Agente y Comisión */}
+								{!isMarketmeet && (
+									<div className="flex items-center justify-between py-3 bg-gray-50 rounded-lg">
+										<div className="flex items-center gap-2">
+											<span className="text-sm font-medium text-gray-700">De:</span>
+											<span className="text-sm font-semibold text-gray-900">Test Marketmeet</span>
+											<a
+												href="https://wa.me/51999999999?text=Hola%20Carlos%2C%20estoy%20interesado%20en%20la%20propiedad"
+												target="_blank"
+												rel="noopener noreferrer"
+												className="inline-flex items-center justify-center p-1 rounded-full bg-green-500 hover:bg-green-600 transition-colors"
+												title="Contactar por WhatsApp"
+											>
+												<MdWhatsapp className="size-3.5 text-white" />
+											</a>
+										</div>
+										<div className="flex items-center gap-2">
+											<span className="text-sm font-medium text-gray-700">Comisión compartida:</span>
+											<span className="text-sm font-semibold text-gray-900">50%/venta</span>
+										</div>
+									</div>
+								)}
 
 								{/* Características en línea - Diseño horizontal compacto */}
 								<div className="flex items-center justify-between py-3 border-y w-full px-4">

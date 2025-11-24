@@ -14,20 +14,19 @@ export interface PropertyMonetization {
 export interface PropertyData {
 	_id: string;
 	location: PropertyLocation;
-	house_type: string; // "Casa", "Departamento", etc.
+	house_type: string;
 	prop_monetizations: PropertyMonetization[];
-	ad_status: string; // "Borrador", "Publicado"
+	ad_status: string; // TODO: CONFIGURAR PARA FILTRAR ESTO
 	gga?: boolean;
 	user_owner: string;
 
-	// Campos reales del MongoDB
 	title?: string;
 	address?: string;
-	bedroom?: number; // Nota: es "bedroom" no "bedrooms"
-	bathroom?: number; // Nota: es "bathroom" no "bathrooms"
-	construction_area?: number; // Área de construcción
-	land_area?: number; // Área de terreno
-	pictures?: string[]; // Nota: es "pictures" no "images"
+	bedroom?: number;
+	bathroom?: number;
+	construction_area?: number;
+	land_area?: number;
+	pictures?: string[];
 	description?: string;
 
 	// Ubicación
@@ -49,6 +48,9 @@ export interface PropertyData {
 	area?: number;
 	images?: string[];
 	rating?: number;
+
+	// Marketemeet
+	commission_display: string;
 
 	[key: string]: unknown;
 }
