@@ -1,5 +1,5 @@
 import type { PropertyData } from '@/types/property';
-import type { Property } from '@/components/layout/PropertySheet';
+import type { Property } from '@/components/layout/PropertyPreview';
 
 /**
  * @param data

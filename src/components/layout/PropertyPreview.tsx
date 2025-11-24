@@ -25,7 +25,7 @@ export interface Property {
 	description?: string;
 }
 
-interface PropertySheetProps {
+interface PropertyPreviewDialogProps {
 	property: Property | null;
 	isOpen: boolean;
 	onClose: () => void;
@@ -66,13 +66,13 @@ function PropertyActions({ property, onViewDetails }: PropertyActionsProps) {
 	);
 }
 
-export function PropertySheet({
+export function PropertyPreviewDialog({
 	property,
 	isOpen,
 	onClose,
 	similarProperties = [],
 	onSimilarPropertyClick,
-}: PropertySheetProps) {
+}: PropertyPreviewDialogProps) {
 	const [isDetailModalOpen, setIsDetailModalOpen] = React.useState(false);
 
 	if (!isOpen || !property) return null;

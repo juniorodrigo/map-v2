@@ -6,7 +6,7 @@ import SearchBar from './SearchBar';
 import FloatingControls from './FloatingControls';
 import { FloatingFilterBar } from './FloatingFilterBar';
 import { FilterSidebar } from './FilterSidebar';
-import { PropertySheet } from './PropertySheet';
+import { PropertyPreviewDialog } from './PropertyPreview';
 import { useMap } from './MapContext';
 import { ClusteredMarkers } from './ClusteredMarkers';
 import { usePropertySearch } from '@/hooks/use-property-search';
@@ -227,7 +227,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 				</div>
 			)}
 			{data && !isLoading && canSearch && config.renderResultsBadges?.(data, data.total, data.owners?.length || 0)}
-			<PropertySheet
+			<PropertyPreviewDialog
 				property={displayProperty}
 				isOpen={!!displayProperty}
 				onClose={() => {
