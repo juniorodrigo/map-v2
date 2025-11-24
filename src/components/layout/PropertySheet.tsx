@@ -45,10 +45,8 @@ export function PropertySheet({
 
 	if (!isOpen || !property) return null;
 
-	// Determinar si hay propiedades similares para mostrar
 	const hasSimilarProperties = similarProperties && similarProperties.length > 0;
 
-	// Calcular altura dinámica del sheet - reducido para evitar espacios
 	const hasDescription = property.description && property.description.trim().length > 0;
 	const sheetHeight = hasSimilarProperties ? 'h-[75vh]' : hasDescription ? 'h-[65vh]' : 'h-[55vh]';
 
@@ -57,12 +55,9 @@ export function PropertySheet({
 			className={`fixed top-4 z-30 w-full md:w-[40vw] lg:w-[30vw] max-w-[600px] ${sheetHeight} animate-in slide-in-from-right duration-300 left-1/2 -translate-x-1/2 md:translate-x-0 md:right-4 md:left-auto px-4 md:px-0`}
 		>
 			<div className="h-full flex flex-col gap-3 md:gap-0 md:bg-white md:shadow-2xl md:rounded-2xl md:p-3 relative">
-				{/* Top Section - Altura dinámica según propiedades similares - Card separada en móvil */}
 				<div
-					className={`${hasSimilarProperties ? 'flex-1 md:h-[60%]' : 'h-full'} flex flex-col md:flex-row gap-3 bg-white shadow-2xl rounded-2xl p-3`}
+					className={`${hasSimilarProperties ? 'flex-1 md:h-[60%]' : 'h-full'} flex flex-col md:flex-row gap-3 bg-white rounded-2xl p-3`}
 				>
-					{/* Left Column - Image Carousel con Shadcn (bloque final recomendado) */}
-					{/* Left Column - Image Carousel: fill parent's height and adapt images */}
 					<div className="w-full md:w-1/2 relative rounded-xl overflow-hidden bg-gray-100 aspect-video md:h-full md:aspect-auto">
 						{property.images && property.images.length > 0 ? (
 							<Carousel className="w-full h-full" opts={{ loop: true, align: 'start' }}>

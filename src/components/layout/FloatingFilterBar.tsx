@@ -47,6 +47,10 @@ export function FloatingFilterBar({
 	const [currency, setCurrency] = React.useState(currencyProp);
 	const [operationType, setOperationType] = React.useState<string[]>(operationTypeProp);
 
+	// Estados locales para los inputs (sin debounce)
+	const [localMinPrice, setLocalMinPrice] = React.useState<string>(priceRangeProp[0].toString());
+	const [localMaxPrice, setLocalMaxPrice] = React.useState<string>(priceRangeProp[1].toString());
+
 	// Estados para controlar la apertura de popovers con hover
 	const [propertyTypeOpen, setPropertyTypeOpen] = React.useState(false);
 	const [priceOpen, setPriceOpen] = React.useState(false);
@@ -57,6 +61,9 @@ export function FloatingFilterBar({
 	const priceTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 	const operationTypeTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
+	// Timer para debounce de inputs de precio
+	const priceDebounceTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
 	// Ref para evitar notificar cambios durante la sincronización inicial
 	const isSyncingRef = React.useRef(true);
 
@@ -64,6 +71,8 @@ export function FloatingFilterBar({
 		isSyncingRef.current = true;
 		setPropertyType(propertyTypeProp);
 		setPriceRange(priceRangeProp);
+		setLocalMinPrice(priceRangeProp[0].toString());
+		setLocalMaxPrice(priceRangeProp[1].toString());
 		setCurrency(currencyProp);
 		setOperationType(operationTypeProp);
 		// Permitir notificaciones después de un tick
@@ -71,6 +80,28 @@ export function FloatingFilterBar({
 			isSyncingRef.current = false;
 		}, 0);
 	}, [propertyTypeProp, priceRangeProp, currencyProp, operationTypeProp]);
+
+	// Debounce para cambios de precio
+	React.useEffect(() => {
+		if (priceDebounceTimerRef.current) {
+			clearTimeout(priceDebounceTimerRef.current);
+		}
+
+		priceDebounceTimerRef.current = setTimeout(() => {
+			const minPrice = Math.max(0, Math.min(Number(localMinPrice) || 0, Number(localMaxPrice) || 10000000));
+			const maxPrice = Math.min(10000000, Math.max(Number(localMaxPrice) || 10000000, minPrice));
+
+			if (minPrice !== priceRange[0] || maxPrice !== priceRange[1]) {
+				setPriceRange([minPrice, maxPrice]);
+			}
+		}, 800); // 800ms de espera
+
+		return () => {
+			if (priceDebounceTimerRef.current) {
+				clearTimeout(priceDebounceTimerRef.current);
+			}
+		};
+	}, [localMinPrice, localMaxPrice]);
 
 	// Notificar cambios de filtros al padre solo cuando el usuario los cambia
 	React.useEffect(() => {
@@ -227,13 +258,49 @@ export function FloatingFilterBar({
 								</SelectContent>
 							</Select>
 							<div className="space-y-3">
-								<div className="flex items-center justify-between">
-									<span className="text-sm font-medium">
-										{currency} ${formatPrice(priceRange[0])}
-									</span>
-									<span className="text-sm font-medium">
-										{currency} ${formatPrice(priceRange[1])}
-									</span>
+								<div className="flex items-center gap-2">
+									<div className="flex-1">
+										<label className="text-xs text-muted-foreground mb-1 block">Mínimo</label>
+										<div className="relative">
+											<span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+												{currency} $
+											</span>
+											<input
+												type="number"
+												value={localMinPrice}
+												onChange={(e) => setLocalMinPrice(e.target.value)}
+												onBlur={() => {
+													const value = Math.max(
+														0,
+														Math.min(Number(localMinPrice) || 0, Number(localMaxPrice) || 10000000)
+													);
+													setLocalMinPrice(value.toString());
+												}}
+												className="w-full h-9 pl-16 pr-3 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-ring [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+											/>
+										</div>
+									</div>
+									<div className="flex-1">
+										<label className="text-xs text-muted-foreground mb-1 block">Máximo</label>
+										<div className="relative">
+											<span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+												{currency} $
+											</span>
+											<input
+												type="number"
+												value={localMaxPrice}
+												onChange={(e) => setLocalMaxPrice(e.target.value)}
+												onBlur={() => {
+													const value = Math.min(
+														10000000,
+														Math.max(Number(localMaxPrice) || 10000000, Number(localMinPrice) || 0)
+													);
+													setLocalMaxPrice(value.toString());
+												}}
+												className="w-full h-9 pl-16 pr-3 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-ring [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+											/>
+										</div>
+									</div>
 								</div>
 								<Slider
 									value={priceRange}
