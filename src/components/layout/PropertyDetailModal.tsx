@@ -95,7 +95,7 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 			});
 		}
 
-		toast('Propiedad descartada', {
+		toast.success('Propiedad descartada', {
 			duration: 2000,
 		});
 		onClose();

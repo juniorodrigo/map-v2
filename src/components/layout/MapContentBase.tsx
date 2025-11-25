@@ -136,6 +136,11 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 					const field = status === 'viewed' ? 'viewed' : 'discarded';
 					const otherField = status === 'viewed' ? 'discarded' : 'viewed';
 
+					// Si la propiedad está en discarded y se intenta marcar como viewed, no hacer nada en el frontend
+					if (status === 'viewed' && prev.discarded.includes(propertyId)) {
+						return prev;
+					}
+
 					// Remover de la otra lista si existe
 					newState[otherField] = newState[otherField].filter((id) => id !== propertyId);
 
