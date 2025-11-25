@@ -20,10 +20,6 @@ export interface UserInfo {
 	requirement_info: RequirementInfo | null;
 }
 
-/*
-	El token debe validarse distintamente de acuerdo al entorno marketmeet o gu.
-	En este caso, temporalmente se está dejando en gu, pero debe corregirse luego.
-*/
 export async function getUserInfoByToken(token: string): Promise<UserInfo | null> {
 	const payload: any = await mongoClient.findOne('users', { lead_id: token }, 'gu2');
 
@@ -41,7 +37,7 @@ export async function getUserInfoByToken(token: string): Promise<UserInfo | null
 		_id: payload._id,
 		lead_id: payload.lead_id,
 		phone_number: payload.phone_number,
-		owner_phone_number: payload.owner_phone_number,
+		owner_phone_number: payload.bot_phone_number,
 		owner_firebase_id: payload.owner_firebase_id,
 		is_agent: payload.is_agent ?? false,
 		requirement_info: payload.last_requirement

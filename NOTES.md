@@ -28,4 +28,8 @@ Hay propiedades que indican que comparten comisión, pero su comisión displayed
 Se está definiendo que si es que no se especifica el monto de comisión, elegir todos
 
 - FILTRO MANUAL TEXTO PRECIO
--
+
+- Poner mapa al centro de paísn de ubicación del owner cuando no se selecciona un filtro de ubicación
+- poner el mapa en el centro promedio de las propiedades que se muestren en el mapa.
+
+Si no filtro, buscar todos en tiopo de propiedad y operación

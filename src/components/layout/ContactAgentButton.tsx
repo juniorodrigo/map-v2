@@ -25,61 +25,12 @@ export default function ContactAgentButton({
 	style,
 	children,
 }: ContactAgentButtonProps) {
-	const [ownerNumber, setOwnerNumber] = useState<string | null>(null);
 	const { session } = useSession();
-
-	const ownerPhone = session.userInfo?.owner_phone_number;
-
-	useEffect(() => {
-		let mounted = true;
-
-		const fetchOwner = async () => {
-			try {
-				if (ownerPhone) {
-					if (mounted) {
-						console.log('✅ Owner phone from session:', ownerPhone);
-						setOwnerNumber(ownerPhone);
-					}
-					return;
-				}
-
-				if (userOwnerId) {
-					console.log('🔍 Fetching owner data from Firebase:', userOwnerId);
-					const ref = firebaseClient.getUserRef(userOwnerId);
-					const snap = await getDoc(ref);
-					const data = snap.data() as { phone_number?: string } | undefined;
-					if (mounted && data?.phone_number) {
-						console.log('✅ Owner phone from Firebase:', data.phone_number);
-						setOwnerNumber(data.phone_number);
-					} else {
-						console.warn('⚠️ No phone number found in Firebase data');
-					}
-				}
-			} catch (error) {
-				console.error('❌ Error fetching owner:', error);
-			}
-		};
-
-		fetchOwner();
-
-		return () => {
-			mounted = false;
-		};
-	}, [userOwnerId, ownerPhone]);
+	const ownerNumber = session.userInfo?.owner_phone_number;
 
 	const handleClick = () => {
-		console.log('🔵 ContactAgentButton clicked', { ownerNumber, propertyId });
-		onClick?.();
-		if (!ownerNumber) {
-			console.warn('⚠️ No owner number available');
-			return;
-		}
-		try {
-			console.log('📞 Opening WhatsApp chat');
-			whatsappService.openWhatsAppChat(ownerNumber, propertyId);
-		} catch (error) {
-			console.error('❌ Error opening WhatsApp:', error);
-		}
+		if (!ownerNumber) return;
+		whatsappService.openWhatsAppChat(ownerNumber, propertyId);
 	};
 
 	return (

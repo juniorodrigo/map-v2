@@ -223,22 +223,14 @@ No responder a este mensaje!`;
 
 	detectDevice(): 'desktop' | 'mobile' | 'ios' {
 		if (typeof window === 'undefined') {
-			return 'desktop'; // SSR fallback
+			return 'desktop';
 		}
 
 		const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
 
-		if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
-			return 'ios';
-		}
-
-		if (/android/i.test(userAgent)) {
-			return 'mobile';
-		}
-
-		if (/Mobi|Android/i.test(userAgent)) {
-			return 'mobile';
-		}
+		if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) return 'ios';
+		if (/android/i.test(userAgent)) return 'mobile';
+		if (/Mobi|Android/i.test(userAgent)) return 'mobile';
 
 		return 'desktop';
 	}
@@ -247,10 +239,6 @@ No responder a este mensaje!`;
 		const message = `Hola, vengo desde el mapa de Ungga, estoy interesado en la propiedad que tienes publicada en el mapa de Ungga.com. Es la propiedad con el id: ${propertyId}`;
 
 		const encodedMessage = encodeURIComponent(message);
-
-		if (deviceType === 'desktop') {
-			return `https://web.whatsapp.com/send?phone=${ownerNumber}&text=${encodedMessage}`;
-		}
 
 		return `https://wa.me/${ownerNumber}?text=${encodedMessage}`;
 	}
