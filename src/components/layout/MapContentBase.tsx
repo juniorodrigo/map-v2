@@ -57,13 +57,6 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 			const userPropertyTypes = requirement.property_type || [];
 			const userOperationTypes = requirement.operation || [];
 
-			console.log('🔧 Inicializando filtros desde requirement_info:', {
-				propertyType: userPropertyTypes,
-				priceRange: [minPrice, maxPrice],
-				currency: userCurrency,
-				operationType: userOperationTypes,
-			});
-
 			setFilters({
 				propertyType: userPropertyTypes,
 				priceRange: [minPrice, maxPrice],
