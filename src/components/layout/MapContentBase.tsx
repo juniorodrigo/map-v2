@@ -87,7 +87,6 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	const { data, isLoading, error, isFetched } = usePropertySearch({
 		filters: searchFilters,
 		enabled: canSearch,
-		sessionData: session,
 	});
 
 	React.useEffect(() => {

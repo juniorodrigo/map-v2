@@ -4,7 +4,7 @@ import React from 'react';
 import { MdSearch, MdLocationOn } from 'react-icons/md';
 import { Input } from '@/components/ui/input';
 import { useMap } from '../../contexts/MapContext';
-import { useDatabase } from '@/contexts/DatabaseContext';
+import { useSession } from '@/contexts/SessionProvider';
 
 interface PlacePrediction {
 	place_id: string;
@@ -30,12 +30,12 @@ interface PlaceDetails {
 
 export default function SearchBar() {
 	const { setSearchLocation } = useMap();
-	const { database } = useDatabase();
 	const [query, setQuery] = React.useState('');
 	const [suggestions, setSuggestions] = React.useState<PlacePrediction[]>([]);
 	const [isOpen, setIsOpen] = React.useState(false);
 	const [selectedIndex, setSelectedIndex] = React.useState(-1);
 	const [isLoading, setIsLoading] = React.useState(false);
+	const { session } = useSession();
 
 	const inputRef = React.useRef<HTMLInputElement>(null);
 	const containerRef = React.useRef<HTMLDivElement>(null);
@@ -68,7 +68,7 @@ export default function SearchBar() {
 		debounceTimer.current = setTimeout(async () => {
 			setIsLoading(true);
 			try {
-				const product = database === 'gga' ? 'gga' : 'gu';
+				const product = session.databaseToSearch === 'gga' ? 'gga' : 'gu';
 				const response = await fetch(`/api/places/autocomplete?input=${encodeURIComponent(value)}&product=${product}`);
 
 				if (!response.ok) {
@@ -96,7 +96,7 @@ export default function SearchBar() {
 		setSuggestions([]);
 
 		try {
-			const product = database === 'gga' ? 'gga' : 'gu';
+			const product = session.databaseToSearch === 'gga' ? 'gga' : 'gu'; // TODO: mejorar, evitar magic strings
 			const response = await fetch(`/api/places/details?placeId=${place.place_id}&product=${product}`);
 
 			if (!response.ok) {

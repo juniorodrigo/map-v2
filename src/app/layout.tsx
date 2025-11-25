@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import './ui/globals.css';
 import { geistSans, geistMono } from './ui/fonts';
 import { QueryProvider } from '@/providers/QueryProvider';
-import { DatabaseProvider } from '@/contexts/DatabaseContext';
 import { SessionProvider } from '@/contexts/SessionProvider';
 import { Suspense } from 'react';
 
@@ -21,9 +20,7 @@ export default function RootLayout({
 			<body className="antialiased" suppressHydrationWarning={true}>
 				<Suspense fallback={null}>
 					<SessionProvider>
-						<DatabaseProvider>
-							<QueryProvider>{children}</QueryProvider>
-						</DatabaseProvider>
+						<QueryProvider>{children}</QueryProvider>
 					</SessionProvider>
 				</Suspense>
 			</body>
