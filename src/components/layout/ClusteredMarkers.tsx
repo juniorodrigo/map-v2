@@ -4,24 +4,50 @@ import React, { useEffect, useRef } from 'react';
 import { useMap as useGoogleMap } from '@vis.gl/react-google-maps';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import type { Marker } from '@googlemaps/markerclusterer';
-
-interface OwnerData {
-	ownerId: string;
-	position: { lat: number; lng: number };
-	propertyCount: number;
-	ownerName?: string;
-}
+import type { OwnerCluster } from '@/types/property';
 
 interface ClusteredMarkersProps {
-	owners: OwnerData[];
+	owners: OwnerCluster[];
 	selectedOwnerId: string | null;
 	onMarkerClick: (ownerId: string) => void;
+	interactedProperties?: {
+		viewed: string[];
+		discarded: string[];
+	};
 }
 
-export function ClusteredMarkers({ owners, selectedOwnerId, onMarkerClick }: ClusteredMarkersProps) {
+export function ClusteredMarkers({
+	owners,
+	selectedOwnerId,
+	onMarkerClick,
+	interactedProperties,
+}: ClusteredMarkersProps) {
 	const map = useGoogleMap();
 	const clustererRef = useRef<MarkerClusterer | null>(null);
 	const markersRef = useRef<Map<string, google.maps.Marker>>(new Map());
+
+	// Función para determinar el color del pin basado en el estado de las propiedades
+	const getPinColor = (owner: OwnerCluster): string => {
+		if (!interactedProperties || !owner.properties || owner.properties.length === 0) {
+			return '#8F7BBD'; // Color base (morado)
+		}
+
+		const propertyIds = owner.properties.map((p: any) => p._id);
+		const viewedSet = new Set(interactedProperties.viewed || []);
+		const discardedSet = new Set(interactedProperties.discarded || []);
+
+		// Para clusters: TODAS las propiedades deben tener el mismo estado
+		const allViewed = propertyIds.every((id: string) => viewedSet.has(id));
+		const allDiscarded = propertyIds.every((id: string) => discardedSet.has(id));
+
+		if (allDiscarded) {
+			return '#ef4444';
+		} else if (allViewed) {
+			return '#3b82f6';
+		} else {
+			return '#8F7BBD';
+		}
+	};
 
 	// Crear o actualizar marcadores
 	useEffect(() => {
@@ -39,22 +65,29 @@ export function ClusteredMarkers({ owners, selectedOwnerId, onMarkerClick }: Clu
 		// Crear o actualizar marcadores
 		owners.forEach((owner) => {
 			let marker = markersRef.current.get(owner.ownerId);
+			const pinColor = getPinColor(owner);
 			const isSelected = selectedOwnerId === owner.ownerId;
 
 			if (!marker) {
+				// Crear SVG del marcador
+				const selectedIconSvg = isSelected
+					? '<g transform="translate(32, 4) scale(1.2)"><path d="M6 0C2.69 0 0 2.69 0 6c0 3.54 6 10 6 10s6-6.46 6-10c0-3.31-2.69-6-6-6zm0 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" fill="#ef4444" stroke="white" stroke-width="0.5"/></g>'
+					: '';
+
+				const markerSvg = `
+					<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48">
+						<circle cx="24" cy="24" r="22" fill="${pinColor}" stroke="white" stroke-width="2"/>
+						<text x="24" y="30" font-size="14" font-weight="bold" fill="white" text-anchor="middle">${owner.propertyCount}</text>
+						${selectedIconSvg}
+					</svg>
+				`;
+
 				// Crear nuevo marcador
 				marker = new google.maps.Marker({
 					position: owner.position,
 					map,
 					icon: {
-						url:
-							'data:image/svg+xml;charset=UTF-8,' +
-							encodeURIComponent(`
-							<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48">
-								<circle cx="24" cy="24" r="22" fill="${isSelected ? '#3b82f6' : '#8F7BBD'}" stroke="white" stroke-width="2"/>
-								<text x="24" y="30" font-size="14" font-weight="bold" fill="white" text-anchor="middle">${owner.propertyCount}</text>
-							</svg>
-						`),
+						url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(markerSvg),
 						scaledSize: new google.maps.Size(48, 48),
 						anchor: new google.maps.Point(24, 24),
 					},
@@ -74,8 +107,9 @@ export function ClusteredMarkers({ owners, selectedOwnerId, onMarkerClick }: Clu
 						'data:image/svg+xml;charset=UTF-8,' +
 						encodeURIComponent(`
 						<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48">
-							<circle cx="24" cy="24" r="22" fill="${isSelected ? '#3b82f6' : '#8F7BBD'}" stroke="white" stroke-width="2"/>
+							<circle cx="24" cy="24" r="22" fill="${pinColor}" stroke="white" stroke-width="2"/>
 							<text x="24" y="30" font-size="14" font-weight="bold" fill="white" text-anchor="middle">${owner.propertyCount}</text>
+							${isSelected ? '<g transform="translate(32, 4) scale(1.2)"><path d="M6 0C2.69 0 0 2.69 0 6c0 3.54 6 10 6 10s6-6.46 6-10c0-3.31-2.69-6-6-6zm0 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" fill="#ef4444" stroke="white" stroke-width="0.5"/></g>' : ''}
 						</svg>
 					`),
 					scaledSize: new google.maps.Size(48, 48),
@@ -83,7 +117,7 @@ export function ClusteredMarkers({ owners, selectedOwnerId, onMarkerClick }: Clu
 				});
 			}
 		});
-	}, [map, owners, selectedOwnerId, onMarkerClick]);
+	}, [map, owners, selectedOwnerId, onMarkerClick, interactedProperties]);
 
 	// Inicializar o actualizar el clusterer
 	useEffect(() => {

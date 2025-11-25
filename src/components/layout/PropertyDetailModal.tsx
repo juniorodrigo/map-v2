@@ -22,6 +22,7 @@ interface PropertyDetailModalProps {
 	property: Property;
 	isOpen: boolean;
 	onClose: () => void;
+	onPropertyViewed?: (propertyId: string, status: 'viewed' | 'discarded') => void;
 }
 
 interface ModalActionsProps {
@@ -61,7 +62,7 @@ function ModalActions({ property, onDiscard }: ModalActionsProps) {
 	);
 }
 
-export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetailModalProps) {
+export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewed }: PropertyDetailModalProps) {
 	const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 	const { session } = useSession();
 
@@ -74,7 +75,10 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 	}, [property.id, isOpen]);
 
 	const handleDiscard = React.useCallback(() => {
-		if (session.token && session.databaseToSearch) {
+		if (onPropertyViewed) {
+			onPropertyViewed(property.id, 'discarded');
+		} else if (session.token && session.databaseToSearch) {
+			// Fallback si no se proporciona onPropertyViewed
 			fetch('/api/mongo/client/interacted-properties', {
 				method: 'POST',
 				headers: {
@@ -86,21 +90,16 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 					dbName: session.databaseToSearch,
 					status: 'discarded',
 				}),
-			})
-				.then(() => {
-					toast.success('Propiedad descartada', {
-						duration: 2000,
-					});
-				})
-				.catch((error) => {
-					console.error('Error registrando propiedad descartada:', error);
-					toast.error('Error al descartar propiedad', {
-						duration: 2000,
-					});
-				});
+			}).catch((error) => {
+				console.error('Error registrando propiedad descartada:', error);
+			});
 		}
+
+		toast('Propiedad descartada', {
+			duration: 2000,
+		});
 		onClose();
-	}, [property.id, session.token, session.databaseToSearch, onClose]);
+	}, [property.id, session.token, session.databaseToSearch, onClose, onPropertyViewed]);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>

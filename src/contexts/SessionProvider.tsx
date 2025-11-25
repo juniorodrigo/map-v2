@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { OwnerSettings } from '@/service/firebase/owner';
 import { UserInfo } from '@/service/mongo/user';
 
-// Types
+// Types ---------------------------
 type SearchType = 'marketmeet' | 'end-user';
 type MarketmeetSearchSubtypes = 'default';
 type GuSearchSubtypes = 'similar-properties' | 'default' | 'shared-comission';
@@ -42,7 +42,7 @@ interface ParsedSearchParams {
 	databaseToSearch?: DatabasesToSearch;
 }
 
-// Constants
+// Constants -------------------------
 const INITIAL_SESSION_STATE: SessionData = {
 	token: null,
 	isAuthenticated: false,
@@ -50,10 +50,8 @@ const INITIAL_SESSION_STATE: SessionData = {
 	ownerSettings: null,
 };
 
-// Context
 const SessionContext = createContext<SessionContextType | null>(null);
 
-// Provider Component
 export function SessionProvider({ children }: { children: React.ReactNode }) {
 	const searchParams = useSearchParams();
 	const router = useRouter();
@@ -143,8 +141,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 			return;
 		}
 
-		console.log('🔍 Parsed Search Params:', parsedSearchParams);
-
 		const { tokenFromUrl, searchType, searchSubtype, isValidUrl, databaseToSearch } = parsedSearchParams;
 
 		const processSession = async () => {
@@ -185,9 +181,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 					});
 					router.push('/not-found');
 				}
-			}
-			// No token provided
-			else if (!tokenFromUrl) {
+			} else if (!tokenFromUrl) {
 				setSession((prev) => ({
 					...prev,
 					...INITIAL_SESSION_STATE,

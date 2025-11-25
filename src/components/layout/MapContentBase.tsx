@@ -43,6 +43,10 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	const [locationInitialized, setLocationInitialized] = React.useState(false);
 	const [selectedOwnerId, setSelectedOwnerId] = React.useState<string | null>(null);
 	const [selectedProperty, setSelectedProperty] = React.useState<PropertyData | null>(null);
+	const [interactedProperties, setInteractedProperties] = React.useState({
+		viewed: [] as string[],
+		discarded: [] as string[],
+	});
 	const consecutiveEmptySearchesRef = React.useRef(0);
 	const lastSearchKeyRef = React.useRef<string | null>(null);
 
@@ -67,6 +71,16 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 			setFiltersInitialized(true);
 		}
 	}, [session.userInfo, filtersInitialized]);
+
+	// Inicializar interacted_properties desde session
+	React.useEffect(() => {
+		if (session.userInfo?.interacted_properties) {
+			setInteractedProperties({
+				viewed: session.userInfo.interacted_properties.viewed || [],
+				discarded: session.userInfo.interacted_properties.discarded || [],
+			});
+		}
+	}, [session.userInfo?.interacted_properties]);
 
 	React.useEffect(() => {
 		if (!locationInitialized && session.userInfo?.requirement_info?.coordinates) {
@@ -96,6 +110,48 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		filters: searchFilters,
 		enabled: canSearch,
 	});
+
+	// Función para actualizar propiedades interactuadas
+	const updateInteractedProperty = React.useCallback(
+		async (propertyId: string, status: 'viewed' | 'discarded') => {
+			if (!session.token || !session.databaseToSearch) return;
+
+			try {
+				await fetch('/api/mongo/client/interacted-properties', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						propertyId,
+						viewerId: session.token,
+						dbName: session.databaseToSearch,
+						status,
+					}),
+				});
+
+				// Actualizar estado local
+				setInteractedProperties((prev) => {
+					const newState = { ...prev };
+					const field = status === 'viewed' ? 'viewed' : 'discarded';
+					const otherField = status === 'viewed' ? 'discarded' : 'viewed';
+
+					// Remover de la otra lista si existe
+					newState[otherField] = newState[otherField].filter((id) => id !== propertyId);
+
+					// Agregar a la lista correspondiente si no existe
+					if (!newState[field].includes(propertyId)) {
+						newState[field] = [...newState[field], propertyId];
+					}
+
+					return newState;
+				});
+			} catch (error) {
+				console.error('Error registrando interacción con propiedad:', error);
+			}
+		},
+		[session.token, session.databaseToSearch]
+	);
 
 	React.useEffect(() => {
 		if (isFetched && canSearch && !isLoading && !error) {
@@ -206,6 +262,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 					owners={data?.owners || []}
 					selectedOwnerId={selectedOwnerId}
 					onMarkerClick={handleMarkerClick}
+					interactedProperties={interactedProperties}
 				/>
 			</MapContainer>
 			<SearchBar />
@@ -256,6 +313,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 				}}
 				similarProperties={similarProperties}
 				onSimilarPropertyClick={handleSimilarPropertyClick}
+				onPropertyViewed={updateInteractedProperty}
 			/>
 		</>
 	);

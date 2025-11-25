@@ -32,6 +32,7 @@ interface PropertyPreviewDialogProps {
 	onClose: () => void;
 	similarProperties?: Property[];
 	onSimilarPropertyClick?: (propertyId: string) => void;
+	onPropertyViewed?: (propertyId: string, status: 'viewed' | 'discarded') => void;
 }
 
 interface PropertyActionsProps {
@@ -73,29 +74,17 @@ export function PropertyPreviewDialog({
 	onClose,
 	similarProperties = [],
 	onSimilarPropertyClick,
+	onPropertyViewed,
 }: PropertyPreviewDialogProps) {
 	const [isDetailModalOpen, setIsDetailModalOpen] = React.useState(false);
 	const { session } = useSession();
 
 	// Registrar la propiedad como vista cuando se abre el diálogo
 	React.useEffect(() => {
-		if (isOpen && property && session.token && session.databaseToSearch) {
-			fetch('/api/mongo/client/interacted-properties', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					propertyId: property.id,
-					viewerId: session.token,
-					dbName: session.databaseToSearch,
-					status: 'viewed',
-				}),
-			}).catch((error) => {
-				console.error('Error registrando interacción con propiedad:', error);
-			});
+		if (isOpen && property && onPropertyViewed) {
+			onPropertyViewed(property.id, 'viewed');
 		}
-	}, [isOpen, property?.id, session.token, session.databaseToSearch]);
+	}, [isOpen, property?.id, onPropertyViewed]);
 
 	if (!isOpen || !property) return null;
 
@@ -326,7 +315,12 @@ export function PropertyPreviewDialog({
 			</div>
 
 			{/* Modal de Detalle Completo */}
-			<PropertyDetailModal property={property} isOpen={isDetailModalOpen} onClose={() => setIsDetailModalOpen(false)} />
+			<PropertyDetailModal
+				property={property}
+				isOpen={isDetailModalOpen}
+				onClose={() => setIsDetailModalOpen(false)}
+				onPropertyViewed={onPropertyViewed}
+			/>
 		</div>
 	);
 }

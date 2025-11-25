@@ -54,6 +54,10 @@ export async function getUserInfoByToken(token: string, database: string): Promi
 		owner_phone_number: payload.bot_phone_number,
 		owner_firebase_id: payload.owner_firebase_id,
 		is_agent: payload.is_agent ?? false,
+		interacted_properties: {
+			viewed: payload.interacted_properties?.viewed || [],
+			discarded: payload.interacted_properties?.discarded || [],
+		},
 		requirement_info: payload.last_requirement
 			? {
 					currency: payload.last_requirement.currency || 'MXN',
@@ -68,10 +72,6 @@ export async function getUserInfoByToken(token: string, database: string): Promi
 					},
 				}
 			: null,
-		interacted_properties: {
-			viewed: payload.interacted_properties?.viewed || [],
-			discarded: payload.interacted_properties?.discarded || [],
-		},
 	};
 
 	return userInfo;
