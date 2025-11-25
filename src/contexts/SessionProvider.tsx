@@ -8,7 +8,7 @@ import { UserInfo } from '@/service/mongo/user';
 // Types
 type SearchType = 'marketmeet' | 'end-user';
 type MarketmeetSearchSubtypes = 'default';
-type GuSearchSubtypes = 'similar-properties' | 'normal-search' | 'shared-comission';
+type GuSearchSubtypes = 'similar-properties' | 'default' | 'shared-comission';
 type DatabasesToSearch = 'gu2' | 'gga';
 
 export interface SessionData {
@@ -27,13 +27,17 @@ interface SessionContextType {
 	session: SessionData;
 	isLoading: boolean;
 	error: string | null;
-	validateToken: (token: string) => Promise<{ success: boolean; data?: any; error?: string }>;
+	validateToken: (
+		token: string,
+		searchType: SearchType,
+		databaseToSearch?: DatabasesToSearch
+	) => Promise<{ success: boolean; data?: any; error?: string }>;
 }
 
 interface ParsedSearchParams {
 	tokenFromUrl: string | null;
-	searchType?: SearchType;
-	searchSubType?: MarketmeetSearchSubtypes | GuSearchSubtypes;
+	searchType: SearchType;
+	searchSubType: MarketmeetSearchSubtypes | GuSearchSubtypes;
 	isValidUrl: boolean;
 	databaseToSearch?: DatabasesToSearch;
 }
@@ -62,6 +66,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 	const validateToken = useCallback(
 		async (
 			token: string,
+			searchType: SearchType,
 			databaseToSearch?: DatabasesToSearch
 		): Promise<{ success: boolean; data?: any; error?: string }> => {
 			try {
@@ -79,9 +84,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
 				if (!data.success) throw new Error(data.error || 'Token inválido');
 
-				console.log('✅ Token validado con éxito:', data);
-
-				if (!data.userInfo || !data.ownerSettings) throw new Error('Datos de usuario incompletos');
+				if (!data.userInfo || (!data.ownerSettings && searchType === 'end-user'))
+					throw new Error('Datos de usuario incompletos');
 
 				return { success: true, data };
 			} catch (err) {
@@ -100,11 +104,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 		const firstPathSegment = pathname.split('/')[1];
 
 		if (pathname === '/not-found') {
-			return { tokenFromUrl, isValidUrl: true };
+			return { tokenFromUrl, isValidUrl: true, searchType: 'end-user', searchSubType: 'default' };
 		}
 
-		let searchType: SearchType | undefined;
-		let searchSubType: MarketmeetSearchSubtypes | GuSearchSubtypes | undefined;
+		let searchType: SearchType = 'end-user';
+		let searchSubType: MarketmeetSearchSubtypes | GuSearchSubtypes = 'default';
 		let isValidUrl = true;
 
 		// Determine search type and subtype based on path
@@ -119,7 +123,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 			} else if (searchParam === 'shared') {
 				searchSubType = 'shared-comission';
 			} else if (!searchParam) {
-				searchSubType = 'normal-search';
+				searchSubType = 'default';
 			} else {
 				isValidUrl = false;
 			}
@@ -155,7 +159,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
 			// Validate new token
 			if (tokenFromUrl && tokenFromUrl !== session.token) {
-				const result = await validateToken(tokenFromUrl, databaseToSearch);
+				const result = await validateToken(tokenFromUrl, searchType, databaseToSearch);
+
+				console.log('✅ Token validation result:', result);
 
 				if (result.success && result.data) {
 					setSession({
