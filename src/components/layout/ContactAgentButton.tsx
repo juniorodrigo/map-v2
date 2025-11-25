@@ -1,10 +1,7 @@
 'use client';
 
 import { useSession } from '@/contexts/SessionProvider';
-import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { firebaseClient } from '@/service/firebase/client';
-import { getDoc } from 'firebase/firestore';
 import { whatsappService } from '@/service/whatsapp/templates';
 import { MdWhatsapp } from 'react-icons/md';
 

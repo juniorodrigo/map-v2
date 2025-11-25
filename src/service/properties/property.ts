@@ -16,7 +16,6 @@ export async function searchProperties(
 	return { total, properties };
 }
 
-// TODO:
 export async function markPropertyAsViewed(propertyId: string, viewerId: string, dbName: string = 'gu'): Promise<void> {
 	await mongoClient.updateOne(
 		'property_data',
