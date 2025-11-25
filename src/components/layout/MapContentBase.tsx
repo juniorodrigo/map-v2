@@ -29,7 +29,7 @@ interface MapContentBaseProps {
 }
 
 export function MapContentBase({ config }: MapContentBaseProps) {
-	const { searchLocation } = useMap();
+	const { searchLocation, setSearchLocation, panTo } = useMap();
 	const { session } = useSession();
 
 	const [filters, setFilters] = React.useState({
@@ -40,11 +40,13 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	});
 
 	const [filtersInitialized, setFiltersInitialized] = React.useState(false);
+	const [locationInitialized, setLocationInitialized] = React.useState(false);
 	const [selectedOwnerId, setSelectedOwnerId] = React.useState<string | null>(null);
 	const [selectedProperty, setSelectedProperty] = React.useState<PropertyData | null>(null);
 	const consecutiveEmptySearchesRef = React.useRef(0);
 	const lastSearchKeyRef = React.useRef<string | null>(null);
 
+	// Inicializar filtros desde requirement_info
 	React.useEffect(() => {
 		if (!filtersInitialized && session.userInfo?.requirement_info) {
 			const requirement = session.userInfo.requirement_info;
@@ -54,6 +56,13 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 			const userCurrency = requirement.currency || 'MXN';
 			const userPropertyTypes = requirement.property_type || [];
 			const userOperationTypes = requirement.operation || [];
+
+			console.log('🔧 Inicializando filtros desde requirement_info:', {
+				propertyType: userPropertyTypes,
+				priceRange: [minPrice, maxPrice],
+				currency: userCurrency,
+				operationType: userOperationTypes,
+			});
 
 			setFilters({
 				propertyType: userPropertyTypes,
@@ -66,6 +75,18 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		}
 	}, [session.userInfo, filtersInitialized]);
 
+	React.useEffect(() => {
+		if (!locationInitialized && session.userInfo?.requirement_info?.coordinates) {
+			const { lat, lng } = session.userInfo.requirement_info.coordinates;
+
+			if (lat !== null && lng !== null) {
+				setSearchLocation({ lat, lng });
+				panTo(lat, lng);
+				setLocationInitialized(true);
+			}
+		}
+	}, [session.userInfo, locationInitialized, setSearchLocation, panTo]);
+
 	const searchFilters = React.useMemo<PropertyFilters>(
 		() => ({
 			...filters,
@@ -74,15 +95,9 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		[filters, searchLocation]
 	);
 
-	// Permitir búsqueda inicial sin filtros para cargar todas las propiedades
 	const canSearch = React.useMemo(() => {
-		// Si no hay ubicación de búsqueda, permitir búsqueda sin ubicación específica
-		// Si hay ubicación, validar que haya filtros seleccionados
-		if (!searchLocation) {
-			return true; // Permitir búsqueda inicial sin ubicación para traer todas las propiedades
-		}
-		return filters.propertyType.length > 0 && filters.operationType.length > 0;
-	}, [searchLocation, filters.propertyType, filters.operationType]);
+		return true;
+	}, []);
 
 	const { data, isLoading, error, isFetched } = usePropertySearch({
 		filters: searchFilters,
@@ -178,9 +193,15 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		[selectedOwnerId, data]
 	);
 
+	const initialCenter = React.useMemo(() => {
+		const coords = session.userInfo?.requirement_info?.coordinates;
+		if (coords && coords.lat !== null && coords.lng !== null) return { lat: coords.lat, lng: coords.lng };
+		return undefined;
+	}, [session.userInfo]);
+
 	return (
 		<>
-			<MapContainer>
+			<MapContainer initialCenter={initialCenter}>
 				<ClusteredMarkers
 					owners={data?.owners || []}
 					selectedOwnerId={selectedOwnerId}

@@ -19,11 +19,12 @@ function MapInstance() {
 
 interface MapContainerProps {
 	children?: React.ReactNode;
+	initialCenter?: { lat: number; lng: number };
 }
 
-export default function MapContainer({ children }: MapContainerProps) {
-	const defaultCenter = { lat: 19.432608, lng: -99.133209 };
-	const defaultZoom = 12;
+export default function MapContainer({ children, initialCenter }: MapContainerProps) {
+	const defaultCenter = initialCenter || { lat: 23.6345, lng: -102.5528 };
+	const defaultZoom = initialCenter ? 12 : 6;
 
 	return (
 		<div className="absolute inset-0 h-full w-full" data-slot="map-container">
