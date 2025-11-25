@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { markPropertyAsViewed } from '@/service/properties/property';
+import { updateClientPropertiesList } from '@/service/mongo/user';
 
 export async function POST(request: NextRequest) {
 	const body = await request.json();
+	const { propertyId, viewerId, dbName, status } = body;
 
-	const propertyId: string = body.propertyId;
-	const viewerId: string = body.viewerId;
-	const dbName: string = body.dbName || 'gu';
+	if (status !== 'viewed' && status !== 'discarded') {
+		return NextResponse.json(
+			{
+				success: false,
+				error: 'Estado inválido: debe ser "viewed" o "discarded"',
+			},
+			{ status: 400 }
+		);
+	}
 
 	if (!propertyId || !viewerId) {
 		return NextResponse.json(
@@ -18,7 +25,7 @@ export async function POST(request: NextRequest) {
 		);
 	}
 
-	await markPropertyAsViewed(propertyId, viewerId, dbName);
+	await updateClientPropertiesList(propertyId, viewerId, dbName, status);
 
 	return NextResponse.json({
 		success: true,

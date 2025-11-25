@@ -15,13 +15,3 @@ export async function searchProperties(
 
 	return { total, properties };
 }
-
-export async function markPropertyAsViewed(propertyId: string, viewerId: string, dbName: string = 'gu'): Promise<void> {
-	await mongoClient.updateOne(
-		'property_data',
-		{ _id: propertyId },
-		{ $addToSet: { viewed_by: viewerId } },
-		dbName,
-		true
-	);
-}

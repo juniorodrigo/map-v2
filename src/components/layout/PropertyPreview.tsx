@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { PropertyDetailModal } from './PropertyDetailModal';
 import ContactAgentButton from '@/components/layout/ContactAgentButton';
+import { useSession } from '@/contexts/SessionProvider';
 
 export interface Property {
 	id: string;
@@ -74,6 +75,27 @@ export function PropertyPreviewDialog({
 	onSimilarPropertyClick,
 }: PropertyPreviewDialogProps) {
 	const [isDetailModalOpen, setIsDetailModalOpen] = React.useState(false);
+	const { session } = useSession();
+
+	// Registrar la propiedad como vista cuando se abre el diálogo
+	React.useEffect(() => {
+		if (isOpen && property && session.token && session.databaseToSearch) {
+			fetch('/api/mongo/client/interacted-properties', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					propertyId: property.id,
+					viewerId: session.token,
+					dbName: session.databaseToSearch,
+					status: 'viewed',
+				}),
+			}).catch((error) => {
+				console.error('Error registrando interacción con propiedad:', error);
+			});
+		}
+	}, [isOpen, property?.id, session.token, session.databaseToSearch]);
 
 	if (!isOpen || !property) return null;
 

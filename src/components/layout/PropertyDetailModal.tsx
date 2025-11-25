@@ -16,6 +16,7 @@ import ContactAgentButton from '@/components/layout/ContactAgentButton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Property } from './PropertyPreview';
 import { useSession } from '@/contexts/SessionProvider';
+import toast from 'react-hot-toast';
 
 interface PropertyDetailModalProps {
 	property: Property;
@@ -25,9 +26,10 @@ interface PropertyDetailModalProps {
 
 interface ModalActionsProps {
 	property: Property;
+	onDiscard: () => void;
 }
 
-function ModalActions({ property }: ModalActionsProps) {
+function ModalActions({ property, onDiscard }: ModalActionsProps) {
 	return (
 		<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
 			<Button
@@ -51,8 +53,7 @@ function ModalActions({ property }: ModalActionsProps) {
 			<Button
 				variant="ghost"
 				className="h-11 text-sm font-semibold rounded-lg transition-opacity bg-red-700 text-white hover:bg-red-800 hover:text-white"
-				disabled
-				onClick={() => {}}
+				onClick={onDiscard}
 			>
 				No me interesa
 			</Button>
@@ -71,6 +72,35 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 			setCurrentImageIndex(0);
 		}
 	}, [property.id, isOpen]);
+
+	const handleDiscard = React.useCallback(() => {
+		if (session.token && session.databaseToSearch) {
+			fetch('/api/mongo/client/interacted-properties', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					propertyId: property.id,
+					viewerId: session.token,
+					dbName: session.databaseToSearch,
+					status: 'discarded',
+				}),
+			})
+				.then(() => {
+					toast.success('Propiedad descartada', {
+						duration: 2000,
+					});
+				})
+				.catch((error) => {
+					console.error('Error registrando propiedad descartada:', error);
+					toast.error('Error al descartar propiedad', {
+						duration: 2000,
+					});
+				});
+		}
+		onClose();
+	}, [property.id, session.token, session.databaseToSearch, onClose]);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
@@ -275,7 +305,7 @@ export function PropertyDetailModal({ property, isOpen, onClose }: PropertyDetai
 								</div>
 
 								{/* Botones de Acción - Componente separado */}
-								<ModalActions property={property} />
+								<ModalActions property={property} onDiscard={handleDiscard} />
 							</div>
 						</div>
 					</div>

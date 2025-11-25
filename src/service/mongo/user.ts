@@ -1,6 +1,8 @@
 import { mongoClient } from './client';
 import { propertyTypeLabelsToCode, operationTypeLabelsToCode } from '@/lib/property-type-mappings';
 
+export type PropertyStatus = 'viewed' | 'discarded';
+
 export interface RequirementInfo {
 	currency: string;
 	operation: string[];
@@ -19,6 +21,10 @@ export interface UserInfo {
 	owner_firebase_id: string;
 	is_agent: boolean;
 	requirement_info: RequirementInfo | null;
+	interacted_properties?: {
+		viewed: string[];
+		discarded: string[];
+	};
 }
 
 export async function getUserInfoByToken(token: string, database: string): Promise<UserInfo | null> {
@@ -27,9 +33,6 @@ export async function getUserInfoByToken(token: string, database: string): Promi
 	if (!payload) {
 		return null;
 	}
-
-	// Convertir los datos de la DB (labels) a códigos para la UI
-	// Normalizar operation_type: puede venir como string o array
 	const rawOperationType = payload?.last_requirement?.operation_type;
 	const operationTypeLabels = Array.isArray(rawOperationType)
 		? rawOperationType
@@ -37,7 +40,6 @@ export async function getUserInfoByToken(token: string, database: string): Promi
 			? [rawOperationType]
 			: [];
 
-	// Normalizar property_type: puede venir como string o array
 	const rawPropertyType = payload?.last_requirement?.property_type;
 	const propertyTypeLabels = Array.isArray(rawPropertyType)
 		? rawPropertyType
@@ -66,7 +68,27 @@ export async function getUserInfoByToken(token: string, database: string): Promi
 					},
 				}
 			: null,
+		interacted_properties: {
+			viewed: payload.interacted_properties?.viewed || [],
+			discarded: payload.interacted_properties?.discarded || [],
+		},
 	};
 
 	return userInfo;
+}
+
+export async function updateClientPropertiesList(
+	propertyId: string,
+	viewerId: string,
+	dbName: string,
+	status: PropertyStatus
+): Promise<void> {
+	const fieldToUpdate = status === 'viewed' ? 'interacted_properties.viewed' : 'interacted_properties.discarded';
+	await mongoClient.updateOne(
+		'users',
+		{ lead_id: viewerId },
+		{ $addToSet: { [fieldToUpdate]: propertyId } },
+		dbName,
+		true
+	);
 }

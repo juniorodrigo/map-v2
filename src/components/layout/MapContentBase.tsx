@@ -108,26 +108,12 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 
 				if (hasResults) {
 					toast.success(`${data.total} propiedades encontradas`, {
-						position: 'top-center',
 						duration: 3000,
-						style: {
-							background: '#10b981',
-							color: '#fff',
-							fontWeight: '500',
-							marginTop: '40px',
-						},
 					});
 					consecutiveEmptySearchesRef.current = 0;
 				} else {
 					toast.error('No se encontraron propiedades', {
-						position: 'top-center',
 						duration: 3000,
-						style: {
-							background: '#ef4444',
-							color: '#fff',
-							fontWeight: '500',
-							marginTop: '40px',
-						},
 					});
 					consecutiveEmptySearchesRef.current += 1;
 
