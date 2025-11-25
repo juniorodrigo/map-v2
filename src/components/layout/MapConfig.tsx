@@ -7,9 +7,9 @@ const GuResultsBadges = ({ data, total }: { data: any; total: number }) => {
 	let altLabel = 'Cargando';
 
 	if (session.searchType === 'end-user') {
-		if (session.searchSubType === 'similar-properties') {
+		if (session.searchSubtype === 'similar-properties') {
 			altLabel = 'Propiedades Similares';
-		} else if (session.searchSubType === 'shared-comission') {
+		} else if (session.searchSubtype === 'shared-comission') {
 			altLabel = 'Comisión Compartida';
 		} else {
 			altLabel = 'Resultados de Búsqueda';

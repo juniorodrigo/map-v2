@@ -19,7 +19,7 @@ export interface SessionData {
 	userInfo: UserInfo | null;
 	ownerSettings: OwnerSettings | null;
 	searchType?: SearchType;
-	searchSubType?: MarketmeetSearchSubtypes | GuSearchSubtypes;
+	searchSubtype?: MarketmeetSearchSubtypes | GuSearchSubtypes;
 	databaseToSearch?: DatabasesToSearch;
 }
 
@@ -37,7 +37,7 @@ interface SessionContextType {
 interface ParsedSearchParams {
 	tokenFromUrl: string | null;
 	searchType: SearchType;
-	searchSubType: MarketmeetSearchSubtypes | GuSearchSubtypes;
+	searchSubtype: MarketmeetSearchSubtypes | GuSearchSubtypes;
 	isValidUrl: boolean;
 	databaseToSearch?: DatabasesToSearch;
 }
@@ -104,26 +104,26 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 		const firstPathSegment = pathname.split('/')[1];
 
 		if (pathname === '/not-found') {
-			return { tokenFromUrl, isValidUrl: true, searchType: 'end-user', searchSubType: 'default' };
+			return { tokenFromUrl, isValidUrl: true, searchType: 'end-user', searchSubtype: 'default' };
 		}
 
 		let searchType: SearchType = 'end-user';
-		let searchSubType: MarketmeetSearchSubtypes | GuSearchSubtypes = 'default';
+		let searchSubtype: MarketmeetSearchSubtypes | GuSearchSubtypes = 'default';
 		let isValidUrl = true;
 
 		// Determine search type and subtype based on path
 		if (firstPathSegment === 'marketmeet') {
 			searchType = 'marketmeet';
-			searchSubType = 'default';
+			searchSubtype = 'default';
 		} else if (firstPathSegment === 'gu') {
 			searchType = 'end-user';
 
 			if (searchParam === 'similar') {
-				searchSubType = 'similar-properties';
+				searchSubtype = 'similar-properties';
 			} else if (searchParam === 'shared') {
-				searchSubType = 'shared-comission';
+				searchSubtype = 'shared-comission';
 			} else if (!searchParam) {
-				searchSubType = 'default';
+				searchSubtype = 'default';
 			} else {
 				isValidUrl = false;
 			}
@@ -134,7 +134,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 		const databaseToSearch: DatabasesToSearch | undefined =
 			searchType === 'marketmeet' ? 'gga' : searchType === 'end-user' ? 'gu2' : undefined;
 
-		return { tokenFromUrl, searchType, searchSubType, isValidUrl, databaseToSearch };
+		return { tokenFromUrl, searchType, searchSubtype, isValidUrl, databaseToSearch };
 	}, [searchParams, pathname]);
 
 	useEffect(() => {
@@ -145,7 +145,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
 		console.log('🔍 Parsed Search Params:', parsedSearchParams);
 
-		const { tokenFromUrl, searchType, searchSubType, isValidUrl, databaseToSearch } = parsedSearchParams;
+		const { tokenFromUrl, searchType, searchSubtype, isValidUrl, databaseToSearch } = parsedSearchParams;
 
 		const processSession = async () => {
 			setIsLoading(true);
@@ -172,7 +172,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 						userInfo: result.data.userInfo,
 						ownerSettings: result.data.ownerSettings,
 						searchType,
-						searchSubType,
+						searchSubtype,
 						databaseToSearch,
 					});
 				} else {
@@ -180,7 +180,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 					setSession({
 						...INITIAL_SESSION_STATE,
 						searchType,
-						searchSubType,
+						searchSubtype,
 						databaseToSearch,
 					});
 					router.push('/not-found');
@@ -192,17 +192,17 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 					...prev,
 					...INITIAL_SESSION_STATE,
 					searchType,
-					searchSubType,
+					searchSubtype,
 					databaseToSearch,
 				}));
 				router.push('/not-found');
 			}
 			// Update search parameters if changed
-			else if (session.searchType !== searchType || session.searchSubType !== searchSubType) {
+			else if (session.searchType !== searchType || session.searchSubtype !== searchSubtype) {
 				setSession((prev) => ({
 					...prev,
 					searchType,
-					searchSubType,
+					searchSubtype,
 					databaseToSearch,
 				}));
 			}

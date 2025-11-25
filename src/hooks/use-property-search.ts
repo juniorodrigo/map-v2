@@ -18,7 +18,7 @@ export function usePropertySearch({ filters, enabled = true }: UsePropertySearch
 				dbName: session.databaseToSearch,
 				ownerSettings: session.ownerSettings || {},
 				searchType: session.searchType,
-				searchSubtype: session.searchSubType,
+				searchSubtype: session.searchSubtype,
 			};
 
 			const response = await fetch('/api/properties/search', {
