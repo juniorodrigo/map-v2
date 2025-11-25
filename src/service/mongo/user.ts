@@ -8,6 +8,7 @@ export interface RequirementInfo {
 	location_geometry: any;
 	minimum_price?: number;
 	maximum_price?: number;
+	coordinates?: { lat: number | null; lng: number | null };
 }
 
 export interface UserInfo {
@@ -20,8 +21,8 @@ export interface UserInfo {
 	requirement_info: RequirementInfo | null;
 }
 
-export async function getUserInfoByToken(token: string): Promise<UserInfo | null> {
-	const payload: any = await mongoClient.findOne('users', { lead_id: token }, 'gu2');
+export async function getUserInfoByToken(token: string, database: string): Promise<UserInfo | null> {
+	const payload: any = await mongoClient.findOne('users', { lead_id: token }, database);
 
 	if (!payload) {
 		return null;
@@ -48,6 +49,10 @@ export async function getUserInfoByToken(token: string): Promise<UserInfo | null
 					location_geometry: payload.last_requirement.geometry || null,
 					minimum_price: Number(payload.last_requirement.price_start ?? 0) || undefined,
 					maximum_price: Number(payload.last_requirement.price_end ?? 0) || undefined,
+					coordinates: {
+						lat: payload.last_requirement?.geometry.coordinates?.lat || null,
+						lng: payload.last_requirement?.geometry.coordinates?.lng || null,
+					},
 				}
 			: null,
 	};

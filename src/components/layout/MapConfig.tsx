@@ -3,7 +3,6 @@ import { useSession } from '@/contexts/SessionProvider';
 
 const GuResultsBadges = ({ data, total }: { data: any; total: number }) => {
 	const { session } = useSession();
-	console.log('Session en GuResultsBadges:', session);
 
 	let altLabel = 'Cargando';
 

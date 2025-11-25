@@ -4,9 +4,9 @@ import { getOwnerInfoByFirebaseId } from '@/service/firebase/owner';
 
 export async function POST(request: Request) {
 	try {
-		const { token } = await request.json();
+		const { token, database } = await request.json();
 
-		const userInfo = await getUserInfoByToken(token);
+		const userInfo = await getUserInfoByToken(token, database);
 		if (!userInfo) {
 			return NextResponse.json({ success: false, error: 'Token no encontrado' }, { status: 404 });
 		}
