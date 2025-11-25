@@ -144,7 +144,7 @@ export class MongoClient {
 			excludeFields: EXCLUDE_FIELDS,
 		});
 
-		return response.document;
+		return response;
 	}
 
 	async insertOne(collection: string, document: Record<string, unknown>, dbName?: string): Promise<unknown> {

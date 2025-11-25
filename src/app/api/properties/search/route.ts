@@ -8,9 +8,9 @@ import { groupPropertiesByOwner } from '@/utils/properties';
 export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json();
-		const { filters, dbName, ownerSettings } = body;
+		const { filters, dbName, ownerSettings, searchType, searchSubtype } = body;
 
-		console.log('🔍 Parámetros de búsqueda recibidos:', { filters, dbName, ownerSettings });
+		// console.log('🔍 Parámetros de búsqueda recibidos:', { filters, dbName, ownerSettings, searchType, searchSubtype });
 
 		if (!filters) {
 			throw new ValidationError('Faltan parámetros: filters es requerido');

@@ -29,10 +29,21 @@ export async function getUserInfoByToken(token: string, database: string): Promi
 	}
 
 	// Convertir los datos de la DB (labels) a códigos para la UI
-	const operationTypeLabels = payload?.last_requirement?.operation_type
-		? [payload.last_requirement.operation_type]
-		: [];
-	const propertyTypeLabels = payload?.last_requirement?.property_type || [];
+	// Normalizar operation_type: puede venir como string o array
+	const rawOperationType = payload?.last_requirement?.operation_type;
+	const operationTypeLabels = Array.isArray(rawOperationType)
+		? rawOperationType
+		: rawOperationType
+			? [rawOperationType]
+			: [];
+
+	// Normalizar property_type: puede venir como string o array
+	const rawPropertyType = payload?.last_requirement?.property_type;
+	const propertyTypeLabels = Array.isArray(rawPropertyType)
+		? rawPropertyType
+		: rawPropertyType
+			? [rawPropertyType]
+			: [];
 
 	const userInfo: UserInfo = {
 		_id: payload._id,
@@ -56,8 +67,6 @@ export async function getUserInfoByToken(token: string, database: string): Promi
 				}
 			: null,
 	};
-
-	console.log(payload.last_requirement, '________________XXXXXXXXX');
 
 	return userInfo;
 }

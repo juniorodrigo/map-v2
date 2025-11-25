@@ -140,15 +140,36 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	}, [data, isLoading, error, canSearch, isFetched, searchFilters]);
 
 	const handleFiltersChange = React.useCallback(
-		(newFilters: {
+		async (newFilters: {
 			propertyType: string[];
 			priceRange: [number, number];
 			currency: string;
 			operationType: string[];
 		}) => {
 			setFilters(newFilters);
+
+			// Actualizar last_requirement en la DB si hay sesión válida
+			if (session.token && session.databaseToSearch) {
+				try {
+					const location = searchLocation ? { lat: searchLocation.lat, lng: searchLocation.lng } : null;
+					await fetch('/api/mongo/update-requirement', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							token: session.token,
+							database: session.databaseToSearch,
+							filters: newFilters,
+							location,
+						}),
+					});
+				} catch (error) {
+					console.error('Error actualizando requerimiento:', error);
+				}
+			}
 		},
-		[]
+		[session.token, session.databaseToSearch, searchLocation]
 	);
 
 	const handleMarkerClick = (clusterId: string) => {
