@@ -66,10 +66,12 @@ export async function getUserInfoByToken(token: string, database: string): Promi
 					location_geometry: payload.last_requirement.geometry || null,
 					minimum_price: Number(payload.last_requirement.price_start ?? 0) || undefined,
 					maximum_price: Number(payload.last_requirement.price_end ?? 0) || undefined,
-					coordinates: {
-						lat: payload.last_requirement?.geometry?.coordinates[1] || null,
-						lng: payload.last_requirement?.geometry?.coordinates[0] || null,
-					},
+					coordinates: payload.last_requirement?.geometry?.coordinates
+						? {
+								lat: payload.last_requirement.geometry.coordinates[1] ?? null,
+								lng: payload.last_requirement.geometry.coordinates[0] ?? null,
+							}
+						: undefined,
 				}
 			: null,
 	};
