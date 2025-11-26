@@ -64,6 +64,7 @@ function ModalActions({ property, onDiscard }: ModalActionsProps) {
 
 export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewed }: PropertyDetailModalProps) {
 	const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+	const [api, setApi] = React.useState<CarouselApi>();
 	const { session } = useSession();
 
 	const isMarketmeet = session.searchType == 'marketmeet';
@@ -131,6 +132,7 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 												align: 'start',
 											}}
 											setApi={(api: CarouselApi) => {
+												setApi(api);
 												api?.on('select', () => {
 													setCurrentImageIndex(api.selectedScrollSnap());
 												});
@@ -281,18 +283,8 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 									</div>
 								</div>
 
-								{/* Descripción Completa */}
-								{property.description && (
-									<div>
-										<h3 className="text-base font-semibold mb-3">Descripción</h3>
-										<p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-											{property.description}
-										</p>
-									</div>
-								)}
-
 								{/* Información Adicional */}
-								<div className="space-y-0 border-t py-4 border-b ">
+								<div className="pb-4 border-b px-4 ">
 									<div className="flex justify-between py-1">
 										<span className="text-sm text-muted-foreground">Tipo de propiedad</span>
 										<span className="text-sm font-semibold capitalize">{property.type}</span>
@@ -305,6 +297,16 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 
 								{/* Botones de Acción - Componente separado */}
 								<ModalActions property={property} onDiscard={handleDiscard} />
+
+								{/* Descripción Completa */}
+								{property.description && (
+									<div>
+										<h3 className="text-base font-semibold mb-3">Descripción</h3>
+										<p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+											{property.description}
+										</p>
+									</div>
+								)}
 							</div>
 						</div>
 					</div>
