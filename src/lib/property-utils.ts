@@ -51,6 +51,8 @@ export function propertyDataToProperty(data: PropertyData, operationTypeFilter?:
 		images: data.pictures || data.images || [],
 		rating: data.rating,
 		description: data.description,
+		itSharesCommission: data.shared_commission_display === 'Si',
+		sharedComission: data.commission_display.trim() == '0' ? '50% de comisión compartida' : data.commission_display,
 	};
 
 	return property;

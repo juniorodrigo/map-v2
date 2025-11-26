@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { MdBed, MdBathtub, MdSquareFoot, MdLocationOn, MdWhatsapp } from 'react-icons/md';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
 	Carousel,
@@ -12,11 +11,11 @@ import {
 	CarouselPrevious,
 	type CarouselApi,
 } from '@/components/ui/carousel';
-import ContactAgentButton from '@/components/layout/ContactAgentButton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Property } from './PropertyPreview';
 import { useSession } from '@/contexts/SessionProvider';
 import toast from 'react-hot-toast';
+import { ModalActions } from '../gu/ModalActions';
 
 interface PropertyDetailModalProps {
 	property: Property;
@@ -25,44 +24,9 @@ interface PropertyDetailModalProps {
 	onPropertyViewed?: (propertyId: string, status: 'viewed' | 'discarded') => void;
 }
 
-interface ModalActionsProps {
-	property: Property;
-	onDiscard: () => void;
-}
-
-function ModalActions({ property, onDiscard }: ModalActionsProps) {
-	return (
-		<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-			<Button
-				variant="outline"
-				className="h-11 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-				disabled
-				onClick={() => {}}
-			>
-				Agendar Cita
-			</Button>
-
-			<ContactAgentButton
-				propertyId={property.id}
-				userOwnerId={property.user_owner}
-				className="h-11 text-sm font-semibold rounded-lg transition-opacity flex items-center justify-center gap-2 bg-[#8F7BBD] hover:bg-purple-900"
-			>
-				<MdWhatsapp className="size-4" />
-				Contactar
-			</ContactAgentButton>
-
-			<Button
-				variant="ghost"
-				className="h-11 text-sm font-semibold rounded-lg transition-opacity bg-[#C93232] text-white hover:bg-red-800 hover:text-white"
-				onClick={onDiscard}
-			>
-				No me interesa
-			</Button>
-		</div>
-	);
-}
-
 export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewed }: PropertyDetailModalProps) {
+	console.log('Rendering PropertyDetailModal for property:', property);
+
 	const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 	const [api, setApi] = React.useState<CarouselApi>();
 	const { session } = useSession();
@@ -229,29 +193,6 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 									{property.rating && <Badge className="text-sm py-1.5 px-3">⭐ {property.rating}</Badge>}
 								</div>
 
-								{/* Información del Agente y Comisión */}
-								{isMarketmeet && (
-									<div className="flex items-center justify-between py-3 bg-gray-50 rounded-lg">
-										<div className="flex items-center gap-2">
-											<span className="text-sm font-medium text-gray-700">De:</span>
-											<span className="text-sm font-semibold text-gray-900">Test Marketmeet</span>
-											<a
-												href="https://wa.me/51999999999?text=Hola%20Carlos%2C%20estoy%20interesado%20en%20la%20propiedad"
-												target="_blank"
-												rel="noopener noreferrer"
-												className="inline-flex items-center justify-center p-1 rounded-full bg-green-500 hover:bg-green-600 transition-colors"
-												title="Contactar por WhatsApp"
-											>
-												<MdWhatsapp className="size-3.5 text-white" />
-											</a>
-										</div>
-										<div className="flex items-center gap-2">
-											<span className="text-sm font-medium text-gray-700">Comisión compartida:</span>
-											<span className="text-sm font-semibold text-gray-900">50%/venta</span>
-										</div>
-									</div>
-								)}
-
 								{/* Características en línea - Diseño horizontal compacto */}
 								<div className="flex items-center justify-between py-3 border-y w-full px-4">
 									<div className="flex items-center gap-2">
@@ -293,6 +234,31 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 										<span className="text-sm text-muted-foreground">Operación</span>
 										<span className="text-sm font-semibold capitalize">{property.operation}</span>
 									</div>
+
+									{/* Información del Agente y Comisión */}
+									{isMarketmeet && (
+										<>
+											<div className="flex justify-between py-1">
+												<span className="text-sm text-muted-foreground">De:</span>
+												<div className="flex items-center gap-2">
+													<a
+														href="https://wa.me/51999999999?text=Hola%20Carlos%2C%20estoy%20interesado%20en%20la%20propiedad"
+														target="_blank"
+														rel="noopener noreferrer"
+														className="inline-flex items-center justify-center p-1 rounded-full bg-green-500 hover:bg-green-600 transition-colors"
+														title="Contactar por WhatsApp"
+													>
+														<MdWhatsapp className="size-3.5 text-white" />
+													</a>
+													<span className="text-sm font-semibold">Test Marketmeet</span>
+												</div>
+											</div>
+											<div className="flex justify-between py-1">
+												<span className="text-sm text-muted-foreground">Comisión compartida:</span>
+												<span className="text-sm font-semibold">50%/venta</span>
+											</div>
+										</>
+									)}
 								</div>
 
 								{/* Botones de Acción - Componente separado */}

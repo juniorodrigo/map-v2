@@ -51,6 +51,7 @@ export interface PropertyData {
 
 	// Marketemeet
 	commission_display: string;
+	shared_commission_display: string;
 
 	[key: string]: unknown;
 }

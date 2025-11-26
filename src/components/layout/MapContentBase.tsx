@@ -236,6 +236,8 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		return propertyDataArrayToPropertyArray(properties, filters.operationType[0] || 'venta');
 	}, [selectedOwnerId, data, filters.operationType, selectedProperty]);
 
+	// console.log('MapContentBase render selected property:', selectedProperty);
+
 	const displayProperty = selectedProperty
 		? propertyDataToProperty(selectedProperty, filters.operationType[0] || 'venta')
 		: null;

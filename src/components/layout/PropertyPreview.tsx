@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { PropertyDetailModal } from './PropertyDetailModal';
 import ContactAgentButton from '@/components/layout/ContactAgentButton';
-import { useSession } from '@/contexts/SessionProvider';
 
 export interface Property {
 	id: string;
@@ -24,6 +23,8 @@ export interface Property {
 	user_owner?: string;
 	rating?: number;
 	description?: string;
+	itSharesCommission?: boolean;
+	sharedComission?: string;
 }
 
 interface PropertyPreviewDialogProps {
@@ -77,9 +78,7 @@ export function PropertyPreviewDialog({
 	onPropertyViewed,
 }: PropertyPreviewDialogProps) {
 	const [isDetailModalOpen, setIsDetailModalOpen] = React.useState(false);
-	const { session } = useSession();
 
-	// Registrar la propiedad como vista cuando se abre el diálogo
 	React.useEffect(() => {
 		if (isOpen && property && onPropertyViewed) {
 			onPropertyViewed(property.id, 'viewed');
