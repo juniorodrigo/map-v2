@@ -6,6 +6,11 @@ import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import type { Marker } from '@googlemaps/markerclusterer';
 import type { OwnerCluster } from '@/types/property';
 
+const COLORS = {
+	VIEWED: '#10b981',
+	DISCARDED: '#C93232',
+	BASE: '#8F7BBD',
+};
 interface ClusteredMarkersProps {
 	owners: OwnerCluster[];
 	selectedOwnerId: string | null;
@@ -26,34 +31,30 @@ export function ClusteredMarkers({
 	const clustererRef = useRef<MarkerClusterer | null>(null);
 	const markersRef = useRef<Map<string, google.maps.Marker>>(new Map());
 
-	// Función para determinar el color del pin basado en el estado de las propiedades
 	const getPinColor = (owner: OwnerCluster): string => {
 		if (!interactedProperties || !owner.properties || owner.properties.length === 0) {
-			return '#8F7BBD'; // Color base (morado)
+			return COLORS.BASE;
 		}
 
 		const propertyIds = owner.properties.map((p: any) => p._id);
 		const viewedSet = new Set(interactedProperties.viewed || []);
 		const discardedSet = new Set(interactedProperties.discarded || []);
 
-		// Para clusters: TODAS las propiedades deben tener el mismo estado
 		const allViewed = propertyIds.every((id: string) => viewedSet.has(id));
 		const allDiscarded = propertyIds.every((id: string) => discardedSet.has(id));
 
 		if (allDiscarded) {
-			return '#ef4444';
+			return COLORS.DISCARDED;
 		} else if (allViewed) {
-			return '#3b82f6';
+			return COLORS.VIEWED;
 		} else {
-			return '#8F7BBD';
+			return COLORS.BASE;
 		}
 	};
 
-	// Crear o actualizar marcadores
 	useEffect(() => {
 		if (!map || !owners) return;
 
-		// Limpiar marcadores antiguos que ya no existen
 		const currentOwnerIds = new Set(owners.map((o) => o.ownerId));
 		for (const [ownerId, marker] of markersRef.current.entries()) {
 			if (!currentOwnerIds.has(ownerId)) {
@@ -62,14 +63,12 @@ export function ClusteredMarkers({
 			}
 		}
 
-		// Crear o actualizar marcadores
 		owners.forEach((owner) => {
 			let marker = markersRef.current.get(owner.ownerId);
 			const pinColor = getPinColor(owner);
 			const isSelected = selectedOwnerId === owner.ownerId;
 
 			if (!marker) {
-				// Crear SVG del marcador
 				const selectedIconSvg = isSelected
 					? '<g transform="translate(32, 4) scale(1.2)"><path d="M6 0C2.69 0 0 2.69 0 6c0 3.54 6 10 6 10s6-6.46 6-10c0-3.31-2.69-6-6-6zm0 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" fill="#ef4444" stroke="white" stroke-width="0.5"/></g>'
 					: '';
@@ -77,12 +76,11 @@ export function ClusteredMarkers({
 				const markerSvg = `
 					<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48">
 						<circle cx="24" cy="24" r="22" fill="${pinColor}" stroke="white" stroke-width="2"/>
-						<text x="24" y="30" font-size="14" font-weight="bold" fill="white" text-anchor="middle">${owner.propertyCount}</text>
+						<text x="24" y="30" font-size="14" font-weight="bold" fill="white" text-anchor="middle" font-family="sans-serif">${owner.propertyCount}</text>
 						${selectedIconSvg}
 					</svg>
 				`;
 
-				// Crear nuevo marcador
 				marker = new google.maps.Marker({
 					position: owner.position,
 					map,
@@ -93,14 +91,12 @@ export function ClusteredMarkers({
 					},
 				});
 
-				// Agregar listener de click
 				marker.addListener('click', () => {
 					onMarkerClick(owner.ownerId);
 				});
 
 				markersRef.current.set(owner.ownerId, marker);
 			} else {
-				// Actualizar posición e icono si cambió
 				marker.setPosition(owner.position);
 				marker.setIcon({
 					url:
@@ -108,7 +104,7 @@ export function ClusteredMarkers({
 						encodeURIComponent(`
 						<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48">
 							<circle cx="24" cy="24" r="22" fill="${pinColor}" stroke="white" stroke-width="2"/>
-							<text x="24" y="30" font-size="14" font-weight="bold" fill="white" text-anchor="middle">${owner.propertyCount}</text>
+							<text x="24" y="30" font-size="14" font-weight="bold" fill="white" text-anchor="middle" font-family="sans-serif">${owner.propertyCount}</text>
 							${isSelected ? '<g transform="translate(32, 4) scale(1.2)"><path d="M6 0C2.69 0 0 2.69 0 6c0 3.54 6 10 6 10s6-6.46 6-10c0-3.31-2.69-6-6-6zm0 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" fill="#ef4444" stroke="white" stroke-width="0.5"/></g>' : ''}
 						</svg>
 					`),
@@ -119,12 +115,10 @@ export function ClusteredMarkers({
 		});
 	}, [map, owners, selectedOwnerId, onMarkerClick, interactedProperties]);
 
-	// Inicializar o actualizar el clusterer
 	useEffect(() => {
 		if (!map) return;
 
 		if (!clustererRef.current) {
-			// Crear el clusterer con un renderer personalizado
 			clustererRef.current = new MarkerClusterer({
 				map,
 				markers: [],
@@ -141,7 +135,7 @@ export function ClusteredMarkers({
 									encodeURIComponent(`
 									<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
 										<circle cx="${size / 2}" cy="${size / 2}" r="${size / 2 - 2}" fill="#8F7BBD" stroke="white" stroke-width="3"/>
-										<text x="${size / 2}" y="${size / 2 + 6}" font-size="16" font-weight="bold" fill="white" text-anchor="middle">${count}</text>
+										<text x="${size / 2}" y="${size / 2 + 6}" font-size="16" font-weight="bold" fill="white" text-anchor="middle" font-family="sans-serif">${count}</text>
 									</svg>
 								`),
 								scaledSize: new google.maps.Size(size, size),
@@ -156,7 +150,6 @@ export function ClusteredMarkers({
 			});
 		}
 
-		// Actualizar los marcadores en el clusterer
 		const markers = Array.from(markersRef.current.values());
 		clustererRef.current.clearMarkers();
 		if (markers.length > 0) {
@@ -164,7 +157,6 @@ export function ClusteredMarkers({
 		}
 	}, [map, owners]);
 
-	// Limpiar al desmontar
 	useEffect(() => {
 		return () => {
 			if (clustererRef.current) {

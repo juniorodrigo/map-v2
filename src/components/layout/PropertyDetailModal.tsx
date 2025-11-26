@@ -45,7 +45,7 @@ function ModalActions({ property, onDiscard }: ModalActionsProps) {
 			<ContactAgentButton
 				propertyId={property.id}
 				userOwnerId={property.user_owner}
-				className="h-11 text-sm font-semibold rounded-lg transition-opacity flex items-center justify-center gap-2 bg-[#8F7BBD]"
+				className="h-11 text-sm font-semibold rounded-lg transition-opacity flex items-center justify-center gap-2 bg-[#8F7BBD] hover:bg-purple-900"
 			>
 				<MdWhatsapp className="size-4" />
 				Contactar
@@ -53,7 +53,7 @@ function ModalActions({ property, onDiscard }: ModalActionsProps) {
 
 			<Button
 				variant="ghost"
-				className="h-11 text-sm font-semibold rounded-lg transition-opacity bg-red-700 text-white hover:bg-red-800 hover:text-white"
+				className="h-11 text-sm font-semibold rounded-lg transition-opacity bg-[#C93232] text-white hover:bg-red-800 hover:text-white"
 				onClick={onDiscard}
 			>
 				No me interesa
