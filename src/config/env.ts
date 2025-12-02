@@ -16,9 +16,9 @@ const envSchema = z.object({
 
 	FIREBASE_DATABASE_URL: z.string().optional(),
 
-	MONGO_DB_NAME_GGA: z.string().optional(),
-	MONGO_DB_NAME_GU: z.string().optional(),
-	MONGO_DB_NAME_GU2: z.string().optional(),
+	NEXT_PUBLIC_MONGO_DB_NAME_GGA: z.string(),
+	NEXT_PUBLIC_MONGO_DB_NAME_GU: z.string(),
+	NEXT_PUBLIC_MONGO_DB_NAME_GU2: z.string(),
 
 	AWS_REGION: z.string().optional(),
 	AWS_ACCESS_KEY_ID: z.string().optional(),
@@ -50,9 +50,9 @@ const _env = envSchema.parse({
 
 	FIREBASE_DATABASE_URL: process.env.FIREBASE_DATABASE_URL,
 
-	MONGO_DB_NAME_GGA: process.env.MONGO_DB_NAME_GGA,
-	MONGO_DB_NAME_GU: process.env.MONGO_DB_NAME_GU,
-	MONGO_DB_NAME_GU2: process.env.MONGO_DB_NAME_GU2,
+	NEXT_PUBLIC_MONGO_DB_NAME_GGA: process.env.NEXT_PUBLIC_MONGO_DB_NAME_GGA,
+	NEXT_PUBLIC_MONGO_DB_NAME_GU: process.env.NEXT_PUBLIC_MONGO_DB_NAME_GU,
+	NEXT_PUBLIC_MONGO_DB_NAME_GU2: process.env.NEXT_PUBLIC_MONGO_DB_NAME_GU2,
 
 	AWS_REGION: process.env.AWS_REGION,
 	AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
@@ -89,9 +89,9 @@ export const env = {
 
 	mongo: {
 		databases: {
-			gga: _env.MONGO_DB_NAME_GGA,
-			gu: _env.MONGO_DB_NAME_GU,
-			gu2: _env.MONGO_DB_NAME_GU2,
+			gga: _env.NEXT_PUBLIC_MONGO_DB_NAME_GGA,
+			gu: _env.NEXT_PUBLIC_MONGO_DB_NAME_GU,
+			gu2: _env.NEXT_PUBLIC_MONGO_DB_NAME_GU2,
 		},
 	},
 

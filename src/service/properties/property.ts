@@ -4,9 +4,10 @@ import { buildPropertyFilter } from '@/utils/properties';
 
 export async function searchProperties(
 	filters: PropertyFilters,
-	dbName: string = 'gu'
+	dbName: string
 ): Promise<{ total: number; properties: PropertyData[] }> {
 	const filter = buildPropertyFilter(filters);
+
 	const collection = 'property_data';
 
 	const total = await mongoClient.count(collection, filter, dbName);

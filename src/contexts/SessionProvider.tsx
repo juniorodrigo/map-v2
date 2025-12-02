@@ -4,6 +4,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { OwnerSettings } from '@/service/firebase/owner';
 import { UserInfo } from '@/service/mongo/user';
+import { env } from '@/config/env';
 
 // Types ---------------------------
 type SearchType = 'marketmeet' | 'end-user';
@@ -132,7 +133,16 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 		}
 
 		const databaseToSearch: DatabasesToSearch | undefined =
-			searchType === 'marketmeet' ? 'gga' : searchType === 'end-user' ? 'gu2' : undefined;
+			searchType === 'marketmeet'
+				? (env.mongo.databases.gga as DatabasesToSearch)
+				: searchType === 'end-user'
+					? (env.mongo.databases.gu as DatabasesToSearch)
+					: undefined;
+		console.log(
+			databaseToSearch,
+			env.mongo.databases,
+			'_______________________________________________________________XXXXXXXXXXXXXXX_______________________________________-'
+		);
 
 		return { tokenFromUrl, searchType, searchSubtype, isValidUrl, databaseToSearch };
 	}, [searchParams, pathname]);

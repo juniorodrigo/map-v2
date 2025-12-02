@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
 		const body = await request.json();
 		const { filters, dbName, ownerSettings, searchType, searchSubtype } = body;
 
-		// console.log('🔍 Parámetros de búsqueda recibidos:', { filters, dbName, ownerSettings, searchType, searchSubtype });
+		console.log('🔍 Parámetros de búsqueda recibidos:', { filters, dbName, ownerSettings, searchType, searchSubtype });
 
 		if (!filters) {
 			throw new ValidationError('Faltan parámetros: filters es requerido');
