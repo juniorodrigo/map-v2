@@ -1,10 +1,9 @@
-import { env } from '@/config/env';
 import { DatabaseError } from '@/lib/errors';
 
 const EXCLUDE_FIELDS = ['vector'];
 
 interface MongoRequestBody {
-	database?: string;
+	database: string;
 	collection: string;
 	filters?: Record<string, unknown>;
 	update?: Record<string, unknown>;
@@ -25,8 +24,8 @@ interface MongoResponse {
 export class MongoClient {
 	private backendHost: string;
 
-	constructor() {
-		this.backendHost = env.backend.host || '';
+	constructor(backendHost: string) {
+		this.backendHost = backendHost;
 	}
 
 	private async request<T = MongoResponse>(endpoint: string, body: MongoRequestBody): Promise<T> {
@@ -54,9 +53,9 @@ export class MongoClient {
 		}
 	}
 
-	async findOne(collection: string, filters: Record<string, unknown>, dbName?: string): Promise<unknown> {
+	async findOne(collection: string, filters: Record<string, unknown>, dbName: string): Promise<unknown> {
 		const response = await this.request('/mongo/findOne', {
-			database: dbName || env.mongo.databases.gga,
+			database: dbName,
 			collection,
 			filters,
 			excludeFields: EXCLUDE_FIELDS,
@@ -65,11 +64,9 @@ export class MongoClient {
 		return response.document;
 	}
 
-	async count(collection: string, filters: Record<string, unknown>, dbName?: string): Promise<number> {
-		const finalDb = dbName || env.mongo.databases.gga;
-
+	async count(collection: string, filters: Record<string, unknown>, dbName: string): Promise<number> {
 		const requestBody = {
-			database: finalDb,
+			database: dbName,
 			collection,
 			filters,
 		};
@@ -82,16 +79,14 @@ export class MongoClient {
 	async find(
 		collection: string,
 		filters: Record<string, unknown>,
-		dbName?: string,
+		dbName: string,
 		options?: { limit?: number; skip?: number }
 	): Promise<unknown[]> {
-		const finalDb = dbName || env.mongo.databases.gga;
-
 		const totalCount = await this.count(collection, filters, dbName);
 
 		if (totalCount <= 1000) {
 			const requestBody = {
-				database: finalDb,
+				database: dbName,
 				collection,
 				filters,
 				excludeFields: EXCLUDE_FIELDS,
@@ -112,7 +107,7 @@ export class MongoClient {
 			const skip = i * BATCH_SIZE;
 
 			const requestBody = {
-				database: finalDb,
+				database: dbName,
 				collection,
 				filters,
 				excludeFields: EXCLUDE_FIELDS,
@@ -132,11 +127,11 @@ export class MongoClient {
 		collection: string,
 		filters: Record<string, unknown>,
 		update: Record<string, unknown>,
-		dbName?: string,
+		dbName: string,
 		upsert: boolean = true
 	): Promise<unknown> {
 		const response = await this.request('/mongo/updateOne', {
-			database: dbName || env.mongo.databases.gga,
+			database: dbName,
 			collection,
 			filters,
 			update,
@@ -147,9 +142,9 @@ export class MongoClient {
 		return response;
 	}
 
-	async insertOne(collection: string, document: Record<string, unknown>, dbName?: string): Promise<unknown> {
+	async insertOne(collection: string, document: Record<string, unknown>, dbName: string): Promise<unknown> {
 		const response = await this.request('/mongo/insertOne', {
-			database: dbName || env.mongo.databases.gga,
+			database: dbName,
 			collection,
 			document,
 			excludeFields: EXCLUDE_FIELDS,
@@ -158,9 +153,9 @@ export class MongoClient {
 		return response.document;
 	}
 
-	async geoNear(collection: string, pipeline: Record<string, unknown>, dbName?: string): Promise<unknown[]> {
+	async geoNear(collection: string, pipeline: Record<string, unknown>, dbName: string): Promise<unknown[]> {
 		const response = await this.request('/mongo/geoNear', {
-			database: dbName || env.mongo.databases.gga,
+			database: dbName,
 			collection,
 			pipeline,
 			excludeFields: EXCLUDE_FIELDS,
@@ -170,4 +165,39 @@ export class MongoClient {
 	}
 }
 
-export const mongoClient = new MongoClient();
+export function createMongoClient(backendHost: string) {
+	return new MongoClient(backendHost);
+}
+
+let _mongoClient: MongoClient | null = null;
+
+export function getMongoClient(): MongoClient {
+	if (!_mongoClient) {
+		// Solo se ejecuta en server-side
+		const { env } = require('@/config/env');
+		_mongoClient = new MongoClient(env.backend.host || '');
+	}
+	return _mongoClient;
+}
+
+// Para compatibilidad con código existente
+export const mongoClient = {
+	get findOne() {
+		return getMongoClient().findOne.bind(getMongoClient());
+	},
+	get find() {
+		return getMongoClient().find.bind(getMongoClient());
+	},
+	get count() {
+		return getMongoClient().count.bind(getMongoClient());
+	},
+	get updateOne() {
+		return getMongoClient().updateOne.bind(getMongoClient());
+	},
+	get insertOne() {
+		return getMongoClient().insertOne.bind(getMongoClient());
+	},
+	get geoNear() {
+		return getMongoClient().geoNear.bind(getMongoClient());
+	},
+};

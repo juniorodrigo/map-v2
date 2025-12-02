@@ -33,6 +33,11 @@ const envSchema = z.object({
 	PROPERTY_LINK_EDIT: z.string().url().optional(),
 
 	BLACKLIST: z.string(),
+
+	NEXT_PUBLIC_MONGO_DB_GU_PROPERTIES: z.string().optional(),
+	NEXT_PUBLIC_MONGO_DB_GGA_USERS: z.string().optional(),
+	NEXT_PUBLIC_MONGO_DB_GU_USERS: z.string().optional(),
+	NEXT_PUBLIC_MONGO_DB_GGA_PROPERTIES: z.string().optional(),
 });
 
 const _env = envSchema.parse({
@@ -88,10 +93,13 @@ export const env = {
 	},
 
 	mongo: {
-		databases: {
-			gga: _env.NEXT_PUBLIC_MONGO_DB_NAME_GGA,
-			gu: _env.NEXT_PUBLIC_MONGO_DB_NAME_GU,
-			gu2: _env.NEXT_PUBLIC_MONGO_DB_NAME_GU2,
+		gu: {
+			properties: _env.NEXT_PUBLIC_MONGO_DB_GU_PROPERTIES,
+			users: _env.NEXT_PUBLIC_MONGO_DB_GGA_USERS,
+		},
+		gga: {
+			properties: _env.NEXT_PUBLIC_MONGO_DB_GGA_PROPERTIES,
+			users: _env.NEXT_PUBLIC_MONGO_DB_GGA_USERS,
 		},
 	},
 

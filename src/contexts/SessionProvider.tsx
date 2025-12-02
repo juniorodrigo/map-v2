@@ -10,7 +10,7 @@ import { env } from '@/config/env';
 type SearchType = 'marketmeet' | 'end-user';
 type MarketmeetSearchSubtypes = 'default';
 type GuSearchSubtypes = 'similar-properties' | 'default' | 'shared-comission';
-type DatabasesToSearch = 'gu2' | 'gga';
+type DatabasesToSearch = 'gu2' | 'gga' | 'bot';
 
 export interface SessionData {
 	token: string | null;
@@ -21,7 +21,8 @@ export interface SessionData {
 	ownerSettings: OwnerSettings | null;
 	searchType?: SearchType;
 	searchSubtype?: MarketmeetSearchSubtypes | GuSearchSubtypes;
-	databaseToSearch?: DatabasesToSearch;
+	propertiesDb?: DatabasesToSearch;
+	usersDb?: DatabasesToSearch;
 }
 
 interface SessionContextType {
@@ -31,7 +32,7 @@ interface SessionContextType {
 	validateToken: (
 		token: string,
 		searchType: SearchType,
-		databaseToSearch?: DatabasesToSearch
+		propertiesDb?: DatabasesToSearch
 	) => Promise<{ success: boolean; data?: any; error?: string }>;
 }
 
@@ -40,7 +41,8 @@ interface ParsedSearchParams {
 	searchType: SearchType;
 	searchSubtype: MarketmeetSearchSubtypes | GuSearchSubtypes;
 	isValidUrl: boolean;
-	databaseToSearch?: DatabasesToSearch;
+	propertiesDb?: DatabasesToSearch;
+	usersDb?: DatabasesToSearch;
 }
 
 // Constants -------------------------
@@ -66,15 +68,16 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 		async (
 			token: string,
 			searchType: SearchType,
-			databaseToSearch?: DatabasesToSearch
+			propertiesDb?: DatabasesToSearch
 		): Promise<{ success: boolean; data?: any; error?: string }> => {
 			try {
 				if (!token?.trim()) throw new Error('Token vacío o inválido');
 
+				// TODO: falta pasar parámetros de searchtypre y subtype
 				const response = await fetch('/api/mongo/process-token', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ token, database: databaseToSearch }),
+					body: JSON.stringify({ token, database: propertiesDb ?? 'gu' }),
 				});
 
 				if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -132,19 +135,21 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 			isValidUrl = false;
 		}
 
-		const databaseToSearch: DatabasesToSearch | undefined =
+		const propertiesDb: DatabasesToSearch | undefined =
 			searchType === 'marketmeet'
-				? (env.mongo.databases.gga as DatabasesToSearch)
+				? (env.mongo.gga.properties as DatabasesToSearch)
 				: searchType === 'end-user'
-					? (env.mongo.databases.gu as DatabasesToSearch)
+					? (env.mongo.gu.properties as DatabasesToSearch)
 					: undefined;
-		console.log(
-			databaseToSearch,
-			env.mongo.databases,
-			'_______________________________________________________________XXXXXXXXXXXXXXX_______________________________________-'
-		);
 
-		return { tokenFromUrl, searchType, searchSubtype, isValidUrl, databaseToSearch };
+		const usersDb: DatabasesToSearch | undefined =
+			searchType === 'marketmeet'
+				? (env.mongo.gga.users as DatabasesToSearch)
+				: searchType === 'end-user'
+					? (env.mongo.gu.users as DatabasesToSearch)
+					: undefined;
+
+		return { tokenFromUrl, searchType, searchSubtype, isValidUrl, propertiesDb, usersDb };
 	}, [searchParams, pathname]);
 
 	useEffect(() => {
@@ -153,7 +158,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 			return;
 		}
 
-		const { tokenFromUrl, searchType, searchSubtype, isValidUrl, databaseToSearch } = parsedSearchParams;
+		const { tokenFromUrl, searchType, searchSubtype, isValidUrl, propertiesDb, usersDb } = parsedSearchParams;
 
 		const processSession = async () => {
 			setIsLoading(true);
@@ -167,7 +172,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
 			// Validate new token
 			if (tokenFromUrl && tokenFromUrl !== session.token) {
-				const result = await validateToken(tokenFromUrl, searchType, databaseToSearch);
+				const result = await validateToken(tokenFromUrl, searchType, propertiesDb);
 
 				console.log('✅ Token validation result:', result);
 
@@ -181,7 +186,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 						ownerSettings: result.data.ownerSettings,
 						searchType,
 						searchSubtype,
-						databaseToSearch,
+						propertiesDb,
+						usersDb,
 					});
 				} else {
 					setError(result.error || 'Error desconocido');
@@ -189,7 +195,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 						...INITIAL_SESSION_STATE,
 						searchType,
 						searchSubtype,
-						databaseToSearch,
+						propertiesDb,
+						usersDb,
 					});
 					router.push('/not-found');
 				}
@@ -199,7 +206,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 					...INITIAL_SESSION_STATE,
 					searchType,
 					searchSubtype,
-					databaseToSearch,
+					propertiesDb,
+					usersDb,
 				}));
 				router.push('/not-found');
 			}
@@ -209,7 +217,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 					...prev,
 					searchType,
 					searchSubtype,
-					databaseToSearch,
+					propertiesDb,
+					usersDb,
 				}));
 			}
 

@@ -42,7 +42,7 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 	const handleDiscard = React.useCallback(() => {
 		if (onPropertyViewed) {
 			onPropertyViewed(property.id, 'discarded');
-		} else if (session.token && session.databaseToSearch) {
+		} else if (session.token && session.propertiesDb) {
 			// Fallback si no se proporciona onPropertyViewed
 			fetch('/api/mongo/client/interacted-properties', {
 				method: 'POST',
@@ -52,7 +52,7 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 				body: JSON.stringify({
 					propertyId: property.id,
 					viewerId: session.token,
-					dbName: session.databaseToSearch,
+					dbName: session.propertiesDb,
 					status: 'discarded',
 				}),
 			}).catch((error) => {
@@ -64,7 +64,7 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 			duration: 2000,
 		});
 		onClose();
-	}, [property.id, session.token, session.databaseToSearch, onClose, onPropertyViewed]);
+	}, [property.id, session.token, session.propertiesDb, onClose, onPropertyViewed]);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>

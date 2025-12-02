@@ -68,7 +68,7 @@ export default function SearchBar() {
 		debounceTimer.current = setTimeout(async () => {
 			setIsLoading(true);
 			try {
-				const product = session.databaseToSearch === 'gga' ? 'gga' : 'gu';
+				const product = session.propertiesDb === 'gga' ? 'gga' : 'gu';
 				const response = await fetch(`/api/places/autocomplete?input=${encodeURIComponent(value)}&product=${product}`);
 
 				if (!response.ok) {
@@ -96,7 +96,7 @@ export default function SearchBar() {
 		setSuggestions([]);
 
 		try {
-			const product = session.databaseToSearch === 'gga' ? 'gga' : 'gu'; // TODO: mejorar, evitar magic strings
+			const product = session.propertiesDb === 'gga' ? 'gga' : 'gu'; // TODO: mejorar, evitar magic strings
 			const response = await fetch(`/api/places/details?placeId=${place.place_id}&product=${product}`);
 
 			if (!response.ok) {

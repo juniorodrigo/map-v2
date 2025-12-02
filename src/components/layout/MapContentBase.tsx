@@ -169,7 +169,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	// Función para actualizar propiedades interactuadas
 	const updateInteractedProperty = React.useCallback(
 		async (propertyId: string, status: 'viewed' | 'discarded') => {
-			if (!session.token || !session.databaseToSearch) return;
+			if (!session.token || !session.propertiesDb) return;
 
 			try {
 				await fetch('/api/mongo/client/interacted-properties', {
@@ -180,7 +180,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 					body: JSON.stringify({
 						propertyId,
 						viewerId: session.token,
-						dbName: session.databaseToSearch,
+						dbName: session.propertiesDb,
 						status,
 					}),
 				});
@@ -210,7 +210,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 				console.error('Error registrando interacción con propiedad:', error);
 			}
 		},
-		[session.token, session.databaseToSearch]
+		[session.token, session.propertiesDb]
 	);
 
 	React.useEffect(() => {
@@ -251,7 +251,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 			setFilters(newFilters);
 
 			// Actualizar last_requirement en la DB si hay sesión válida
-			if (session.token && session.databaseToSearch) {
+			if (session.token && session.propertiesDb) {
 				try {
 					const location = searchLocation ? { lat: searchLocation.lat, lng: searchLocation.lng } : null;
 					await fetch('/api/mongo/update-requirement', {
@@ -261,7 +261,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 						},
 						body: JSON.stringify({
 							token: session.token,
-							database: session.databaseToSearch,
+							database: session.propertiesDb,
 							filters: newFilters,
 							location,
 						}),
@@ -271,7 +271,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 				}
 			}
 		},
-		[session.token, session.databaseToSearch, searchLocation]
+		[session.token, session.propertiesDb, searchLocation]
 	);
 
 	const handleMarkerClick = (clusterId: string) => {

@@ -15,7 +15,7 @@ export function usePropertySearch({ filters, enabled = true }: UsePropertySearch
 		queryFn: async () => {
 			const requestBody = {
 				filters,
-				dbName: session.databaseToSearch,
+				dbName: session.propertiesDb,
 				ownerSettings: session.ownerSettings || {},
 				searchType: session.searchType,
 				searchSubtype: session.searchSubtype,
