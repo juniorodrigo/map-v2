@@ -163,7 +163,15 @@ export function buildPropertyFilter(filters: PropertyFilters): Record<string, un
 export function groupPropertiesByOwner(properties: PropertyData[]): OwnerCluster[] {
 	const ownerMap = new Map<string, OwnerCluster>();
 
-	for (const property of properties) {
+	// Filtrar propiedades sin coordenadas válidas
+	const validProperties = properties.filter(
+		(property) =>
+			property.location?.coordinates &&
+			Array.isArray(property.location.coordinates) &&
+			property.location.coordinates.length >= 2
+	);
+
+	for (const property of validProperties) {
 		const ownerId = property.user_owner;
 
 		if (!ownerMap.has(ownerId)) {

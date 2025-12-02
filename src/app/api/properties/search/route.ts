@@ -44,6 +44,8 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ success: false, error: error.message }, { status: 400 });
 		}
 
+		console.log('Error inesperado:', error);
+
 		return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 });
 	}
 }
