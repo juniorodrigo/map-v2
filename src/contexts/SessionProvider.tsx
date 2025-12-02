@@ -83,7 +83,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
 				const data = await response.json();
 
-				console.log('🔍 Token validation response data:', data);
+				// console.log('🔍 Token validation response data:', data);
 
 				if (!data.success) throw new Error(data.error || 'Token inválido');
 
@@ -147,8 +147,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 				: searchType === 'end-user'
 					? (env.mongo.gu.users as DatabasesToSearch)
 					: undefined;
-
-		console.log('AAAAAAAAAAAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXxAAAAAA', propertiesDb, usersDb);
 
 		return { tokenFromUrl, searchType, searchSubtype, isValidUrl, propertiesDb, usersDb };
 	}, [searchParams, pathname]);
