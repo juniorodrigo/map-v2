@@ -80,6 +80,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
 				const data = await response.json();
 
+				console.log('🔍 Token validation response data:', data);
+
 				if (!data.success) throw new Error(data.error || 'Token inválido');
 
 				if (!data.userInfo || (!data.ownerSettings && searchType === 'end-user'))

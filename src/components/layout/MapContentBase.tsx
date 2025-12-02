@@ -29,7 +29,7 @@ interface MapContentBaseProps {
 }
 
 export function MapContentBase({ config }: MapContentBaseProps) {
-	const { searchLocation, setSearchLocation, panTo } = useMap();
+	const { map, searchLocation, setSearchLocation } = useMap();
 	const { session } = useSession();
 
 	const [filters, setFilters] = React.useState({
@@ -41,6 +41,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 
 	const [filtersInitialized, setFiltersInitialized] = React.useState(false);
 	const [locationInitialized, setLocationInitialized] = React.useState(false);
+	const [mapCentered, setMapCentered] = React.useState(false);
 	const [selectedOwnerId, setSelectedOwnerId] = React.useState<string | null>(null);
 	const [selectedProperty, setSelectedProperty] = React.useState<PropertyData | null>(null);
 	const [interactedProperties, setInteractedProperties] = React.useState({
@@ -82,17 +83,17 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		}
 	}, [session.userInfo?.interacted_properties]);
 
+	// Solo inicializar searchLocation para la búsqueda, NO hacer panTo aquí
 	React.useEffect(() => {
 		if (!locationInitialized && session.userInfo?.requirement_info?.coordinates) {
 			const { lat, lng } = session.userInfo.requirement_info.coordinates;
 
 			if (lat !== null && lng !== null) {
 				setSearchLocation({ lat, lng });
-				panTo(lat, lng);
 				setLocationInitialized(true);
 			}
 		}
-	}, [session.userInfo, locationInitialized, setSearchLocation, panTo]);
+	}, [session.userInfo, locationInitialized, setSearchLocation]);
 
 	const searchFilters = React.useMemo<PropertyFilters>(
 		() => ({
@@ -110,6 +111,60 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		filters: searchFilters,
 		enabled: canSearch,
 	});
+
+	// Calcular el centro de las propiedades resultantes
+	const propertiesCenter = React.useMemo(() => {
+		if (!data?.owners || data.owners.length === 0) return null;
+
+		let totalLat = 0;
+		let totalLng = 0;
+		let count = 0;
+
+		for (const owner of data.owners) {
+			if (owner.position) {
+				totalLat += owner.position.lat;
+				totalLng += owner.position.lng;
+				count++;
+			}
+		}
+
+		if (count === 0) return null;
+
+		return {
+			lat: totalLat / count,
+			lng: totalLng / count,
+		};
+	}, [data?.owners]);
+
+	// Centrar el mapa según la lógica de negocio (solo una vez al cargar)
+	React.useEffect(() => {
+		if (mapCentered || isLoading || !isFetched || !map) return;
+
+		const userCoords = session.userInfo?.requirement_info?.coordinates;
+		const hasUserCoords = userCoords && userCoords.lat !== null && userCoords.lng !== null;
+		const hasResults = data && data.total > 0 && propertiesCenter;
+
+		if (hasUserCoords) {
+			if (hasResults) {
+				// Con coordenadas + resultados → Centro de propiedades, zoom cercano
+				map.panTo(propertiesCenter);
+				map.setZoom(12);
+			} else {
+				// Con coordenadas + sin resultados → Coordenadas del usuario
+				map.panTo({ lat: userCoords.lat!, lng: userCoords.lng! });
+				map.setZoom(12);
+			}
+		} else {
+			if (hasResults) {
+				// Sin coordenadas + resultados → Centro de propiedades, zoom bajo
+				map.panTo(propertiesCenter);
+				map.setZoom(6);
+			}
+			// Sin coordenadas + sin resultados → Mantener centro de México (ya está por defecto)
+		}
+
+		setMapCentered(true);
+	}, [mapCentered, isLoading, isFetched, map, data, propertiesCenter, session.userInfo]);
 
 	// Función para actualizar propiedades interactuadas
 	const updateInteractedProperty = React.useCallback(
@@ -256,11 +311,9 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		[selectedOwnerId, data]
 	);
 
-	const initialCenter = React.useMemo(() => {
-		const coords = session.userInfo?.requirement_info?.coordinates;
-		if (coords && coords.lat !== null && coords.lng !== null) return { lat: coords.lat, lng: coords.lng };
-		return undefined;
-	}, [session.userInfo]);
+	// Ya no usamos initialCenter basado en userInfo, siempre iniciamos en México
+	// y luego el efecto de centrado se encarga de mover el mapa
+	const initialCenter = undefined;
 
 	return (
 		<>
