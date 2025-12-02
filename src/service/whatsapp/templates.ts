@@ -32,7 +32,7 @@ class WhatsAppService {
 			let gunumber = await findOne({
 				collection: 'gunumbers',
 				filter: { bot_number: botPhoneNumber },
-				dbName: env.mongo.databases.gga,
+				dbName: env.mongo.gga.users,
 			});
 
 			if (!gunumber) {
@@ -40,7 +40,7 @@ class WhatsAppService {
 				gunumber = await findOne({
 					collection: 'gunumbers',
 					filter: { bot_number: botPhoneNumber },
-					dbName: env.mongo.databases.gu2,
+					dbName: env.mongo.gu.users,
 				});
 			}
 
@@ -138,13 +138,14 @@ ${vars.propertyLink}
 
 No responder a este mensaje!`;
 
+		// TODO: acá hay errores, corregir la base de datos
 		const dbToUse = (await findOne({
 			collection: 'gunumbers',
 			filter: { bot_number: botPhoneNumber },
-			dbName: env.mongo.databases.gu2,
+			dbName: env.mongo.gu.users,
 		}))
-			? env.mongo.databases.gu2
-			: env.mongo.databases.gga;
+			? env.mongo.gu.users
+			: env.mongo.gga.users;
 
 		await updateOne({
 			collection: 'chats',

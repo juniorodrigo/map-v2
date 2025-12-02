@@ -261,7 +261,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 						},
 						body: JSON.stringify({
 							token: session.token,
-							database: session.propertiesDb,
+							database: session.usersDb,
 							filters: newFilters,
 							location,
 						}),

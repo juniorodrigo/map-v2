@@ -32,7 +32,7 @@ interface SessionContextType {
 	validateToken: (
 		token: string,
 		searchType: SearchType,
-		propertiesDb?: DatabasesToSearch
+		usersDb?: DatabasesToSearch
 	) => Promise<{ success: boolean; data?: any; error?: string }>;
 }
 
@@ -68,16 +68,15 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 		async (
 			token: string,
 			searchType: SearchType,
-			propertiesDb?: DatabasesToSearch
+			usersDb?: DatabasesToSearch
 		): Promise<{ success: boolean; data?: any; error?: string }> => {
 			try {
 				if (!token?.trim()) throw new Error('Token vacío o inválido');
 
-				// TODO: falta pasar parámetros de searchtypre y subtype
 				const response = await fetch('/api/mongo/process-token', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ token, database: propertiesDb ?? 'gu' }),
+					body: JSON.stringify({ token, database: usersDb ?? 'guaaaaaaaaaa' }),
 				});
 
 				if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -149,6 +148,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 					? (env.mongo.gu.users as DatabasesToSearch)
 					: undefined;
 
+		console.log('AAAAAAAAAAAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXxAAAAAA', propertiesDb, usersDb);
+
 		return { tokenFromUrl, searchType, searchSubtype, isValidUrl, propertiesDb, usersDb };
 	}, [searchParams, pathname]);
 
@@ -172,7 +173,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
 			// Validate new token
 			if (tokenFromUrl && tokenFromUrl !== session.token) {
-				const result = await validateToken(tokenFromUrl, searchType, propertiesDb);
+				const result = await validateToken(tokenFromUrl, searchType, usersDb);
 
 				console.log('✅ Token validation result:', result);
 
