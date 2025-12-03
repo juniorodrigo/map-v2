@@ -31,8 +31,6 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 	const [api, setApi] = React.useState<CarouselApi>();
 	const { session } = useSession();
 
-	const isMarketmeet = session.searchType == 'marketmeet';
-
 	React.useEffect(() => {
 		if (isOpen) {
 			setCurrentImageIndex(0);
@@ -236,10 +234,10 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 									</div>
 
 									{/* Información del Agente y Comisión */}
-									{isMarketmeet && (
+									{session.agentMode && (
 										<>
 											<div className="flex justify-between py-1">
-												<span className="text-sm text-muted-foreground">De:</span>
+												<span className="text-sm text-muted-foreground">Agente:</span>
 												<div className="flex items-center gap-2">
 													<a
 														href="https://wa.me/51999999999?text=Hola%20Carlos%2C%20estoy%20interesado%20en%20la%20propiedad"

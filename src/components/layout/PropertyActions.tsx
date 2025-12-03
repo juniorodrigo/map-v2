@@ -1,14 +1,24 @@
 'use client';
 
+import { useState } from 'react';
 import { MdWhatsapp } from 'react-icons/md';
-import ContactAgentButton from './ContactAgentButton';
 import { Button } from '../ui/button';
 import { useSession } from '@/contexts/SessionProvider';
 import { ReactNode } from 'react';
+import { openWhatsAppChat, requestTechnicalSheet } from '@/service/whatsapp/templates';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 
 export interface PropertyActionsProperty {
 	id: string;
 	user_owner?: string;
+	owner_phone_number?: string;
 }
 
 interface ActionButton {
@@ -25,15 +35,21 @@ interface PropertyActionsContainerProps {
 }
 
 function DefaultActions({ property, onViewDetails, onDiscard, showsInPreview = false }: PropertyActionsContainerProps) {
+	const handleContactClick = () => {
+		if (property.owner_phone_number) {
+			openWhatsAppChat(property.owner_phone_number, property.id);
+		}
+	};
+
 	const buttons: ActionButton[] = [
 		{
 			id: 'contact',
 			showsInPreview: true,
 			render: () => (
-				<ContactAgentButton
+				<Button
 					key="contact"
-					propertyId={property.id}
-					userOwnerId={property.user_owner}
+					onClick={handleContactClick}
+					disabled={!property.owner_phone_number}
 					className={
 						showsInPreview
 							? 'w-full h-10 md:h-11 text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2'
@@ -43,7 +59,7 @@ function DefaultActions({ property, onViewDetails, onDiscard, showsInPreview = f
 				>
 					<MdWhatsapp className="size-4" />
 					Más información
-				</ContactAgentButton>
+				</Button>
 			),
 		},
 		// Botón Ver detalles
@@ -112,15 +128,39 @@ function SharedComissionActions({
 	onDiscard,
 	showsInPreview = false,
 }: PropertyActionsContainerProps) {
+	const { session } = useSession();
+	const [showTechnicalSheetDialog, setShowTechnicalSheetDialog] = useState(false);
+	const [isRequestingSheet, setIsRequestingSheet] = useState(false);
+
+	const handleContactClick = () => {
+		if (property.owner_phone_number) {
+			openWhatsAppChat(property.owner_phone_number, property.id);
+		}
+	};
+
+	const handleTechnicalSheetRequest = async (withData: boolean) => {
+		const userPhoneNumber = session?.userInfo?.phone_number;
+		if (!userPhoneNumber) return;
+
+		setIsRequestingSheet(true);
+		const result = await requestTechnicalSheet(userPhoneNumber, property.id, withData);
+		setIsRequestingSheet(false);
+		setShowTechnicalSheetDialog(false);
+
+		if (!result.success) {
+			console.error('Error al solicitar ficha técnica:', result.error);
+		}
+	};
+
 	const buttons: ActionButton[] = [
 		{
 			id: 'contact-agent',
 			showsInPreview: true,
 			render: () => (
-				<ContactAgentButton
+				<Button
 					key="contact-agent"
-					propertyId={property.id}
-					userOwnerId={property.user_owner}
+					onClick={handleContactClick}
+					disabled={!property.owner_phone_number}
 					className={
 						showsInPreview
 							? 'w-full h-10 md:h-11 text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2'
@@ -130,7 +170,7 @@ function SharedComissionActions({
 				>
 					<MdWhatsapp className="size-4" />
 					Contactar asesor
-				</ContactAgentButton>
+				</Button>
 			),
 		},
 		{
@@ -172,8 +212,7 @@ function SharedComissionActions({
 					key="datasheet"
 					variant="outline"
 					className="h-11 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-					disabled
-					onClick={() => {}}
+					onClick={() => setShowTechnicalSheetDialog(true)}
 				>
 					Solicitar Ficha técnica
 				</Button>
@@ -201,9 +240,28 @@ function SharedComissionActions({
 	);
 
 	return (
-		<div className={showsInPreview ? 'space-y-2' : 'grid grid-cols-1 sm:grid-cols-3 gap-3'}>
-			{filteredButtons.map((btn) => btn.render())}
-		</div>
+		<>
+			<div className={showsInPreview ? 'space-y-2' : 'grid grid-cols-1 sm:grid-cols-3 gap-3'}>
+				{filteredButtons.map((btn) => btn.render())}
+			</div>
+
+			<Dialog open={showTechnicalSheetDialog} onOpenChange={setShowTechnicalSheetDialog}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Solicitar Ficha Técnica</DialogTitle>
+						<DialogDescription>¿Deseas recibir la ficha técnica con tus datos de contacto incluidos?</DialogDescription>
+					</DialogHeader>
+					<DialogFooter className="flex flex-col sm:flex-row gap-2">
+						<Button variant="outline" onClick={() => handleTechnicalSheetRequest(false)} disabled={isRequestingSheet}>
+							Sin mis datos
+						</Button>
+						<Button onClick={() => handleTechnicalSheetRequest(true)} disabled={isRequestingSheet}>
+							{isRequestingSheet ? 'Enviando...' : 'Con mis datos'}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		</>
 	);
 }
 
@@ -213,15 +271,39 @@ function MarketmeetActions({
 	onDiscard,
 	showsInPreview = false,
 }: PropertyActionsContainerProps) {
+	const { session } = useSession();
+	const [showTechnicalSheetDialog, setShowTechnicalSheetDialog] = useState(false);
+	const [isRequestingSheet, setIsRequestingSheet] = useState(false);
+
+	const handleContactClick = () => {
+		if (property.owner_phone_number) {
+			openWhatsAppChat(property.owner_phone_number, property.id);
+		}
+	};
+
+	const handleTechnicalSheetRequest = async (withData: boolean) => {
+		const userPhoneNumber = session?.userInfo?.phone_number;
+		if (!userPhoneNumber) return;
+
+		setIsRequestingSheet(true);
+		const result = await requestTechnicalSheet(userPhoneNumber, property.id, withData);
+		setIsRequestingSheet(false);
+		setShowTechnicalSheetDialog(false);
+
+		if (!result.success) {
+			console.error('Error al solicitar ficha técnica:', result.error);
+		}
+	};
+
 	const buttons: ActionButton[] = [
 		{
 			id: 'contact-agent',
 			showsInPreview: true,
 			render: () => (
-				<ContactAgentButton
+				<Button
 					key="contact-agent"
-					propertyId={property.id}
-					userOwnerId={property.user_owner}
+					onClick={handleContactClick}
+					disabled={!property.owner_phone_number}
 					className={
 						showsInPreview
 							? 'w-full h-10 md:h-11 text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2'
@@ -231,7 +313,7 @@ function MarketmeetActions({
 				>
 					<MdWhatsapp className="size-4" />
 					Contactar asesor
-				</ContactAgentButton>
+				</Button>
 			),
 		},
 		{
@@ -273,8 +355,7 @@ function MarketmeetActions({
 					key="datasheet"
 					variant="outline"
 					className="h-11 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-					disabled
-					onClick={() => {}}
+					onClick={() => setShowTechnicalSheetDialog(true)}
 				>
 					Solicitar Ficha técnica
 				</Button>
@@ -302,9 +383,28 @@ function MarketmeetActions({
 	);
 
 	return (
-		<div className={showsInPreview ? 'space-y-2' : 'grid grid-cols-1 sm:grid-cols-3 gap-3'}>
-			{filteredButtons.map((btn) => btn.render())}
-		</div>
+		<>
+			<div className={showsInPreview ? 'space-y-2' : 'grid grid-cols-1 sm:grid-cols-3 gap-3'}>
+				{filteredButtons.map((btn) => btn.render())}
+			</div>
+
+			<Dialog open={showTechnicalSheetDialog} onOpenChange={setShowTechnicalSheetDialog}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Solicitar Ficha Técnica</DialogTitle>
+						<DialogDescription>¿Deseas recibir la ficha técnica con tus datos de contacto incluidos?</DialogDescription>
+					</DialogHeader>
+					<DialogFooter className="flex flex-col sm:flex-row gap-2">
+						<Button variant="outline" onClick={() => handleTechnicalSheetRequest(false)} disabled={isRequestingSheet}>
+							Sin mis datos
+						</Button>
+						<Button onClick={() => handleTechnicalSheetRequest(true)} disabled={isRequestingSheet}>
+							{isRequestingSheet ? 'Enviando...' : 'Con mis datos'}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		</>
 	);
 }
 

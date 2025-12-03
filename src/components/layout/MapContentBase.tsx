@@ -49,8 +49,6 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	const consecutiveEmptySearchesRef = React.useRef(0);
 	const lastSearchKeyRef = React.useRef<string | null>(null);
 
-	console.log('__________________________MapContentBase render session:', session);
-
 	// Inicializar filtros desde requirement_info
 	React.useEffect(() => {
 		if (!filtersInitialized && session.userInfo?.requirement_info) {

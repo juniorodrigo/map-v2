@@ -22,6 +22,7 @@ export interface Property {
 	area: number;
 	images: string[];
 	user_owner?: string;
+	owner_phone_number?: string;
 	rating?: number;
 	description?: string;
 	itSharesCommission?: boolean;

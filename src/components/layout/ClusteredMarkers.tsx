@@ -106,7 +106,7 @@ export function ClusteredMarkers({
 							const zoomDiff = targetZoom - startZoom;
 							const steps = 6;
 							const stepDelay = 50;
-							
+
 							for (let i = 1; i <= steps; i++) {
 								setTimeout(() => {
 									const newZoom = startZoom + (zoomDiff * i) / steps;
@@ -152,17 +152,17 @@ export function ClusteredMarkers({
 					// Al hacer click en un cluster, hacer zoom suave para ver los marcadores
 					const currentZoom = map.getZoom() || 0;
 					const targetZoom = Math.min(currentZoom + 3, 18);
-					
+
 					// Primero centrar suavemente
 					map.panTo(cluster.position);
-					
+
 					// Luego zoom gradual
 					setTimeout(() => {
 						const startZoom = map.getZoom() || currentZoom;
 						const zoomDiff = targetZoom - startZoom;
 						const steps = 6;
 						const stepDelay = 50;
-						
+
 						for (let i = 1; i <= steps; i++) {
 							setTimeout(() => {
 								const newZoom = startZoom + (zoomDiff * i) / steps;
