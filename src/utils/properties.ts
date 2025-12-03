@@ -39,42 +39,44 @@ export async function buildPropertyFilter(
 	searchType: SearchType,
 	searchSubtype: SearchSubtype
 ): Promise<Record<string, unknown>> {
-	let userOwnerFilter: Record<string, unknown>;
+	let userOwnerFilter: Record<string, unknown> | undefined;
 
-	const effectiveIncludedProperties =
-		searchSubtype === 'shared-comission' ? 'own_properties' : ownerSettings.included_properties;
+	if (searchType === 'end-user') {
+		const effectiveIncludedProperties =
+			searchSubtype === 'shared-comission' ? 'own_properties' : ownerSettings.included_properties;
 
-	switch (effectiveIncludedProperties) {
-		case 'own_properties':
-			userOwnerFilter = {
-				$eq: ownerSettings.owner_firebase_id,
-				$nin: hardconstants.BLOCKED_USERS,
-			};
-			break;
-		case 'own_and_associations':
-			const ownerAssociations = ownerSettings.associations_to_include_in_search || [];
-			if (ownerAssociations.length === 0) {
+		switch (effectiveIncludedProperties) {
+			case 'own_properties':
 				userOwnerFilter = {
 					$eq: ownerSettings.owner_firebase_id,
 					$nin: hardconstants.BLOCKED_USERS,
 				};
 				break;
-			}
-			const matchingUserIds = await firebaseClient.findUserIdsByAssociations(ownerAssociations);
+			case 'own_and_associations':
+				const ownerAssociations = ownerSettings.associations_to_include_in_search || [];
+				if (ownerAssociations.length === 0) {
+					userOwnerFilter = {
+						$eq: ownerSettings.owner_firebase_id,
+						$nin: hardconstants.BLOCKED_USERS,
+					};
+					break;
+				}
+				const matchingUserIds = await firebaseClient.findUserIdsByAssociations(ownerAssociations);
 
-			const allOwnerIds = [ownerSettings.owner_firebase_id, ...matchingUserIds];
+				const allOwnerIds = [ownerSettings.owner_firebase_id, ...matchingUserIds];
 
-			const uniqueOwnerIds = [...new Set(allOwnerIds)].filter((id) => !hardconstants.BLOCKED_USERS.includes(id));
-			userOwnerFilter = { $in: uniqueOwnerIds };
-			break;
-		case 'all_properties':
-		default:
-			userOwnerFilter = { $nin: hardconstants.BLOCKED_USERS };
-			break;
+				const uniqueOwnerIds = [...new Set(allOwnerIds)].filter((id) => !hardconstants.BLOCKED_USERS.includes(id));
+				userOwnerFilter = { $in: uniqueOwnerIds };
+				break;
+			case 'all_properties':
+			default:
+				userOwnerFilter = { $nin: hardconstants.BLOCKED_USERS };
+				break;
+		}
 	}
 
 	const filter: Record<string, unknown> = {
-		user_owner: userOwnerFilter,
+		...(userOwnerFilter && { user_owner: userOwnerFilter }),
 
 		$or: [
 			{ gga: true, ad_status: { $in: ['Borrador', 'Publicado'] } },

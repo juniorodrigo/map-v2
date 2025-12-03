@@ -44,7 +44,6 @@ export async function getOwnerInfoByFirebaseId(ownerFirebaseId: string) {
 		ownerSettings = {
 			included_properties: 'all_properties',
 			owner_firebase_id: ownerFirebaseId,
-			// allowed_comission_percentages: convertCommissionLabelsToNumbers(guSettings.commissions_look),
 		};
 	} else if (
 		guSettings.global_associations &&
