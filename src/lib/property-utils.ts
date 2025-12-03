@@ -37,6 +37,22 @@ export function propertyDataToProperty(data: PropertyData, operationTypeFilter?:
 	const addressParts = [data.address, data.suburb, data.city, data.state].filter(Boolean);
 	const fullAddress = addressParts.join(', ') || 'Dirección no disponible';
 
+	console.log(data, '--------	convirtiendo conchatumareee------------------');
+
+	const getSharedCommission = (commissionDisplay: string): string => {
+		const trimmed = commissionDisplay.trim();
+		if (trimmed === '0' || trimmed === 'true') {
+			return '50% de comisión total';
+		}
+		// Reemplazar coma por punto para poder convertir a número
+		const normalized = trimmed.replace(',', '.');
+		const numValue = parseFloat(normalized);
+		if (!isNaN(numValue) && numValue < 100) {
+			return `${trimmed}% de comisión compartida`;
+		}
+		return trimmed;
+	};
+
 	const property: Property = {
 		id: data._id,
 		title: data.title || 'Propiedad sin título',
@@ -52,7 +68,7 @@ export function propertyDataToProperty(data: PropertyData, operationTypeFilter?:
 		rating: data.rating,
 		description: data.description,
 		itSharesCommission: data.shared_commission_display === 'Si',
-		sharedComission: data.commission_display.trim() == '0' ? '50% de comisión compartida' : data.commission_display,
+		sharedComission: getSharedCommission(data.commission_display),
 	};
 
 	return property;

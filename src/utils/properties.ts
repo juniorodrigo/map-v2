@@ -41,7 +41,10 @@ export async function buildPropertyFilter(
 ): Promise<Record<string, unknown>> {
 	let userOwnerFilter: Record<string, unknown>;
 
-	switch (ownerSettings.included_properties) {
+	const effectiveIncludedProperties =
+		searchSubtype === 'shared-comission' ? 'own_properties' : ownerSettings.included_properties;
+
+	switch (effectiveIncludedProperties) {
 		case 'own_properties':
 			userOwnerFilter = {
 				$eq: ownerSettings.owner_firebase_id,
@@ -195,7 +198,6 @@ export async function buildPropertyFilter(
 		};
 	}
 
-	// Filtrar por commission_display cuando es end-user con shared-comission
 	if (searchType === 'end-user' && searchSubtype === 'shared-comission') {
 		filter.commission_display = {
 			$nin: [0, '0', ''],

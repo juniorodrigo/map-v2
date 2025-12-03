@@ -23,7 +23,7 @@ export function usePropertySearch({ filters, enabled = true }: UsePropertySearch
 
 			console.log('🚀 Enviando solicitud de búsqueda de propiedades con el siguiente cuerpo:', requestBody);
 
-			const response = await fetch('/api/properties/search', {
+			const response = await fetch('/api/mongo/properties/search', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',

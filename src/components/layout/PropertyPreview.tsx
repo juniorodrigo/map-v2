@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { PropertyDetailModal } from './PropertyDetailModal';
 import ContactAgentButton from '@/components/layout/ContactAgentButton';
+import { useSession } from '@/contexts/SessionProvider';
 
 export interface Property {
 	id: string;
@@ -41,10 +42,6 @@ interface PropertyActionsProps {
 	onViewDetails: () => void;
 }
 
-/**
- * Componente separado para los botones de acción de la propiedad
- * Permite intercambiar fácilmente por otra botonera
- */
 function PropertyActions({ property, onViewDetails }: PropertyActionsProps) {
 	return (
 		<div className="space-y-2">
@@ -78,6 +75,10 @@ export function PropertyPreviewDialog({
 	onPropertyViewed,
 }: PropertyPreviewDialogProps) {
 	const [isDetailModalOpen, setIsDetailModalOpen] = React.useState(false);
+	const { session } = useSession();
+
+	console.log('Session:', session);
+	console.log(' AAAAAAAAAAAAAAAAAAAA PropertyPreviewDialog - property:', property);
 
 	React.useEffect(() => {
 		if (isOpen && property && onPropertyViewed) {
@@ -216,6 +217,17 @@ export function PropertyPreviewDialog({
 								<span className="text-sm text-muted-foreground">/{property.operation}</span>
 							</div>
 						</div>
+						{/* Badges de comisión */}
+						{session?.agentMode && property.itSharesCommission && (
+							<div className="flex items-center gap-2 pt-2">
+								<Badge className="bg-green-100 text-green-800 hover:bg-green-100 border border-green-200">
+									Comparte comisión
+								</Badge>
+								{property.sharedComission && (
+									<span className="text-sm font-medium text-green-700">{property.sharedComission}</span>
+								)}
+							</div>
+						)}
 
 						{/* Actions - Componente separado */}
 						<PropertyActions property={property} onViewDetails={() => setIsDetailModalOpen(true)} />

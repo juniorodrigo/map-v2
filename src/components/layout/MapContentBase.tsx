@@ -95,6 +95,61 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		}
 	}, [session.userInfo, locationInitialized, setSearchLocation]);
 
+	// Ref para rastrear si el usuario ha cambiado la ubicación manualmente
+	const userChangedLocationRef = React.useRef(false);
+	const previousSearchLocationRef = React.useRef<{ lat: number; lng: number } | null>(null);
+
+	// Detectar cambios manuales de ubicación (después de la inicialización)
+	React.useEffect(() => {
+		if (!locationInitialized) return;
+
+		// Si es la primera vez después de inicializar, solo guardar la referencia
+		if (previousSearchLocationRef.current === null && searchLocation) {
+			previousSearchLocationRef.current = searchLocation;
+			return;
+		}
+
+		// Si la ubicación cambió, marcar como cambio manual del usuario
+		if (
+			searchLocation &&
+			previousSearchLocationRef.current &&
+			(searchLocation.lat !== previousSearchLocationRef.current.lat ||
+				searchLocation.lng !== previousSearchLocationRef.current.lng)
+		) {
+			userChangedLocationRef.current = true;
+			previousSearchLocationRef.current = searchLocation;
+		}
+	}, [searchLocation, locationInitialized]);
+
+	// Actualizar ubicación en la DB cuando el usuario busca una nueva dirección
+	React.useEffect(() => {
+		if (!userChangedLocationRef.current || !searchLocation) return;
+		if (!session.token || !session.propertiesDb) return;
+
+		const updateLocationInDb = async () => {
+			try {
+				await fetch('/api/mongo/update-requirement', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						token: session.token,
+						database: session.usersDb,
+						filters,
+						location: { lat: searchLocation.lat, lng: searchLocation.lng },
+					}),
+				});
+				// Reset después de actualizar
+				userChangedLocationRef.current = false;
+			} catch (error) {
+				console.error('Error actualizando ubicación:', error);
+			}
+		};
+
+		updateLocationInDb();
+	}, [searchLocation, session.token, session.propertiesDb, session.usersDb, filters]);
+
 	const searchFilters = React.useMemo<PropertyFilters>(
 		() => ({
 			...filters,
@@ -228,7 +283,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 					});
 					consecutiveEmptySearchesRef.current = 0;
 				} else {
-					toast.error('No se encontraron propiedades', {
+					toast.error('No se encontraron propiedades. Verifica tus filtros o ubicación', {
 						duration: 3000,
 					});
 					consecutiveEmptySearchesRef.current += 1;
