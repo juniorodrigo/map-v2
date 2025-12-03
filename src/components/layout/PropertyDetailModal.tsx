@@ -251,10 +251,14 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 													<span className="text-sm font-semibold">Test Marketmeet</span>
 												</div>
 											</div>
-											<div className="flex justify-between py-1">
-												<span className="text-sm text-muted-foreground">Comisión compartida:</span>
-												<span className="text-sm font-semibold">50%/venta</span>
-											</div>
+											{property.itSharesCommission && (
+												<div className="flex justify-between py-1 items-center">
+													<span className="text-sm text-muted-foreground">Comisión compartida:</span>
+													<span className="text-sm font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded border border-green-200">
+														{property.sharedComission || 'Sí'}
+													</span>
+												</div>
+											)}
 										</>
 									)}
 								</div>
