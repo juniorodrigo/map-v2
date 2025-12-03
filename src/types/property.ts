@@ -53,6 +53,8 @@ export interface PropertyData {
 	commission_display: string;
 	shared_commission_display: string;
 
+	firebase_id?: string;
+
 	[key: string]: unknown;
 }
 

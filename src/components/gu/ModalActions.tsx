@@ -1,7 +1,7 @@
 import { MdWhatsapp } from 'react-icons/md';
-import ContactAgentButton from '../layout/ContactAgentButton';
 import { Property } from '../layout/PropertyPreview';
 import { Button } from '../ui/button';
+import { openWhatsAppChat } from '@/service/whatsapp/templates';
 
 interface ModalActionsProps {
 	property: Property;
@@ -9,6 +9,12 @@ interface ModalActionsProps {
 }
 
 export function ModalActions({ property, onDiscard }: ModalActionsProps) {
+	const handleContactClick = () => {
+		if (property.owner_phone_number) {
+			openWhatsAppChat(property.owner_phone_number, property.id);
+		}
+	};
+
 	return (
 		<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
 			<Button
@@ -20,14 +26,14 @@ export function ModalActions({ property, onDiscard }: ModalActionsProps) {
 				Agendar Cita
 			</Button>
 
-			<ContactAgentButton
-				propertyId={property.id}
-				userOwnerId={property.user_owner}
+			<Button
+				onClick={handleContactClick}
+				disabled={!property.owner_phone_number}
 				className="h-11 text-sm font-semibold rounded-lg transition-opacity flex items-center justify-center gap-2 bg-[#8F7BBD] hover:bg-purple-900"
 			>
 				<MdWhatsapp className="size-4" />
 				Contactar
-			</ContactAgentButton>
+			</Button>
 
 			<Button
 				variant="ghost"

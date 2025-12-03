@@ -37,8 +37,6 @@ export function propertyDataToProperty(data: PropertyData, operationTypeFilter?:
 	const addressParts = [data.address, data.suburb, data.city, data.state].filter(Boolean);
 	const fullAddress = addressParts.join(', ') || 'Dirección no disponible';
 
-	console.log(data, '--------	convirtiendo conchatumareee------------------');
-
 	const getSharedCommission = (commissionDisplay: string): string => {
 		const trimmed = commissionDisplay.trim();
 		if (trimmed === '0' || trimmed === 'true') {
@@ -55,6 +53,7 @@ export function propertyDataToProperty(data: PropertyData, operationTypeFilter?:
 
 	const property: Property = {
 		id: data._id,
+		firebaseId: data.firebase_id || undefined,
 		title: data.title || 'Propiedad sin título',
 		address: fullAddress,
 		price: priceFormatted,

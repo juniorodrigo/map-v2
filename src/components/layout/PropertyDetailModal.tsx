@@ -25,13 +25,9 @@ interface PropertyDetailModalProps {
 }
 
 export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewed }: PropertyDetailModalProps) {
-	console.log('Rendering PropertyDetailModal for property:', property);
-
 	const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 	const [api, setApi] = React.useState<CarouselApi>();
 	const { session } = useSession();
-
-	const isMarketmeet = session.searchType == 'marketmeet';
 
 	React.useEffect(() => {
 		if (isOpen) {
@@ -236,10 +232,10 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 									</div>
 
 									{/* Información del Agente y Comisión */}
-									{isMarketmeet && (
+									{session.agentMode && (
 										<>
 											<div className="flex justify-between py-1">
-												<span className="text-sm text-muted-foreground">De:</span>
+												<span className="text-sm text-muted-foreground">Agente:</span>
 												<div className="flex items-center gap-2">
 													<a
 														href="https://wa.me/51999999999?text=Hola%20Carlos%2C%20estoy%20interesado%20en%20la%20propiedad"
@@ -253,10 +249,14 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 													<span className="text-sm font-semibold">Test Marketmeet</span>
 												</div>
 											</div>
-											<div className="flex justify-between py-1">
-												<span className="text-sm text-muted-foreground">Comisión compartida:</span>
-												<span className="text-sm font-semibold">50%/venta</span>
-											</div>
+											{property.itSharesCommission && (
+												<div className="flex justify-between py-1 items-center">
+													<span className="text-sm text-muted-foreground">Comisión compartida:</span>
+													<span className="text-sm font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded border border-green-200">
+														{property.sharedComission || 'Sí'}
+													</span>
+												</div>
+											)}
 										</>
 									)}
 								</div>

@@ -45,8 +45,6 @@ export async function POST(request: NextRequest) {
 			dbName: database,
 		})) as any;
 
-		// console.log('✅ Resultado de actualización:', updateResult);
-
 		// Verificar si la operación fue exitosa (matchedCount > 0 significa que se encontró el documento)
 		if (!updateResult || updateResult.matchedCount === 0) {
 			return NextResponse.json({ success: false, error: 'No se encontró el usuario para actualizar' }, { status: 404 });

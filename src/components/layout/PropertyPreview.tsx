@@ -22,10 +22,12 @@ export interface Property {
 	area: number;
 	images: string[];
 	user_owner?: string;
+	owner_phone_number?: string;
 	rating?: number;
 	description?: string;
 	itSharesCommission?: boolean;
 	sharedComission?: string;
+	firebaseId?: string;
 }
 
 interface PropertyPreviewDialogProps {
@@ -48,9 +50,6 @@ export function PropertyPreviewDialog({
 	const [isDetailModalOpen, setIsDetailModalOpen] = React.useState(false);
 	const { session } = useSession();
 
-	console.log('Session:', session);
-	console.log(' AAAAAAAAAAAAAAAAAAAA PropertyPreviewDialog - property:', property);
-
 	React.useEffect(() => {
 		if (isOpen && property && onPropertyViewed) {
 			onPropertyViewed(property.id, 'viewed');
@@ -63,7 +62,7 @@ export function PropertyPreviewDialog({
 	const hasDescription = property.description && property.description.trim().length > 0;
 
 	return (
-		<div className="fixed top-4 z-30 w-full md:w-[40vw] lg:w-[32vw] max-w-[600px] animate-in slide-in-from-right duration-300 left-1/2 -translate-x-1/2 md:translate-x-0 md:right-4 md:left-auto px-4 md:px-0">
+		<div className="fixed top-4 bottom-4 z-30 w-full md:w-[40vw] lg:w-[32vw] max-w-[600px] animate-in slide-in-from-right duration-300 left-1/2 -translate-x-1/2 md:translate-x-0 md:right-4 md:left-auto px-4 md:px-0 overflow-y-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
 			<div className="flex flex-col gap-3 bg-white shadow-2xl rounded-2xl overflow-hidden">
 				{/* Main Property Card */}
 				<div className="flex flex-col">
