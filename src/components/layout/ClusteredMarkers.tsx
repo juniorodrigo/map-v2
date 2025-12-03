@@ -21,6 +21,8 @@ interface ClusteredMarkersProps {
 	};
 }
 
+const MIN_ZOOM_ON_CLICK = 14; // Nivel mínimo de zoom al hacer click en un pin
+
 export function ClusteredMarkers({
 	owners,
 	selectedOwnerId,
@@ -92,6 +94,30 @@ export function ClusteredMarkers({
 				});
 
 				marker.addListener('click', () => {
+					// Ajustar zoom si es muy bajo con animación suave
+					const currentZoom = map.getZoom();
+					if (currentZoom !== undefined && currentZoom < MIN_ZOOM_ON_CLICK) {
+						// Primero centrar suavemente, luego ajustar zoom gradualmente
+						map.panTo(owner.position);
+						// Pequeño delay para que el pan se complete antes del zoom
+						setTimeout(() => {
+							const targetZoom = MIN_ZOOM_ON_CLICK;
+							const startZoom = map.getZoom() || currentZoom;
+							const zoomDiff = targetZoom - startZoom;
+							const steps = 6;
+							const stepDelay = 50;
+							
+							for (let i = 1; i <= steps; i++) {
+								setTimeout(() => {
+									const newZoom = startZoom + (zoomDiff * i) / steps;
+									map.setZoom(newZoom);
+								}, i * stepDelay);
+							}
+						}, 100);
+					} else {
+						// Si el zoom ya es adecuado, solo centrar suavemente
+						map.panTo(owner.position);
+					}
 					onMarkerClick(owner.ownerId);
 				});
 
@@ -122,6 +148,29 @@ export function ClusteredMarkers({
 			clustererRef.current = new MarkerClusterer({
 				map,
 				markers: [],
+				onClusterClick: (event, cluster, map) => {
+					// Al hacer click en un cluster, hacer zoom suave para ver los marcadores
+					const currentZoom = map.getZoom() || 0;
+					const targetZoom = Math.min(currentZoom + 3, 18);
+					
+					// Primero centrar suavemente
+					map.panTo(cluster.position);
+					
+					// Luego zoom gradual
+					setTimeout(() => {
+						const startZoom = map.getZoom() || currentZoom;
+						const zoomDiff = targetZoom - startZoom;
+						const steps = 6;
+						const stepDelay = 50;
+						
+						for (let i = 1; i <= steps; i++) {
+							setTimeout(() => {
+								const newZoom = startZoom + (zoomDiff * i) / steps;
+								map.setZoom(newZoom);
+							}, i * stepDelay);
+						}
+					}, 100);
+				},
 				renderer: {
 					render: ({ count, position }) => {
 						const size = Math.min(50 + Math.floor(count / 5) * 5, 70);
