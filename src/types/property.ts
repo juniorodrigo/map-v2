@@ -72,6 +72,7 @@ export interface PropertyFilters {
 		lng: number;
 		radius?: number; // en metros
 	};
+	// ownerFirebaseId: string;
 }
 
 export interface OwnerCluster {

@@ -23,9 +23,16 @@ export async function POST(request: NextRequest) {
 			operationType: filters.operationType || [],
 			bounds: filters.bounds,
 			searchLocation: filters.searchLocation,
+			// ownerFirebaseId: filters.ownerFirebaseId,
 		};
 
-		const { total, properties } = await searchProperties(propertyFilters, dbName);
+		const { total, properties } = await searchProperties(
+			propertyFilters,
+			dbName,
+			ownerSettings,
+			searchType,
+			searchSubtype
+		);
 
 		const owners = groupPropertiesByOwner(properties);
 

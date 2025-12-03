@@ -40,17 +40,15 @@ export async function getOwnerInfoByFirebaseId(ownerFirebaseId: string) {
 	const guSettings = ownerInfo.gu_number_data;
 	if (!guSettings) return null;
 
-	// Caso todas las propiedades (que comparten comisión)
+	// console.log('___________________________-🔍 Gu settings found for owner:', ownerInfo);
+
 	if (guSettings.global_associations && guSettings.owner_properties == false && guSettings.my_associations == false) {
 		ownerSettings = {
 			included_properties: 'all_properties',
 			owner_firebase_id: ownerFirebaseId,
 			allowed_comission_percentages: convertCommissionLabelsToNumbers(guSettings.commissions_look),
 		};
-	}
-
-	// Caso solo mis propiedades
-	else if (
+	} else if (
 		guSettings.global_associations &&
 		guSettings.owwner_properties == false &&
 		guSettings.my_associations == false
@@ -59,9 +57,7 @@ export async function getOwnerInfoByFirebaseId(ownerFirebaseId: string) {
 			included_properties: 'own_properties',
 			owner_firebase_id: ownerFirebaseId,
 		};
-	}
-	// Caso mis propiedades y asociaciones (como está bugeado, lo dejaré así)
-	else {
+	} else {
 		ownerSettings = {
 			included_properties: 'own_and_associations',
 			owner_firebase_id: ownerFirebaseId,

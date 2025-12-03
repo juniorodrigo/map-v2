@@ -34,6 +34,9 @@ const envSchema = z.object({
 	NEXT_PUBLIC_MONGO_DB_GGA_USERS: z.string().optional(),
 	NEXT_PUBLIC_MONGO_DB_GU_USERS: z.string().optional(),
 	NEXT_PUBLIC_MONGO_DB_GGA_PROPERTIES: z.string().optional(),
+
+	NEXT_PUBLIC_GU_PROPERTIES_COLLECION: z.string().optional(),
+	NEXT_PUBLIC_GGA_PROPERTIES_COLLECION: z.string().optional(),
 });
 
 const _env = envSchema.parse({
@@ -97,6 +100,12 @@ export const env = {
 		gga: {
 			properties: _env.NEXT_PUBLIC_MONGO_DB_GGA_PROPERTIES,
 			users: _env.NEXT_PUBLIC_MONGO_DB_GGA_USERS,
+		},
+		collections: {
+			properties: {
+				gu: _env.NEXT_PUBLIC_GU_PROPERTIES_COLLECION,
+				gga: _env.NEXT_PUBLIC_GGA_PROPERTIES_COLLECION,
+			},
 		},
 	},
 

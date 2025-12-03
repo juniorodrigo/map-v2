@@ -11,11 +11,9 @@ import { useMap } from '../../contexts/MapContext';
 import { ClusteredMarkers } from './ClusteredMarkers';
 import { usePropertySearch } from '@/hooks/use-property-search';
 import { propertyDataToProperty, propertyDataArrayToPropertyArray } from '@/lib/property-utils';
-import { useSession } from '@/contexts/SessionProvider';
+import { SearchType, useSession } from '@/contexts/SessionProvider';
 import type { PropertyFilters, PropertyData } from '@/types/property';
 import toast from 'react-hot-toast';
-
-export type SearchType = 'gu' | 'marketmeet';
 
 export interface MapContentConfig {
 	searchType: SearchType;

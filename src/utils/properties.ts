@@ -1,7 +1,9 @@
 import { OwnerCluster, PropertyData, PropertyFilters } from '@/types/property';
 import { hardconstants } from './constants';
 import { operationTypeCodesToLabels, propertyTypeCodesToLabels } from '@/lib/property-type-mappings';
-
+import { OwnerSettings } from '@/service/firebase/owner';
+import { SearchSubtype, SearchType } from '@/contexts/SessionProvider';
+import { firebaseClient } from '@/service/firebase/client';
 export function divideIntoSubClusters(cluster: OwnerCluster): OwnerCluster[] {
 	const maxClusterSize = 10;
 	const properties = cluster.properties;
@@ -31,9 +33,45 @@ export function divideIntoSubClusters(cluster: OwnerCluster): OwnerCluster[] {
 	return subClusters;
 }
 
-export function buildPropertyFilter(filters: PropertyFilters): Record<string, unknown> {
+export async function buildPropertyFilter(
+	filters: PropertyFilters,
+	ownerSettings: OwnerSettings,
+	searchType: SearchType,
+	searchSubtype: SearchSubtype
+): Promise<Record<string, unknown>> {
+	let userOwnerFilter: Record<string, unknown>;
+
+	switch (ownerSettings.included_properties) {
+		case 'own_properties':
+			userOwnerFilter = {
+				$eq: ownerSettings.owner_firebase_id,
+				$nin: hardconstants.BLOCKED_USERS,
+			};
+			break;
+		case 'own_and_associations':
+			const ownerAssociations = ownerSettings.associations_to_include_in_search || [];
+			if (ownerAssociations.length === 0) {
+				userOwnerFilter = {
+					$eq: ownerSettings.owner_firebase_id,
+					$nin: hardconstants.BLOCKED_USERS,
+				};
+				break;
+			}
+			const matchingUserIds = await firebaseClient.findUserIdsByAssociations(ownerAssociations);
+
+			const allOwnerIds = [ownerSettings.owner_firebase_id, ...matchingUserIds];
+
+			const uniqueOwnerIds = [...new Set(allOwnerIds)].filter((id) => !hardconstants.BLOCKED_USERS.includes(id));
+			userOwnerFilter = { $in: uniqueOwnerIds };
+			break;
+		case 'all_properties':
+		default:
+			userOwnerFilter = { $nin: hardconstants.BLOCKED_USERS };
+			break;
+	}
+
 	const filter: Record<string, unknown> = {
-		user_owner: { $nin: hardconstants.BLOCKED_USERS },
+		user_owner: userOwnerFilter,
 
 		$or: [
 			{ gga: true, ad_status: { $in: ['Borrador', 'Publicado'] } },

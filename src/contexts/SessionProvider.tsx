@@ -7,9 +7,10 @@ import { UserInfo } from '@/service/mongo/user';
 import { env } from '@/config/env';
 
 // Types ---------------------------
-type SearchType = 'marketmeet' | 'end-user';
+export type SearchType = 'marketmeet' | 'end-user';
 type MarketmeetSearchSubtypes = 'default';
 type GuSearchSubtypes = 'similar-properties' | 'default' | 'shared-comission';
+export type SearchSubtype = MarketmeetSearchSubtypes | GuSearchSubtypes;
 type DatabasesToSearch = 'gu2' | 'gga' | 'bot';
 
 export interface SessionData {
