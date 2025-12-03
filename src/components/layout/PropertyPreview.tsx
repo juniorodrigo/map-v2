@@ -1,12 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { MdBed, MdBathtub, MdSquareFoot, MdLocationOn, MdClose, MdPhotoCamera, MdWhatsapp } from 'react-icons/md';
+import { MdBed, MdBathtub, MdSquareFoot, MdLocationOn, MdClose, MdPhotoCamera } from 'react-icons/md';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { PropertyDetailModal } from './PropertyDetailModal';
-import ContactAgentButton from '@/components/layout/ContactAgentButton';
+import { PropertyActions } from './PropertyActions';
 import { useSession } from '@/contexts/SessionProvider';
 
 export interface Property {
@@ -35,35 +35,6 @@ interface PropertyPreviewDialogProps {
 	similarProperties?: Property[];
 	onSimilarPropertyClick?: (propertyId: string) => void;
 	onPropertyViewed?: (propertyId: string, status: 'viewed' | 'discarded') => void;
-}
-
-interface PropertyActionsProps {
-	property: Property;
-	onViewDetails: () => void;
-}
-
-function PropertyActions({ property, onViewDetails }: PropertyActionsProps) {
-	return (
-		<div className="space-y-2">
-			<ContactAgentButton
-				propertyId={property.id}
-				userOwnerId={property.user_owner}
-				className="w-full h-10 md:h-11 text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-				style={{ backgroundColor: '#8F7BBD' }}
-			>
-				<MdWhatsapp className="size-4" />
-				Solicitar Información
-			</ContactAgentButton>
-			<Button
-				onClick={onViewDetails}
-				variant="outline"
-				className="w-full h-10 md:h-11 text-sm font-semibold rounded-lg border-2 hover:bg-gray-50 transition-colors"
-				style={{ borderColor: '#8F7BBD', color: '#8F7BBD' }}
-			>
-				Ver detalles completos
-			</Button>
-		</div>
-	);
 }
 
 export function PropertyPreviewDialog({
@@ -230,7 +201,7 @@ export function PropertyPreviewDialog({
 						)}
 
 						{/* Actions - Componente separado */}
-						<PropertyActions property={property} onViewDetails={() => setIsDetailModalOpen(true)} />
+						<PropertyActions property={property} onViewDetails={() => setIsDetailModalOpen(true)} showsInPreview />
 					</div>
 				</div>
 

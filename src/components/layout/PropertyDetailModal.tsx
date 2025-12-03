@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import type { Property } from './PropertyPreview';
 import { useSession } from '@/contexts/SessionProvider';
 import toast from 'react-hot-toast';
-import { ModalActions } from '../gu/ModalActions';
+import { PropertyActions } from './PropertyActions';
 
 interface PropertyDetailModalProps {
 	property: Property;
@@ -262,7 +262,7 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 								</div>
 
 								{/* Botones de Acción - Componente separado */}
-								<ModalActions property={property} onDiscard={handleDiscard} />
+								<PropertyActions property={property} onDiscard={handleDiscard} />
 
 								{/* Descripción Completa */}
 								{property.description && (
