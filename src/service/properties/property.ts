@@ -19,7 +19,10 @@ export async function searchProperties(
 	);
 
 	//TODO: ajustar para diferentes colecciones según tipo de búsqueda. Falta marketmeet o end-user y según las settings del owner
-	const collection = 'property_data';
+	const collection =
+		searchType === 'marketmeet' ? env.mongo.collections.properties.gga : env.mongo.collections.properties.gu;
+
+	console.log('Collection used for search:', collection);
 
 	const total = await mongoClient.count(collection, filter, dbName);
 
