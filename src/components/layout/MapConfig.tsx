@@ -37,7 +37,7 @@ const GuResultsBadges = ({ data, total }: { data: any; total: number }) => {
 };
 
 export const guMapConfig: MapContentConfig = {
-	searchType: 'gu',
+	searchType: 'end-user',
 	onMarkerClick: (clusterId, ownerCluster) => {
 		// Log específico de GU
 		console.log('ID de la propiedad:', ownerCluster.properties[0]._id);
