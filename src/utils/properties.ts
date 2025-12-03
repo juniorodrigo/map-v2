@@ -195,6 +195,14 @@ export async function buildPropertyFilter(
 		};
 	}
 
+	// Filtrar por commission_display cuando es end-user con shared-comission
+	if (searchType === 'end-user' && searchSubtype === 'shared-comission') {
+		filter.commission_display = {
+			$nin: [0, '0', ''],
+			$exists: true,
+		};
+	}
+
 	return filter;
 }
 
