@@ -27,6 +27,7 @@ export interface Property {
 	description?: string;
 	itSharesCommission?: boolean;
 	sharedComission?: string;
+	firebaseId?: string;
 }
 
 interface PropertyPreviewDialogProps {

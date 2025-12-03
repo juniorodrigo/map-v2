@@ -19,6 +19,7 @@ export interface PropertyActionsProperty {
 	id: string;
 	user_owner?: string;
 	owner_phone_number?: string;
+	firebaseId?: string;
 }
 
 interface ActionButton {
@@ -42,7 +43,7 @@ function DefaultActions({ property, onViewDetails, onDiscard, showsInPreview = f
 
 	const handleContactClick = () => {
 		if (botPhoneNumber) {
-			openWhatsAppChat(botPhoneNumber, property.id);
+			openWhatsAppChat(botPhoneNumber, property.firebaseId || 'WITHOUT_FIREBASE_ID');
 		}
 	};
 

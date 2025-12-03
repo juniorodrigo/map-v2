@@ -53,6 +53,7 @@ export function propertyDataToProperty(data: PropertyData, operationTypeFilter?:
 
 	const property: Property = {
 		id: data._id,
+		firebaseId: data.firebase_id || undefined,
 		title: data.title || 'Propiedad sin título',
 		address: fullAddress,
 		price: priceFormatted,

@@ -107,7 +107,6 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 			return;
 		}
 
-		// Si la ubicación cambió, marcar como cambio manual del usuario
 		if (
 			searchLocation &&
 			previousSearchLocationRef.current &&
@@ -119,7 +118,6 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		}
 	}, [searchLocation, locationInitialized]);
 
-	// Actualizar ubicación en la DB cuando el usuario busca una nueva dirección
 	React.useEffect(() => {
 		if (!userChangedLocationRef.current || !searchLocation) return;
 		if (!session.token || !session.propertiesDb) return;
@@ -138,7 +136,6 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 						location: { lat: searchLocation.lat, lng: searchLocation.lng },
 					}),
 				});
-				// Reset después de actualizar
 				userChangedLocationRef.current = false;
 			} catch (error) {
 				console.error('Error actualizando ubicación:', error);
@@ -165,7 +162,6 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		enabled: canSearch,
 	});
 
-	// Calcular el centro de las propiedades resultantes
 	const propertiesCenter = React.useMemo(() => {
 		if (!data?.owners || data.owners.length === 0) return null;
 
@@ -189,7 +185,6 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		};
 	}, [data?.owners]);
 
-	// Centrar el mapa según la lógica de negocio (solo una vez al cargar)
 	React.useEffect(() => {
 		if (mapCentered || isLoading || !isFetched || !map) return;
 
@@ -199,27 +194,22 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 
 		if (hasUserCoords) {
 			if (hasResults) {
-				// Con coordenadas + resultados → Centro de propiedades, zoom cercano
 				map.panTo(propertiesCenter);
 				map.setZoom(12);
 			} else {
-				// Con coordenadas + sin resultados → Coordenadas del usuario
 				map.panTo({ lat: userCoords.lat!, lng: userCoords.lng! });
 				map.setZoom(12);
 			}
 		} else {
 			if (hasResults) {
-				// Sin coordenadas + resultados → Centro de propiedades, zoom bajo
 				map.panTo(propertiesCenter);
 				map.setZoom(6);
 			}
-			// Sin coordenadas + sin resultados → Mantener centro de México (ya está por defecto)
 		}
 
 		setMapCentered(true);
 	}, [mapCentered, isLoading, isFetched, map, data, propertiesCenter, session.userInfo]);
 
-	// Función para actualizar propiedades interactuadas
 	const updateInteractedProperty = React.useCallback(
 		async (propertyId: string, status: 'viewed' | 'discarded') => {
 			if (!session.token || !session.propertiesDb) return;
@@ -347,6 +337,8 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	const displayProperty = selectedProperty
 		? propertyDataToProperty(selectedProperty, filters.operationType[0] || 'venta')
 		: null;
+
+	console.log('___________________ Display Property:', displayProperty);
 
 	const handleSimilarPropertyClick = React.useCallback(
 		(propertyId: string) => {

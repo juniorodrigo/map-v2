@@ -25,7 +25,7 @@ export function detectDevice(): DeviceType {
  */
 export function generateWhatsAppUrl(ownerNumber: string, propertyId: string): string {
 	const basePublicLink = env.properties.publicLink || '';
-	const message = `Hola, vengo desde *Market Meet*, estoy interesado en la propiedad que tienes publicada link: ${basePublicLink}${propertyId}`;
+	const message = `Hola, vengo desde el mapa de *Ungga*, estoy interesado en la propiedad que tienes publicada link: ${basePublicLink}${propertyId}`;
 	const encodedMessage = encodeURIComponent(message);
 
 	const deviceType = detectDevice();
