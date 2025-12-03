@@ -40,13 +40,11 @@ export async function getOwnerInfoByFirebaseId(ownerFirebaseId: string) {
 	const guSettings = ownerInfo.gu_number_data;
 	if (!guSettings) return null;
 
-	// console.log('___________________________-🔍 Gu settings found for owner:', ownerInfo);
-
 	if (guSettings.global_associations && guSettings.owner_properties == false && guSettings.my_associations == false) {
 		ownerSettings = {
 			included_properties: 'all_properties',
 			owner_firebase_id: ownerFirebaseId,
-			allowed_comission_percentages: convertCommissionLabelsToNumbers(guSettings.commissions_look),
+			// allowed_comission_percentages: convertCommissionLabelsToNumbers(guSettings.commissions_look),
 		};
 	} else if (
 		guSettings.global_associations &&
@@ -66,5 +64,15 @@ export async function getOwnerInfoByFirebaseId(ownerFirebaseId: string) {
 		};
 	}
 
-	return ownerSettings;
+	//TODO: Global association
+	const testOwnerSettings = {
+		// included
+		included_properties: 'own_and_associations' as const,
+		associations_to_include_in_search: [],
+		// allowed_comission_percentages: getAllCommissionValues(),
+		owner_firebase_id: ownerFirebaseId,
+	};
+
+	// return ownerSettings;
+	return testOwnerSettings;
 }

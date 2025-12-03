@@ -8,9 +8,10 @@ import { env } from '@/config/env';
 
 // Types ---------------------------
 export type SearchType = 'marketmeet' | 'end-user';
+export type SearchSubtype = MarketmeetSearchSubtypes | GuSearchSubtypes;
+
 type MarketmeetSearchSubtypes = 'default';
 type GuSearchSubtypes = 'similar-properties' | 'default' | 'shared-comission';
-export type SearchSubtype = MarketmeetSearchSubtypes | GuSearchSubtypes;
 type DatabasesToSearch = 'gu2' | 'gga' | 'bot';
 
 export interface SessionData {
@@ -24,6 +25,7 @@ export interface SessionData {
 	searchSubtype?: MarketmeetSearchSubtypes | GuSearchSubtypes;
 	propertiesDb?: DatabasesToSearch;
 	usersDb?: DatabasesToSearch;
+	agentMode: boolean;
 }
 
 interface SessionContextType {
@@ -52,6 +54,7 @@ const INITIAL_SESSION_STATE: SessionData = {
 	isAuthenticated: false,
 	userInfo: null,
 	ownerSettings: null,
+	agentMode: false,
 };
 
 const SessionContext = createContext<SessionContextType | null>(null);
@@ -188,6 +191,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 						searchSubtype,
 						propertiesDb,
 						usersDb,
+						agentMode: searchType === 'marketmeet' || searchSubtype === 'shared-comission',
 					});
 				} else {
 					setError(result.error || 'Error desconocido');
@@ -197,6 +201,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 						searchSubtype,
 						propertiesDb,
 						usersDb,
+						agentMode: searchType === 'marketmeet' || searchSubtype === 'shared-comission',
 					});
 					router.push('/not-found');
 				}
@@ -208,6 +213,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 					searchSubtype,
 					propertiesDb,
 					usersDb,
+					agentMode: searchType === 'marketmeet' || searchSubtype === 'shared-comission',
 				}));
 				router.push('/not-found');
 			}
@@ -219,6 +225,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 					searchSubtype,
 					propertiesDb,
 					usersDb,
+					agentMode: searchType === 'marketmeet' || searchSubtype === 'shared-comission',
 				}));
 			}
 

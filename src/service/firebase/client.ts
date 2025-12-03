@@ -60,8 +60,6 @@ class FirebaseClient {
 			const guNumbersRef = collection(this.db, 'gu_numbers');
 			const userIds: string[] = [];
 
-			// Firestore permite array-contains para buscar un elemento en un array
-			// Necesitamos hacer una consulta por cada asociación
 			for (const association of associations) {
 				const q = query(guNumbersRef, where('associations_to_look', 'array-contains', association));
 				const querySnapshot = await getDocs(q);
