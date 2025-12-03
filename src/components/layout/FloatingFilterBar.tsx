@@ -64,25 +64,25 @@ export function FloatingFilterBar({
 	// Timer para debounce de inputs de precio
 	const priceDebounceTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
-	// Ref para evitar notificar cambios durante la sincronización inicial
-	const isSyncingRef = React.useRef(true);
+	// Ref para rastrear si el usuario ha interactuado manualmente con los filtros
+	const hasUserInteractedRef = React.useRef(false);
 
+	// Sincronizar con props cuando cambien (sin disparar notificaciones)
 	React.useEffect(() => {
-		isSyncingRef.current = true;
+		hasUserInteractedRef.current = false; // Reset al sincronizar con props externas
 		setPropertyType(propertyTypeProp);
 		setPriceRange(priceRangeProp);
 		setLocalMinPrice(priceRangeProp[0].toString());
 		setLocalMaxPrice(priceRangeProp[1].toString());
 		setCurrency(currencyProp);
 		setOperationType(operationTypeProp);
-		// Permitir notificaciones después de un tick
-		setTimeout(() => {
-			isSyncingRef.current = false;
-		}, 0);
 	}, [propertyTypeProp, priceRangeProp, currencyProp, operationTypeProp]);
 
 	// Debounce para cambios de precio
 	React.useEffect(() => {
+		// Solo procesar si el usuario ha interactuado
+		if (!hasUserInteractedRef.current) return;
+
 		if (priceDebounceTimerRef.current) {
 			clearTimeout(priceDebounceTimerRef.current);
 		}
@@ -103,17 +103,58 @@ export function FloatingFilterBar({
 		};
 	}, [localMinPrice, localMaxPrice]);
 
-	// Notificar cambios de filtros al padre solo cuando el usuario los cambia
+	// Función para notificar cambios solo cuando el usuario interactúa
+	const notifyFiltersChange = React.useCallback(
+		(filters: { propertyType: string[]; priceRange: [number, number]; currency: string; operationType: string[] }) => {
+			if (hasUserInteractedRef.current && onFiltersChange) {
+				onFiltersChange(filters);
+			}
+		},
+		[onFiltersChange]
+	);
+
+	// Notificar cambios de filtros al padre solo cuando el usuario los cambia manualmente
 	React.useEffect(() => {
-		if (!isSyncingRef.current && onFiltersChange) {
-			onFiltersChange({
-				propertyType,
-				priceRange,
-				currency,
-				operationType,
-			});
-		}
-	}, [propertyType, priceRange, currency, operationType, onFiltersChange]);
+		notifyFiltersChange({
+			propertyType,
+			priceRange,
+			currency,
+			operationType,
+		});
+	}, [propertyType, priceRange, currency, operationType, notifyFiltersChange]);
+
+	// Handlers que marcan interacción del usuario
+	const handlePropertyTypeChange = (value: string[]) => {
+		hasUserInteractedRef.current = true;
+		setPropertyType(value);
+	};
+
+	const handleOperationTypeChange = (value: string[]) => {
+		hasUserInteractedRef.current = true;
+		setOperationType(value);
+	};
+
+	const handleCurrencyChange = (value: string) => {
+		hasUserInteractedRef.current = true;
+		setCurrency(value);
+	};
+
+	const handlePriceRangeSliderChange = (value: [number, number]) => {
+		hasUserInteractedRef.current = true;
+		setPriceRange(value);
+		setLocalMinPrice(value[0].toString());
+		setLocalMaxPrice(value[1].toString());
+	};
+
+	const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		hasUserInteractedRef.current = true;
+		setLocalMinPrice(e.target.value);
+	};
+
+	const handleMaxPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		hasUserInteractedRef.current = true;
+		setLocalMaxPrice(e.target.value);
+	};
 
 	const formatPrice = (value: number) => {
 		if (value >= 1000000) {
@@ -129,9 +170,12 @@ export function FloatingFilterBar({
 		propertyType.length > 0 || operationType.length > 0 || priceRange[0] > 5000 || priceRange[1] < 10000000;
 
 	const clearAllFilters = () => {
+		hasUserInteractedRef.current = true;
 		setPropertyType([]);
 		setOperationType([]);
 		setPriceRange([5000, 10000000]);
+		setLocalMinPrice('5000');
+		setLocalMaxPrice('10000000');
 	};
 
 	const getPropertyTypeLabel = () => {
@@ -213,7 +257,7 @@ export function FloatingFilterBar({
 					<MultiSelect
 						options={propertyTypes}
 						selected={propertyType}
-						onChange={setPropertyType}
+						onChange={handlePropertyTypeChange}
 						searchPlaceholder="Buscar tipo..."
 						maxHeight="250px"
 					/>
@@ -248,7 +292,7 @@ export function FloatingFilterBar({
 							<p className="text-sm text-muted-foreground">Ajusta el rango de precio</p>
 						</div>
 						<div className="space-y-4">
-							<Select value={currency} onValueChange={setCurrency}>
+							<Select value={currency} onValueChange={handleCurrencyChange}>
 								<SelectTrigger className="w-full">
 									<SelectValue placeholder="Moneda" />
 								</SelectTrigger>
@@ -268,7 +312,7 @@ export function FloatingFilterBar({
 											<input
 												type="number"
 												value={localMinPrice}
-												onChange={(e) => setLocalMinPrice(e.target.value)}
+												onChange={handleMinPriceChange}
 												onBlur={() => {
 													const value = Math.max(
 														0,
@@ -289,7 +333,7 @@ export function FloatingFilterBar({
 											<input
 												type="number"
 												value={localMaxPrice}
-												onChange={(e) => setLocalMaxPrice(e.target.value)}
+												onChange={handleMaxPriceChange}
 												onBlur={() => {
 													const value = Math.min(
 														10000000,
@@ -304,7 +348,7 @@ export function FloatingFilterBar({
 								</div>
 								<Slider
 									value={priceRange}
-									onValueChange={(value) => setPriceRange(value as [number, number])}
+									onValueChange={handlePriceRangeSliderChange}
 									min={0}
 									max={10000000}
 									step={100000}
@@ -347,7 +391,7 @@ export function FloatingFilterBar({
 					<MultiSelect
 						options={operationTypes}
 						selected={operationType}
-						onChange={setOperationType}
+						onChange={handleOperationTypeChange}
 						searchPlaceholder="Buscar operación..."
 						maxHeight="200px"
 					/>
