@@ -37,8 +37,6 @@ export function propertyDataToProperty(data: PropertyData, operationTypeFilter?:
 	const addressParts = [data.address, data.suburb, data.city, data.state].filter(Boolean);
 	const fullAddress = addressParts.join(', ') || 'Dirección no disponible';
 
-	console.log(data, '--------	convirtiendo conchatumareee------------------');
-
 	const getSharedCommission = (commissionDisplay: string): string => {
 		const trimmed = commissionDisplay.trim();
 		if (trimmed === '0' || trimmed === 'true') {

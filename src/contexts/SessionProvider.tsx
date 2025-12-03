@@ -87,8 +87,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
 				const data = await response.json();
 
-				// console.log('🔍 Token validation response data:', data);
-
 				if (!data.success) throw new Error(data.error || 'Token inválido');
 
 				if (!data.userInfo || (!data.ownerSettings && searchType === 'end-user'))
@@ -176,8 +174,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 			// Validate new token
 			if (tokenFromUrl && tokenFromUrl !== session.token) {
 				const result = await validateToken(tokenFromUrl, searchType, usersDb);
-
-				console.log('✅ Token validation result:', result);
 
 				if (result.success && result.data) {
 					setSession({

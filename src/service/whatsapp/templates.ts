@@ -29,9 +29,10 @@ export function generateWhatsAppUrl(ownerNumber: string, propertyId: string): st
 	const encodedMessage = encodeURIComponent(message);
 
 	const deviceType = detectDevice();
-	return deviceType !== 'desktop'
-		? `https://wa.me/${ownerNumber}?text=${encodedMessage}`
-		: `https://web.whatsapp.com/send?phone=${ownerNumber}&text=${encodedMessage}`;
+	// return deviceType !== 'desktop'
+	// 	? `https://wa.me/${ownerNumber}?text=${encodedMessage}`
+	// 	: `https://web.whatsapp.com/send?phone=${ownerNumber}&text=${encodedMessage}`;
+	return `https://wa.me/${ownerNumber}?text=${encodedMessage}`;
 }
 
 /**

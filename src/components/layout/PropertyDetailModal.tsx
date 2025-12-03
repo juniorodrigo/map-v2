@@ -25,8 +25,6 @@ interface PropertyDetailModalProps {
 }
 
 export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewed }: PropertyDetailModalProps) {
-	console.log('Rendering PropertyDetailModal for property:', property);
-
 	const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 	const [api, setApi] = React.useState<CarouselApi>();
 	const { session } = useSession();

@@ -49,9 +49,6 @@ export function PropertyPreviewDialog({
 	const [isDetailModalOpen, setIsDetailModalOpen] = React.useState(false);
 	const { session } = useSession();
 
-	console.log('Session:', session);
-	console.log(' AAAAAAAAAAAAAAAAAAAA PropertyPreviewDialog - property:', property);
-
 	React.useEffect(() => {
 		if (isOpen && property && onPropertyViewed) {
 			onPropertyViewed(property.id, 'viewed');

@@ -233,7 +233,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 					body: JSON.stringify({
 						propertyId,
 						viewerId: session.token,
-						dbName: session.propertiesDb,
+						dbName: session.usersDb,
 						status,
 					}),
 				});
@@ -343,8 +343,6 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		const properties = ownerCluster?.properties.filter((p) => p._id !== selectedProperty?._id) || [];
 		return propertyDataArrayToPropertyArray(properties, filters.operationType[0] || 'venta');
 	}, [selectedOwnerId, data, filters.operationType, selectedProperty]);
-
-	// console.log('MapContentBase render selected property:', selectedProperty);
 
 	const displayProperty = selectedProperty
 		? propertyDataToProperty(selectedProperty, filters.operationType[0] || 'venta')

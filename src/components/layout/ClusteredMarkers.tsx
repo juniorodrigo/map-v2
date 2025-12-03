@@ -35,6 +35,7 @@ export function ClusteredMarkers({
 
 	const getPinColor = (owner: OwnerCluster): string => {
 		if (!interactedProperties || !owner.properties || owner.properties.length === 0) {
+			console.log('[ClusteredMarkers] Early return BASE - no interacted or no properties');
 			return COLORS.BASE;
 		}
 

@@ -35,9 +35,14 @@ interface PropertyActionsContainerProps {
 }
 
 function DefaultActions({ property, onViewDetails, onDiscard, showsInPreview = false }: PropertyActionsContainerProps) {
+	const { session } = useSession();
+
+	// Siempre usar el bot_phone_number de la sesión
+	const botPhoneNumber = session?.userInfo?.owner_phone_number;
+
 	const handleContactClick = () => {
-		if (property.owner_phone_number) {
-			openWhatsAppChat(property.owner_phone_number, property.id);
+		if (botPhoneNumber) {
+			openWhatsAppChat(botPhoneNumber, property.id);
 		}
 	};
 
@@ -49,7 +54,7 @@ function DefaultActions({ property, onViewDetails, onDiscard, showsInPreview = f
 				<Button
 					key="contact"
 					onClick={handleContactClick}
-					disabled={!property.owner_phone_number}
+					disabled={!botPhoneNumber}
 					className={
 						showsInPreview
 							? 'w-full h-10 md:h-11 text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2'
@@ -132,9 +137,12 @@ function SharedComissionActions({
 	const [showTechnicalSheetDialog, setShowTechnicalSheetDialog] = useState(false);
 	const [isRequestingSheet, setIsRequestingSheet] = useState(false);
 
+	// Siempre usar el bot_phone_number de la sesión
+	const botPhoneNumber = session?.userInfo?.owner_phone_number;
+
 	const handleContactClick = () => {
-		if (property.owner_phone_number) {
-			openWhatsAppChat(property.owner_phone_number, property.id);
+		if (botPhoneNumber) {
+			openWhatsAppChat(botPhoneNumber, property.id);
 		}
 	};
 
@@ -160,7 +168,7 @@ function SharedComissionActions({
 				<Button
 					key="contact-agent"
 					onClick={handleContactClick}
-					disabled={!property.owner_phone_number}
+					disabled={!botPhoneNumber}
 					className={
 						showsInPreview
 							? 'w-full h-10 md:h-11 text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2'
@@ -275,9 +283,12 @@ function MarketmeetActions({
 	const [showTechnicalSheetDialog, setShowTechnicalSheetDialog] = useState(false);
 	const [isRequestingSheet, setIsRequestingSheet] = useState(false);
 
+	// Siempre usar el bot_phone_number de la sesión
+	const botPhoneNumber = session?.userInfo?.owner_phone_number;
+
 	const handleContactClick = () => {
-		if (property.owner_phone_number) {
-			openWhatsAppChat(property.owner_phone_number, property.id);
+		if (botPhoneNumber) {
+			openWhatsAppChat(botPhoneNumber, property.id);
 		}
 	};
 
@@ -303,7 +314,7 @@ function MarketmeetActions({
 				<Button
 					key="contact-agent"
 					onClick={handleContactClick}
-					disabled={!property.owner_phone_number}
+					disabled={!botPhoneNumber}
 					className={
 						showsInPreview
 							? 'w-full h-10 md:h-11 text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2'
