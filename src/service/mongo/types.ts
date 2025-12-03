@@ -5,7 +5,7 @@ export interface MongoDocument {
 export interface FindOneParams {
 	collection: string;
 	filter: Record<string, unknown>;
-	dbName?: string;
+	dbName: string;
 }
 
 export interface FindParams extends FindOneParams {
@@ -17,24 +17,24 @@ export interface UpdateOneParams {
 	collection: string;
 	filter: Record<string, unknown>;
 	update: Record<string, unknown>;
-	dbName?: string;
+	dbName: string;
 	upsert?: boolean;
 }
 
 export interface InsertOneParams {
 	collection: string;
 	document: MongoDocument;
-	dbName?: string;
+	dbName: string;
 }
 
 export interface GeoNearParams {
 	collection: string;
 	pipeline: Record<string, unknown>;
-	dbName?: string;
+	dbName: string;
 }
 
 export interface CountParams {
 	collection: string;
 	filter: Record<string, unknown>;
-	dbName?: string;
+	dbName: string;
 }
