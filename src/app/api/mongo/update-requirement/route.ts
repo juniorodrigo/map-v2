@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUserInfoByToken } from '@/service/mongo/user';
 import { updateOne } from '@/service/mongo/queries';
 import { propertyTypeCodesToLabels, operationTypeCodesToLabels } from '@/lib/property-type-mappings';
+import { PRICE_FILTER, getDbMaxPrice } from '@/config/price-filter';
 
 export async function POST(request: NextRequest) {
 	try {
@@ -24,9 +25,9 @@ export async function POST(request: NextRequest) {
 		const operationTypes = operationTypeCodesToLabels(filters.operationType || []);
 
 		const lastRequirement: any = {
-			currency: filters.currency || 'MXN',
-			price_start: filters.priceRange?.[0] || 0,
-			price_end: filters.priceRange?.[1] || 10000000,
+			currency: filters.currency || PRICE_FILTER.DEFAULT_CURRENCY,
+			price_start: filters.priceRange?.[0] ?? PRICE_FILTER.MIN,
+			price_end: getDbMaxPrice(filters.priceRange?.[1] ?? PRICE_FILTER.MAX),
 			property_type: propertyTypes,
 			operation_type: operationTypes,
 		};

@@ -14,6 +14,7 @@ import { propertyDataToProperty, propertyDataArrayToPropertyArray } from '@/lib/
 import { SearchType, useSession } from '@/contexts/SessionProvider';
 import type { PropertyFilters, PropertyData } from '@/types/property';
 import toast from 'react-hot-toast';
+import { PRICE_FILTER } from '@/config/price-filter';
 
 export interface MapContentConfig {
 	searchType: SearchType;
@@ -30,10 +31,15 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	const { map, searchLocation, setSearchLocation } = useMap();
 	const { session } = useSession();
 
-	const [filters, setFilters] = React.useState({
+	const [filters, setFilters] = React.useState<{
+		propertyType: string[];
+		priceRange: [number, number];
+		currency: string;
+		operationType: string[];
+	}>({
 		propertyType: [] as string[],
-		priceRange: [5000, 10000000] as [number, number],
-		currency: 'MXN',
+		priceRange: PRICE_FILTER.DEFAULT_RANGE,
+		currency: PRICE_FILTER.DEFAULT_CURRENCY,
 		operationType: [] as string[],
 	});
 
@@ -54,9 +60,9 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		if (!filtersInitialized && session.userInfo?.requirement_info) {
 			const requirement = session.userInfo.requirement_info;
 
-			const minPrice = requirement.minimum_price ?? 5000;
-			const maxPrice = requirement.maximum_price ?? 10000000;
-			const userCurrency = requirement.currency || 'MXN';
+			const minPrice = requirement.minimum_price ?? PRICE_FILTER.MIN;
+			const maxPrice = requirement.maximum_price ?? PRICE_FILTER.MAX;
+			const userCurrency = requirement.currency || PRICE_FILTER.DEFAULT_CURRENCY;
 			const userPropertyTypes = requirement.property_type || [];
 			const userOperationTypes = requirement.operation || [];
 

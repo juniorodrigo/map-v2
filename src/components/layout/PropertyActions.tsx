@@ -47,6 +47,12 @@ function DefaultActions({ property, onViewDetails, onDiscard, showsInPreview = f
 		}
 	};
 
+	const handleScheduleClick = () => {
+		if (botPhoneNumber) {
+			openWhatsAppChat(botPhoneNumber, property.firebaseId || 'WITHOUT_FIREBASE_ID', 'schedule');
+		}
+	};
+
 	const buttons: ActionButton[] = [
 		{
 			id: 'contact',
@@ -93,8 +99,8 @@ function DefaultActions({ property, onViewDetails, onDiscard, showsInPreview = f
 					key="schedule"
 					variant="outline"
 					className="h-11 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-					disabled
-					onClick={() => {}}
+					disabled={!botPhoneNumber}
+					onClick={handleScheduleClick}
 				>
 					Agendar Cita
 				</Button>
@@ -147,6 +153,12 @@ function SharedComissionActions({
 		}
 	};
 
+	const handleScheduleClick = () => {
+		if (botPhoneNumber) {
+			openWhatsAppChat(botPhoneNumber, property.id, 'schedule');
+		}
+	};
+
 	const handleTechnicalSheetRequest = async (withData: boolean) => {
 		const userPhoneNumber = session?.userInfo?.phone_number;
 		if (!userPhoneNumber) return;
@@ -206,8 +218,8 @@ function SharedComissionActions({
 					key="schedule"
 					variant="outline"
 					className="h-11 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-					disabled
-					onClick={() => {}}
+					disabled={!botPhoneNumber}
+					onClick={handleScheduleClick}
 				>
 					Agendar Cita
 				</Button>
@@ -264,7 +276,11 @@ function SharedComissionActions({
 						<Button variant="outline" onClick={() => handleTechnicalSheetRequest(false)} disabled={isRequestingSheet}>
 							Sin mis datos
 						</Button>
-						<Button onClick={() => handleTechnicalSheetRequest(true)} disabled={isRequestingSheet}>
+						<Button
+							className="bg-[#8F7BBD] hover:bg-[#7a68a6] text-white"
+							onClick={() => handleTechnicalSheetRequest(true)}
+							disabled={isRequestingSheet}
+						>
 							{isRequestingSheet ? 'Enviando...' : 'Con mis datos'}
 						</Button>
 					</DialogFooter>
@@ -293,6 +309,12 @@ function MarketmeetActions({
 		}
 	};
 
+	const handleScheduleClick = () => {
+		if (botPhoneNumber) {
+			openWhatsAppChat(botPhoneNumber, property.id, 'schedule');
+		}
+	};
+
 	const handleTechnicalSheetRequest = async (withData: boolean) => {
 		const userPhoneNumber = session?.userInfo?.phone_number;
 		if (!userPhoneNumber) return;
@@ -352,8 +374,8 @@ function MarketmeetActions({
 					key="schedule"
 					variant="outline"
 					className="h-11 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-					disabled
-					onClick={() => {}}
+					disabled={!botPhoneNumber}
+					onClick={handleScheduleClick}
 				>
 					Agendar Cita
 				</Button>
@@ -410,7 +432,11 @@ function MarketmeetActions({
 						<Button variant="outline" onClick={() => handleTechnicalSheetRequest(false)} disabled={isRequestingSheet}>
 							Sin mis datos
 						</Button>
-						<Button onClick={() => handleTechnicalSheetRequest(true)} disabled={isRequestingSheet}>
+						<Button
+							className="bg-[#8F7BBD] hover:bg-[#7a68a6] text-white"
+							onClick={() => handleTechnicalSheetRequest(true)}
+							disabled={isRequestingSheet}
+						>
 							{isRequestingSheet ? 'Enviando...' : 'Con mis datos'}
 						</Button>
 					</DialogFooter>

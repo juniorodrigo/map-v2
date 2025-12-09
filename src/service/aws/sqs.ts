@@ -53,6 +53,7 @@ class SQSClientService {
 
 			await this.client.send(command);
 		} catch (error) {
+			console.error('Error detallado de SQS:', error);
 			throw new AppError('Error al enviar mensaje a WhatsApp', 500, { error });
 		}
 	}

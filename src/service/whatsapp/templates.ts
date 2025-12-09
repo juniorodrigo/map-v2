@@ -20,12 +20,25 @@ export function detectDevice(): DeviceType {
 	return 'desktop';
 }
 
+export type WhatsAppMessageType = 'contact' | 'schedule';
+
+const MESSAGE_TEMPLATES: Record<WhatsAppMessageType, (basePublicLink: string, propertyId: string) => string> = {
+	contact: (basePublicLink, propertyId) =>
+		`Hola, vengo desde el mapa de *Ungga*, estoy interesado en la propiedad que tienes publicada con el ID: ${basePublicLink}${propertyId}`,
+	schedule: (basePublicLink, propertyId) =>
+		`Hola, vengo desde el mapa de *Ungga*, me gustaría agendar una cita para visitar la propiedad con el ID: ${basePublicLink}${propertyId}`,
+};
+
 /**
  * Genera la URL de WhatsApp con el mensaje precargado
  */
-export function generateWhatsAppUrl(ownerNumber: string, propertyId: string): string {
+export function generateWhatsAppUrl(
+	ownerNumber: string,
+	propertyId: string,
+	messageType: WhatsAppMessageType = 'contact'
+): string {
 	const basePublicLink = env.properties.publicLink || '';
-	const message = `Hola, vengo desde el mapa de *Ungga*, estoy interesado en la propiedad que tienes publicada con el ID: ${basePublicLink}${propertyId}`;
+	const message = MESSAGE_TEMPLATES[messageType](basePublicLink, propertyId);
 	const encodedMessage = encodeURIComponent(message);
 
 	const deviceType = detectDevice();
@@ -38,13 +51,17 @@ export function generateWhatsAppUrl(ownerNumber: string, propertyId: string): st
 /**
  * Abre WhatsApp con un mensaje precargado para contactar al agente
  */
-export function openWhatsAppChat(ownerNumber: string, propertyId: string): void {
+export function openWhatsAppChat(
+	ownerNumber: string,
+	propertyId: string,
+	messageType: WhatsAppMessageType = 'contact'
+): void {
 	if (typeof window === 'undefined') {
 		logger.warn('openWhatsAppChat solo funciona en el navegador');
 		return;
 	}
 
-	const url = generateWhatsAppUrl(ownerNumber, propertyId);
+	const url = generateWhatsAppUrl(ownerNumber, propertyId, messageType);
 	const deviceType = detectDevice();
 
 	if (deviceType === 'ios') {
