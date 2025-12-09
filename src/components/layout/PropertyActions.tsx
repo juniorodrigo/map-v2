@@ -276,7 +276,11 @@ function SharedComissionActions({
 						<Button variant="outline" onClick={() => handleTechnicalSheetRequest(false)} disabled={isRequestingSheet}>
 							Sin mis datos
 						</Button>
-						<Button onClick={() => handleTechnicalSheetRequest(true)} disabled={isRequestingSheet}>
+						<Button
+							className="bg-[#8F7BBD] hover:bg-[#7a68a6] text-white"
+							onClick={() => handleTechnicalSheetRequest(true)}
+							disabled={isRequestingSheet}
+						>
 							{isRequestingSheet ? 'Enviando...' : 'Con mis datos'}
 						</Button>
 					</DialogFooter>
@@ -428,7 +432,11 @@ function MarketmeetActions({
 						<Button variant="outline" onClick={() => handleTechnicalSheetRequest(false)} disabled={isRequestingSheet}>
 							Sin mis datos
 						</Button>
-						<Button onClick={() => handleTechnicalSheetRequest(true)} disabled={isRequestingSheet}>
+						<Button
+							className="bg-[#8F7BBD] hover:bg-[#7a68a6] text-white"
+							onClick={() => handleTechnicalSheetRequest(true)}
+							disabled={isRequestingSheet}
+						>
 							{isRequestingSheet ? 'Enviando...' : 'Con mis datos'}
 						</Button>
 					</DialogFooter>

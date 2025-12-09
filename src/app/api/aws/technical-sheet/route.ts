@@ -12,6 +12,8 @@ export async function POST(request: NextRequest) {
 			throw new ValidationError('Parámetros "userPhoneNumber" y "message" son requeridos');
 		}
 
+		console.log('Sending technical sheet request to SQS for phone number:', userPhoneNumber);
+
 		await sqsClient.sendTechnicalSheetRequest(userPhoneNumber, message);
 
 		logger.info('Solicitud de ficha técnica enviada', { userPhoneNumber });
@@ -21,7 +23,7 @@ export async function POST(request: NextRequest) {
 			data: { message: 'Solicitud de ficha técnica enviada' },
 		});
 	} catch (error) {
-		logger.error('Error al procesar solicitud de ficha técnica', error);
+		console.log('Error al procesar solicitud de ficha técnica', error);
 
 		if (error instanceof ValidationError) {
 			return NextResponse.json({ success: false, error: error.message }, { status: 400 });

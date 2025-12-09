@@ -31,7 +31,12 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	const { map, searchLocation, setSearchLocation } = useMap();
 	const { session } = useSession();
 
-	const [filters, setFilters] = React.useState({
+	const [filters, setFilters] = React.useState<{
+		propertyType: string[];
+		priceRange: [number, number];
+		currency: string;
+		operationType: string[];
+	}>({
 		propertyType: [] as string[],
 		priceRange: PRICE_FILTER.DEFAULT_RANGE,
 		currency: PRICE_FILTER.DEFAULT_CURRENCY,
