@@ -13,6 +13,14 @@ export interface RequirementInfo {
 	coordinates?: { lat: number | null; lng: number | null };
 }
 
+export interface SimilarInfo {
+	ids: string[];
+	min_price: number;
+	max_price: number;
+	monetization_types: string[];
+	house_types?: string[];
+}
+
 export interface UserInfo {
 	_id: string;
 	lead_id: string;
@@ -21,6 +29,7 @@ export interface UserInfo {
 	owner_firebase_id: string;
 	is_agent: boolean;
 	requirement_info: RequirementInfo | null;
+	similar_info: SimilarInfo | null;
 	interacted_properties?: {
 		viewed: string[];
 		discarded: string[];
@@ -47,6 +56,11 @@ export async function getUserInfoByToken(token: string, database: string): Promi
 			? [rawPropertyType]
 			: [];
 
+	// Extraer información de last_similaries
+	const lastSimilaries = payload?.last_similaries;
+	const similarMonetizationTypes = lastSimilaries?.monetization_types || [];
+	const similarHouseTypes = lastSimilaries?.house_types || [];
+
 	const userInfo: UserInfo = {
 		_id: payload._id,
 		lead_id: payload.lead_id,
@@ -72,6 +86,15 @@ export async function getUserInfoByToken(token: string, database: string): Promi
 								lng: payload.last_requirement.geometry.coordinates[0] ?? null,
 							}
 						: undefined,
+				}
+			: null,
+		similar_info: lastSimilaries
+			? {
+					ids: lastSimilaries.ids || [],
+					min_price: Number(lastSimilaries.min_price ?? 0),
+					max_price: Number(lastSimilaries.max_price ?? 0),
+					monetization_types: operationTypeLabelsToCode(similarMonetizationTypes),
+					house_types: propertyTypeLabelsToCode(similarHouseTypes),
 				}
 			: null,
 	};

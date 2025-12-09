@@ -19,7 +19,6 @@ export function usePropertySearch({ filters, enabled = true }: UsePropertySearch
 				ownerSettings: session.ownerSettings || {},
 				searchType: session.searchType,
 				searchSubtype: session.searchSubtype,
-				userInfo: session.userInfo,
 			};
 
 			console.log('🚀 Enviando solicitud de búsqueda de propiedades con el siguiente cuerpo:', requestBody);

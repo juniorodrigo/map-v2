@@ -74,6 +74,7 @@ export interface PropertyFilters {
 		lng: number;
 		radius?: number; // en metros
 	};
+	similarPropertyIds?: string[]; // IDs de propiedades similares (firebase_id)
 	// ownerFirebaseId: string;
 }
 

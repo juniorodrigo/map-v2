@@ -9,7 +9,7 @@ import { PRICE_FILTER } from '@/config/price-filter';
 export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json();
-		const { filters, dbName, ownerSettings, searchType, searchSubtype, userInfo } = body;
+		const { filters, dbName, ownerSettings, searchType, searchSubtype } = body;
 
 		console.log('🔍 Parámetros de búsqueda recibidos:', { filters, dbName, ownerSettings, searchType, searchSubtype });
 
@@ -31,8 +31,7 @@ export async function POST(request: NextRequest) {
 			dbName,
 			ownerSettings,
 			searchType,
-			searchSubtype,
-			userInfo
+			searchSubtype
 		);
 
 		const owners = groupPropertiesByOwner(properties);

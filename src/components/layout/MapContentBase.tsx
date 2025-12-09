@@ -55,27 +55,49 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	const consecutiveEmptySearchesRef = React.useRef(0);
 	const lastSearchKeyRef = React.useRef<string | null>(null);
 
-	// Inicializar filtros desde requirement_info
+	// Inicializar filtros desde requirement_info o similar_info según el searchSubtype
 	React.useEffect(() => {
-		if (!filtersInitialized && session.userInfo?.requirement_info) {
-			const requirement = session.userInfo.requirement_info;
+		if (!filtersInitialized && session.userInfo) {
+			// Si es búsqueda de propiedades similares, usar similar_info
+			if (session.searchSubtype === 'similar-properties' && session.userInfo.similar_info) {
+				const similarInfo = session.userInfo.similar_info;
 
-			const minPrice = requirement.minimum_price ?? PRICE_FILTER.MIN;
-			const maxPrice = requirement.maximum_price ?? PRICE_FILTER.MAX;
-			const userCurrency = requirement.currency || PRICE_FILTER.DEFAULT_CURRENCY;
-			const userPropertyTypes = requirement.property_type || [];
-			const userOperationTypes = requirement.operation || [];
+				const minPrice = similarInfo.min_price ?? PRICE_FILTER.MIN;
+				const maxPrice = similarInfo.max_price ?? PRICE_FILTER.MAX;
+				const userPropertyTypes = similarInfo.house_types || [];
+				const userOperationTypes = similarInfo.monetization_types || [];
 
-			setFilters({
-				propertyType: userPropertyTypes,
-				priceRange: [minPrice, maxPrice],
-				currency: userCurrency,
-				operationType: userOperationTypes,
-			});
+				// Para similares, usamos MXN por defecto ya que los precios vienen en esa moneda
+				setFilters({
+					propertyType: userPropertyTypes,
+					priceRange: [minPrice, maxPrice],
+					currency: PRICE_FILTER.DEFAULT_CURRENCY,
+					operationType: userOperationTypes,
+				});
 
-			setFiltersInitialized(true);
+				setFiltersInitialized(true);
+			}
+			// Para otros casos, usar requirement_info
+			else if (session.userInfo.requirement_info) {
+				const requirement = session.userInfo.requirement_info;
+
+				const minPrice = requirement.minimum_price ?? PRICE_FILTER.MIN;
+				const maxPrice = requirement.maximum_price ?? PRICE_FILTER.MAX;
+				const userCurrency = requirement.currency || PRICE_FILTER.DEFAULT_CURRENCY;
+				const userPropertyTypes = requirement.property_type || [];
+				const userOperationTypes = requirement.operation || [];
+
+				setFilters({
+					propertyType: userPropertyTypes,
+					priceRange: [minPrice, maxPrice],
+					currency: userCurrency,
+					operationType: userOperationTypes,
+				});
+
+				setFiltersInitialized(true);
+			}
 		}
-	}, [session.userInfo, filtersInitialized]);
+	}, [session.userInfo, session.searchSubtype, filtersInitialized]);
 
 	// Inicializar interacted_properties desde session
 	React.useEffect(() => {
@@ -151,13 +173,19 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		updateLocationInDb();
 	}, [searchLocation, session.token, session.propertiesDb, session.usersDb, filters]);
 
-	const searchFilters = React.useMemo<PropertyFilters>(
-		() => ({
+	const searchFilters = React.useMemo<PropertyFilters>(() => {
+		const baseFilters: PropertyFilters = {
 			...filters,
 			searchLocation: searchLocation || undefined,
-		}),
-		[filters, searchLocation]
-	);
+		};
+
+		// Si es búsqueda de propiedades similares, incluir los IDs
+		if (session.searchSubtype === 'similar-properties' && session.userInfo?.similar_info?.ids) {
+			baseFilters.similarPropertyIds = session.userInfo.similar_info.ids;
+		}
+
+		return baseFilters;
+	}, [filters, searchLocation, session.searchSubtype, session.userInfo?.similar_info?.ids]);
 
 	const canSearch = React.useMemo(() => {
 		return true;
