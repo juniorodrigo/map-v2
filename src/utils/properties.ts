@@ -46,6 +46,8 @@ export async function buildPropertyFilter(
 		const effectiveIncludedProperties =
 			searchSubtype === 'shared-comission' ? 'own_properties' : ownerSettings.included_properties;
 
+		// console.log(effectiveIncludedProperties, '_XXXXXXXXXXXXX__________AAAAAAAAAAA');
+
 		switch (effectiveIncludedProperties) {
 			case 'own_properties':
 				userOwnerFilter = {
@@ -62,12 +64,16 @@ export async function buildPropertyFilter(
 					};
 					break;
 				}
+
 				const matchingUserIds = await firebaseClient.findUserIdsByAssociations(ownerAssociations);
 
 				const allOwnerIds = [ownerSettings.owner_firebase_id, ...matchingUserIds];
 
+				console.log('__________-Owner associations included in search:', allOwnerIds);
+
 				const uniqueOwnerIds = [...new Set(allOwnerIds)].filter((id) => !hardconstants.BLOCKED_USERS.includes(id));
 				userOwnerFilter = { $in: uniqueOwnerIds };
+
 				break;
 			case 'all_properties':
 			default:
