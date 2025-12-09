@@ -4,6 +4,7 @@ import { ValidationError } from '@/lib/errors';
 import { searchProperties } from '@/service/properties/property';
 import type { PropertyFilters } from '@/types/property';
 import { groupPropertiesByOwner } from '@/utils/properties';
+import { PRICE_FILTER } from '@/config/price-filter';
 
 export async function POST(request: NextRequest) {
 	try {
@@ -18,8 +19,8 @@ export async function POST(request: NextRequest) {
 
 		const propertyFilters: PropertyFilters = {
 			propertyType: filters.propertyType || [],
-			priceRange: filters.priceRange || [5000, 10000000],
-			currency: filters.currency || 'MXN',
+			priceRange: filters.priceRange || PRICE_FILTER.DEFAULT_RANGE,
+			currency: filters.currency || PRICE_FILTER.DEFAULT_CURRENCY,
 			operationType: filters.operationType || [],
 			bounds: filters.bounds,
 			searchLocation: filters.searchLocation,

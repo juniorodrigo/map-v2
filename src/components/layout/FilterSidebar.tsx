@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { PROPERTY_TYPE_MAPPINGS, OPERATION_TYPE_MAPPINGS } from '@/lib/property-type-mappings';
+import { PRICE_FILTER, hasPriceFilterActive } from '@/config/price-filter';
 
 // Generar opciones dinámicamente desde los mapeos centralizados
 const propertyTypes = Object.entries(PROPERTY_TYPE_MAPPINGS).map(([value, label]) => ({
@@ -37,8 +38,8 @@ interface FilterSidebarProps {
 
 export function FilterSidebar({
 	propertyType: propertyTypeProp = [],
-	priceRange: priceRangeProp = [5000, 10000000],
-	currency: currencyProp = 'MXN',
+	priceRange: priceRangeProp = PRICE_FILTER.DEFAULT_RANGE,
+	currency: currencyProp = PRICE_FILTER.DEFAULT_CURRENCY,
 	operationType: operationTypeProp = [],
 	onFiltersChange,
 }: FilterSidebarProps) {
@@ -79,8 +80,11 @@ export function FilterSidebar({
 		}
 
 		priceDebounceTimerRef.current = setTimeout(() => {
-			const minPrice = Math.max(0, Math.min(Number(localMinPrice) || 0, Number(localMaxPrice) || 10000000));
-			const maxPrice = Math.min(10000000, Math.max(Number(localMaxPrice) || 10000000, minPrice));
+			const minPrice = Math.max(
+				PRICE_FILTER.MIN,
+				Math.min(Number(localMinPrice) || PRICE_FILTER.MIN, Number(localMaxPrice) || PRICE_FILTER.MAX)
+			);
+			const maxPrice = Math.min(PRICE_FILTER.MAX, Math.max(Number(localMaxPrice) || PRICE_FILTER.MAX, minPrice));
 
 			if (minPrice !== priceRange[0] || maxPrice !== priceRange[1]) {
 				setPriceRange([minPrice, maxPrice]);
@@ -157,16 +161,15 @@ export function FilterSidebar({
 		return value.toString();
 	};
 
-	const hasActiveFilters =
-		propertyType.length > 0 || operationType.length > 0 || priceRange[0] > 5000 || priceRange[1] < 10000000;
+	const hasActiveFilters = propertyType.length > 0 || operationType.length > 0 || hasPriceFilterActive(priceRange);
 
 	const clearAllFilters = () => {
 		hasUserInteractedRef.current = true;
 		setPropertyType([]);
 		setOperationType([]);
-		setPriceRange([5000, 10000000]);
-		setLocalMinPrice('5000');
-		setLocalMaxPrice('10000000');
+		setPriceRange(PRICE_FILTER.DEFAULT_RANGE);
+		setLocalMinPrice(PRICE_FILTER.MIN.toString());
+		setLocalMaxPrice(PRICE_FILTER.MAX.toString());
 	};
 
 	const filterCount = propertyType.length + operationType.length;
@@ -261,8 +264,11 @@ export function FilterSidebar({
 													onChange={handleMinPriceChange}
 													onBlur={() => {
 														const value = Math.max(
-															0,
-															Math.min(Number(localMinPrice) || 0, Number(localMaxPrice) || 10000000)
+															PRICE_FILTER.MIN,
+															Math.min(
+																Number(localMinPrice) || PRICE_FILTER.MIN,
+																Number(localMaxPrice) || PRICE_FILTER.MAX
+															)
 														);
 														setLocalMinPrice(value.toString());
 													}}
@@ -282,8 +288,11 @@ export function FilterSidebar({
 													onChange={handleMaxPriceChange}
 													onBlur={() => {
 														const value = Math.min(
-															10000000,
-															Math.max(Number(localMaxPrice) || 10000000, Number(localMinPrice) || 0)
+															PRICE_FILTER.MAX,
+															Math.max(
+																Number(localMaxPrice) || PRICE_FILTER.MAX,
+																Number(localMinPrice) || PRICE_FILTER.MIN
+															)
 														);
 														setLocalMaxPrice(value.toString());
 													}}
@@ -295,14 +304,14 @@ export function FilterSidebar({
 									<Slider
 										value={priceRange}
 										onValueChange={handlePriceRangeSliderChange}
-										min={0}
-										max={10000000}
-										step={100000}
+										min={PRICE_FILTER.MIN}
+										max={PRICE_FILTER.MAX}
+										step={PRICE_FILTER.SLIDER_STEP}
 										className="w-full"
 									/>
 									<div className="flex items-center justify-between text-xs text-muted-foreground">
-										<span>$0</span>
-										<span>$10M+</span>
+										<span>{PRICE_FILTER.DISPLAY_MIN_LABEL}</span>
+										<span>{PRICE_FILTER.DISPLAY_MAX_LABEL}</span>
 									</div>
 								</div>
 							</div>

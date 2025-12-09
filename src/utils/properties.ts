@@ -4,6 +4,7 @@ import { operationTypeCodesToLabels, propertyTypeCodesToLabels } from '@/lib/pro
 import { OwnerSettings } from '@/service/firebase/owner';
 import { SearchSubtype, SearchType } from '@/contexts/SessionProvider';
 import { firebaseClient } from '@/service/firebase/client';
+import { getDbMaxPrice } from '@/config/price-filter';
 export function divideIntoSubClusters(cluster: OwnerCluster): OwnerCluster[] {
 	const maxClusterSize = 10;
 	const properties = cluster.properties;
@@ -160,7 +161,8 @@ export async function buildPropertyFilter(
 		filter.house_type = { $in: dbPropertyTypes };
 	}
 
-	const [minPrice, maxPrice] = filters.priceRange;
+	const [minPrice, uiMaxPrice] = filters.priceRange;
+	const maxPrice = getDbMaxPrice(uiMaxPrice);
 
 	// Solo aplicar filtro de monetización si hay tipos de operación seleccionados
 	if (filters.operationType && filters.operationType.length > 0) {

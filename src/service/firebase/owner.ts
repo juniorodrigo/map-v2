@@ -72,6 +72,6 @@ export async function getOwnerInfoByFirebaseId(ownerFirebaseId: string) {
 		owner_firebase_id: ownerFirebaseId,
 	};
 
-	// return ownerSettings;
-	return testOwnerSettings;
+	return ownerSettings;
+	// return testOwnerSettings;
 }
