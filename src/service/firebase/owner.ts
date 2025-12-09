@@ -66,12 +66,12 @@ export async function getOwnerInfoByFirebaseId(ownerFirebaseId: string) {
 	//TODO: Global association
 	const testOwnerSettings = {
 		// included
-		included_properties: 'own_and_associations' as const,
+		included_properties: 'own_properties' as const,
 		associations_to_include_in_search: [],
 		// allowed_comission_percentages: getAllCommissionValues(),
 		owner_firebase_id: ownerFirebaseId,
 	};
 
-	return ownerSettings;
-	// return testOwnerSettings;
+	// return ownerSettings;
+	return testOwnerSettings;
 }

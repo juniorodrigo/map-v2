@@ -85,6 +85,9 @@ export async function buildPropertyFilter(
 				ad_status: 'Publicado',
 			},
 		],
+
+		...(searchType === 'marketmeet' && { gga: true }),
+		...(searchType === 'end-user' && { gga: { $ne: true } }),
 	};
 
 	if (filters.bounds) {
