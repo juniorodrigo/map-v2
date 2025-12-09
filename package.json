@@ -5,6 +5,8 @@
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",
+		"start:prod": "next start -p 3013",
+		"start:dev": "next start -p 3012",
 		"start": "next start",
 		"lint": "eslint",
 		"format": "prettier --write \"src/**/*.{ts,js}\" \"test/**/*.{ts,js}\"",
