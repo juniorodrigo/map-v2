@@ -78,18 +78,18 @@ export async function buildPropertyFilter(
 
 	const filter: Record<string, unknown> = {
 		...(userOwnerFilter && { user_owner: userOwnerFilter }),
-
-		$or: [
-			{ gga: true, ad_status: { $in: ['Borrador', 'Publicado'] } },
-			{
-				$or: [{ gga: false }, { gga: { $exists: false } }],
-				ad_status: 'Publicado',
-			},
-		],
-
-		...(searchType === 'marketmeet' && { gga: true }),
-		...(searchType === 'end-user' && { gga: { $ne: true } }),
 	};
+
+	// Filtro de gga y ad_status según el tipo de búsqueda
+	if (searchType === 'marketmeet') {
+		// Para marketmeet: solo propiedades gga con status Borrador o Publicado
+		filter.gga = true;
+		filter.ad_status = { $in: ['Borrador', 'Publicado'] };
+	} else {
+		// Para end-user: solo propiedades NO gga con status Publicado
+		filter.$or = [{ gga: false }, { gga: { $exists: false } }];
+		filter.ad_status = 'Publicado';
+	}
 
 	if (filters.bounds) {
 		const { north, south, east, west } = filters.bounds;
@@ -200,7 +200,7 @@ export async function buildPropertyFilter(
 			$elemMatch: {
 				monetization_type: { $in: operationTypes },
 				$or: priceConditions,
-				share_commission: true,
+				...(searchSubtype === 'shared-comission' && { share_commission: true }),
 			},
 		};
 	}

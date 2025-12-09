@@ -22,6 +22,8 @@ export async function searchProperties(
 	const collection =
 		searchType === 'marketmeet' ? env.mongo.collections.properties.gga : env.mongo.collections.properties.gu;
 
+	console.log('🔍 Filtros construidos para la búsqueda de propiedades:', collection, '_____', filter, '_____', dbName);
+
 	const total = await mongoClient.count(collection, filter, dbName);
 
 	const properties = (await mongoClient.find(collection, filter, dbName)) as PropertyData[];
