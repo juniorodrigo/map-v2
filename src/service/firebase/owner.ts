@@ -40,21 +40,19 @@ export async function getOwnerInfoByFirebaseId(ownerFirebaseId: string) {
 	const guSettings = ownerInfo.gu_number_data;
 	if (!guSettings) return null;
 
-	if (guSettings.global_associations && guSettings.owner_properties == false && guSettings.my_associations == false) {
+	const listingSearch = guSettings.listing_search;
+
+	if (listingSearch === 'global_associations') {
 		ownerSettings = {
 			included_properties: 'all_properties',
 			owner_firebase_id: ownerFirebaseId,
 		};
-	} else if (
-		guSettings.global_associations &&
-		guSettings.owwner_properties == false &&
-		guSettings.my_associations == false
-	) {
+	} else if (listingSearch === 'owner_properties') {
 		ownerSettings = {
 			included_properties: 'own_properties',
 			owner_firebase_id: ownerFirebaseId,
 		};
-	} else {
+	} else if (listingSearch === 'my_associations') {
 		ownerSettings = {
 			included_properties: 'own_and_associations',
 			owner_firebase_id: ownerFirebaseId,

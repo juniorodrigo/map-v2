@@ -51,6 +51,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	const [interactedProperties, setInteractedProperties] = React.useState({
 		viewed: [] as string[],
 		discarded: [] as string[],
+		scheduled: [] as string[],
 	});
 	const consecutiveEmptySearchesRef = React.useRef(0);
 	const lastSearchKeyRef = React.useRef<string | null>(null);
@@ -105,6 +106,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 			setInteractedProperties({
 				viewed: session.userInfo.interacted_properties.viewed || [],
 				discarded: session.userInfo.interacted_properties.discarded || [],
+				scheduled: session.userInfo.interacted_properties.scheduled || [],
 			});
 		}
 	}, [session.userInfo?.interacted_properties]);
@@ -245,7 +247,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	}, [mapCentered, isLoading, isFetched, map, data, propertiesCenter, session.userInfo]);
 
 	const updateInteractedProperty = React.useCallback(
-		async (propertyId: string, status: 'viewed' | 'discarded') => {
+		async (propertyId: string, status: 'viewed' | 'discarded' | 'scheduled') => {
 			if (!session.token || !session.propertiesDb) return;
 
 			try {
@@ -265,13 +267,22 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 				// Actualizar estado local
 				setInteractedProperties((prev) => {
 					const newState = { ...prev };
-					const field = status === 'viewed' ? 'viewed' : 'discarded';
-					const otherField = status === 'viewed' ? 'discarded' : 'viewed';
 
 					// Si la propiedad está en discarded y se intenta marcar como viewed, no hacer nada en el frontend
 					if (status === 'viewed' && prev.discarded.includes(propertyId)) {
 						return prev;
 					}
+
+					// Para scheduled, solo agregar a la lista sin afectar las otras
+					if (status === 'scheduled') {
+						if (!newState.scheduled.includes(propertyId)) {
+							newState.scheduled = [...newState.scheduled, propertyId];
+						}
+						return newState;
+					}
+
+					const field = status === 'viewed' ? 'viewed' : 'discarded';
+					const otherField = status === 'viewed' ? 'discarded' : 'viewed';
 
 					// Remover de la otra lista si existe
 					newState[otherField] = newState[otherField].filter((id) => id !== propertyId);
@@ -371,8 +382,6 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	const displayProperty = selectedProperty
 		? propertyDataToProperty(selectedProperty, filters.operationType[0] || 'venta')
 		: null;
-
-	console.log('___________________ Display Property:', displayProperty);
 
 	const handleSimilarPropertyClick = React.useCallback(
 		(propertyId: string) => {

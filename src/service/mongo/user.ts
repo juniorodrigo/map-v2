@@ -1,7 +1,7 @@
 import { mongoClient } from './client';
 import { propertyTypeLabelsToCode, operationTypeLabelsToCode } from '@/lib/property-type-mappings';
 
-export type PropertyStatus = 'viewed' | 'discarded';
+export type PropertyStatus = 'viewed' | 'discarded' | 'scheduled';
 
 export interface RequirementInfo {
 	currency: string;
@@ -33,6 +33,7 @@ export interface UserInfo {
 	interacted_properties?: {
 		viewed: string[];
 		discarded: string[];
+		scheduled: string[];
 	};
 }
 
@@ -71,6 +72,7 @@ export async function getUserInfoByToken(token: string, database: string): Promi
 		interacted_properties: {
 			viewed: payload.interacted_properties?.viewed || [],
 			discarded: payload.interacted_properties?.discarded || [],
+			scheduled: payload.interacted_properties?.scheduled || [],
 		},
 		requirement_info: payload.last_requirement
 			? {
@@ -108,7 +110,12 @@ export async function updateClientPropertiesList(
 	dbName: string,
 	status: PropertyStatus
 ): Promise<void> {
-	const fieldToUpdate = status === 'viewed' ? 'interacted_properties.viewed' : 'interacted_properties.discarded';
+	const fieldMap: Record<PropertyStatus, string> = {
+		viewed: 'interacted_properties.viewed',
+		discarded: 'interacted_properties.discarded',
+		scheduled: 'interacted_properties.scheduled',
+	};
+	const fieldToUpdate = fieldMap[status];
 	await mongoClient.updateOne(
 		'users',
 		{ lead_id: viewerId },

@@ -21,7 +21,7 @@ interface PropertyDetailModalProps {
 	property: Property;
 	isOpen: boolean;
 	onClose: () => void;
-	onPropertyViewed?: (propertyId: string, status: 'viewed' | 'discarded') => void;
+	onPropertyViewed?: (propertyId: string, status: 'viewed' | 'discarded' | 'scheduled') => void;
 }
 
 export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewed }: PropertyDetailModalProps) {
@@ -262,7 +262,11 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 								</div>
 
 								{/* Botones de Acción - Componente separado */}
-								<PropertyActions property={property} onDiscard={handleDiscard} />
+								<PropertyActions
+									property={property}
+									onDiscard={handleDiscard}
+									onSchedule={onPropertyViewed ? () => onPropertyViewed(property.id, 'scheduled') : undefined}
+								/>
 
 								{/* Descripción Completa */}
 								{property.description && (

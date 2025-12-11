@@ -36,7 +36,7 @@ interface PropertyPreviewDialogProps {
 	onClose: () => void;
 	similarProperties?: Property[];
 	onSimilarPropertyClick?: (propertyId: string) => void;
-	onPropertyViewed?: (propertyId: string, status: 'viewed' | 'discarded') => void;
+	onPropertyViewed?: (propertyId: string, status: 'viewed' | 'discarded' | 'scheduled') => void;
 }
 
 export function PropertyPreviewDialog({
@@ -200,7 +200,12 @@ export function PropertyPreviewDialog({
 						)}
 
 						{/* Actions - Componente separado */}
-						<PropertyActions property={property} onViewDetails={() => setIsDetailModalOpen(true)} showsInPreview />
+						<PropertyActions
+							property={property}
+							onViewDetails={() => setIsDetailModalOpen(true)}
+							showsInPreview
+							onSchedule={onPropertyViewed ? () => onPropertyViewed(property.id, 'scheduled') : undefined}
+						/>
 					</div>
 				</div>
 

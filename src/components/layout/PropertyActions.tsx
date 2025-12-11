@@ -32,10 +32,17 @@ interface PropertyActionsContainerProps {
 	property: PropertyActionsProperty;
 	onViewDetails?: () => void;
 	onDiscard?: () => void;
+	onSchedule?: () => void;
 	showsInPreview?: boolean;
 }
 
-function DefaultActions({ property, onViewDetails, onDiscard, showsInPreview = false }: PropertyActionsContainerProps) {
+function DefaultActions({
+	property,
+	onViewDetails,
+	onDiscard,
+	onSchedule,
+	showsInPreview = false,
+}: PropertyActionsContainerProps) {
 	const { session } = useSession();
 
 	// Siempre usar el bot_phone_number de la sesión
@@ -50,6 +57,10 @@ function DefaultActions({ property, onViewDetails, onDiscard, showsInPreview = f
 	const handleScheduleClick = () => {
 		if (botPhoneNumber) {
 			openWhatsAppChat(botPhoneNumber, property.firebaseId || 'WITHOUT_FIREBASE_ID', 'schedule');
+		}
+		// Registrar la cita en interacted_properties
+		if (onSchedule) {
+			onSchedule();
 		}
 	};
 
@@ -294,6 +305,7 @@ function MarketmeetActions({
 	property,
 	onViewDetails,
 	onDiscard,
+	onSchedule,
 	showsInPreview = false,
 }: PropertyActionsContainerProps) {
 	const { session } = useSession();
@@ -312,6 +324,10 @@ function MarketmeetActions({
 	const handleScheduleClick = () => {
 		if (botPhoneNumber) {
 			openWhatsAppChat(botPhoneNumber, property.id, 'schedule');
+		}
+		// Registrar la cita en interacted_properties
+		if (onSchedule) {
+			onSchedule();
 		}
 	};
 

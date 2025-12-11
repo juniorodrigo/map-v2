@@ -9,6 +9,7 @@ import type { OwnerCluster } from '@/types/property';
 const COLORS = {
 	VIEWED: '#10b981',
 	DISCARDED: '#C93232',
+	SCHEDULED: '#38bdf8',
 	BASE: '#8F7BBD',
 };
 interface ClusteredMarkersProps {
@@ -18,6 +19,7 @@ interface ClusteredMarkersProps {
 	interactedProperties?: {
 		viewed: string[];
 		discarded: string[];
+		scheduled: string[];
 	};
 }
 
@@ -42,12 +44,17 @@ export function ClusteredMarkers({
 		const propertyIds = owner.properties.map((p: any) => p._id);
 		const viewedSet = new Set(interactedProperties.viewed || []);
 		const discardedSet = new Set(interactedProperties.discarded || []);
+		const scheduledSet = new Set(interactedProperties.scheduled || []);
 
 		const allViewed = propertyIds.every((id: string) => viewedSet.has(id));
 		const allDiscarded = propertyIds.every((id: string) => discardedSet.has(id));
+		const allScheduled = propertyIds.every((id: string) => scheduledSet.has(id));
 
+		// Prioridad: discarded > scheduled > viewed > base
 		if (allDiscarded) {
 			return COLORS.DISCARDED;
+		} else if (allScheduled) {
+			return COLORS.SCHEDULED;
 		} else if (allViewed) {
 			return COLORS.VIEWED;
 		} else {

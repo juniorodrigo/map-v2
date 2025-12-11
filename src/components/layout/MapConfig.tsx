@@ -7,6 +7,7 @@ const COLORS = {
 	VIEWED: '#10b981',
 	DISCARDED: '#C93232',
 	BASE: '#8F7BBD',
+	SCHEDULED: '#38bdf8',
 };
 
 const ColorLegendTooltip = () => (
@@ -34,6 +35,10 @@ const ColorLegendTooltip = () => (
 				<div className="flex items-center gap-2">
 					<span className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS.DISCARDED }}></span>
 					<span className="text-xs">Descartadas</span>
+				</div>
+				<div className="flex items-center gap-2">
+					<span className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS.SCHEDULED }}></span>
+					<span className="text-xs">Cita Agendada</span>
 				</div>
 			</div>
 		</TooltipContent>

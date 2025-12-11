@@ -5,11 +5,11 @@ export async function POST(request: NextRequest) {
 	const body = await request.json();
 	const { propertyId, viewerId, dbName, status } = body;
 
-	if (status !== 'viewed' && status !== 'discarded') {
+	if (status !== 'viewed' && status !== 'discarded' && status !== 'scheduled') {
 		return NextResponse.json(
 			{
 				success: false,
-				error: 'Estado inválido: debe ser "viewed" o "discarded"',
+				error: 'Estado inválido: debe ser "viewed", "discarded" o "scheduled"',
 			},
 			{ status: 400 }
 		);
