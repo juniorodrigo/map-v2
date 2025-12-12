@@ -9,6 +9,14 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { MultiSelect } from '@/components/ui/multi-select';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { PROPERTY_TYPE_MAPPINGS, OPERATION_TYPE_MAPPINGS } from '@/lib/property-type-mappings';
 import { PRICE_FILTER, hasPriceFilterActive, formatPriceDisplay } from '@/config/price-filter';
 
@@ -56,6 +64,10 @@ export function FloatingFilterBar({
 	const [propertyTypeOpen, setPropertyTypeOpen] = React.useState(false);
 	const [priceOpen, setPriceOpen] = React.useState(false);
 	const [operationTypeOpen, setOperationTypeOpen] = React.useState(false);
+
+	// Estado para el modal de confirmación de limpiar filtros
+	const [showClearConfirmDialog, setShowClearConfirmDialog] = React.useState(false);
+	const [isClearing, setIsClearing] = React.useState(false);
 
 	// Timers para delay en hover
 	const propertyTypeTimerRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -162,13 +174,38 @@ export function FloatingFilterBar({
 
 	const hasActiveFilters = propertyType.length > 0 || operationType.length > 0 || hasPriceFilterActive(priceRange);
 
-	const clearAllFilters = () => {
-		hasUserInteractedRef.current = true;
-		setPropertyType([]);
-		setOperationType([]);
-		setPriceRange(PRICE_FILTER.DEFAULT_RANGE);
-		setLocalMinPrice(PRICE_FILTER.MIN.toString());
-		setLocalMaxPrice(PRICE_FILTER.MAX.toString());
+	const handleClearFiltersClick = () => {
+		setShowClearConfirmDialog(true);
+	};
+
+	const clearAllFilters = async () => {
+		setIsClearing(true);
+		try {
+			// Enviar petición al backend para limpiar filtros
+			const response = await fetch('/api/filters/clear', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+
+			if (!response.ok) {
+				throw new Error('Error al limpiar filtros');
+			}
+
+			// Limpiar filtros localmente
+			hasUserInteractedRef.current = true;
+			setPropertyType([]);
+			setOperationType([]);
+			setPriceRange(PRICE_FILTER.DEFAULT_RANGE);
+			setLocalMinPrice(PRICE_FILTER.MIN.toString());
+			setLocalMaxPrice(PRICE_FILTER.MAX.toString());
+			setShowClearConfirmDialog(false);
+		} catch (error) {
+			console.error('Error al limpiar filtros:', error);
+		} finally {
+			setIsClearing(false);
+		}
 	};
 
 	const getPropertyTypeLabel = () => {
@@ -402,13 +439,33 @@ export function FloatingFilterBar({
 				<Button
 					variant="ghost"
 					size="icon"
-					onClick={clearAllFilters}
+					onClick={handleClearFiltersClick}
 					className="h-10 w-10 rounded-full bg-white/95 shadow-lg backdrop-blur-sm hover:bg-white"
 				>
 					<MdClose className="size-5" />
 					<span className="sr-only">Limpiar filtros</span>
 				</Button>
 			)}
+
+			{/* Modal de confirmación para limpiar filtros */}
+			<Dialog open={showClearConfirmDialog} onOpenChange={setShowClearConfirmDialog}>
+				<DialogContent className="sm:max-w-[425px]">
+					<DialogHeader>
+						<DialogTitle>¿Limpiar todos los filtros?</DialogTitle>
+						<DialogDescription>
+							Esta acción eliminará todos los filtros de búsqueda activos. ¿Estás seguro de que deseas continuar?
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter className="gap-2 sm:gap-0">
+						<Button variant="outline" onClick={() => setShowClearConfirmDialog(false)} disabled={isClearing}>
+							Cancelar
+						</Button>
+						<Button onClick={clearAllFilters} disabled={isClearing} className="bg-red-500 hover:bg-red-600 text-white">
+							{isClearing ? 'Limpiando...' : 'Sí, limpiar filtros'}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

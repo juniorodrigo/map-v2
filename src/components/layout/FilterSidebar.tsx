@@ -9,6 +9,14 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { MultiSelect } from '@/components/ui/multi-select';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { PROPERTY_TYPE_MAPPINGS, OPERATION_TYPE_MAPPINGS } from '@/lib/property-type-mappings';
 import { PRICE_FILTER, hasPriceFilterActive } from '@/config/price-filter';
 
@@ -58,6 +66,10 @@ export function FilterSidebar({
 
 	// Ref para rastrear si el usuario ha interactuado manualmente con los filtros
 	const hasUserInteractedRef = React.useRef(false);
+
+	// Estado para el modal de confirmación de limpiar filtros
+	const [showClearConfirmDialog, setShowClearConfirmDialog] = React.useState(false);
+	const [isClearing, setIsClearing] = React.useState(false);
 
 	// Sincronizar con props cuando cambien (sin disparar notificaciones)
 	React.useEffect(() => {
@@ -163,13 +175,38 @@ export function FilterSidebar({
 
 	const hasActiveFilters = propertyType.length > 0 || operationType.length > 0 || hasPriceFilterActive(priceRange);
 
-	const clearAllFilters = () => {
-		hasUserInteractedRef.current = true;
-		setPropertyType([]);
-		setOperationType([]);
-		setPriceRange(PRICE_FILTER.DEFAULT_RANGE);
-		setLocalMinPrice(PRICE_FILTER.MIN.toString());
-		setLocalMaxPrice(PRICE_FILTER.MAX.toString());
+	const handleClearFiltersClick = () => {
+		setShowClearConfirmDialog(true);
+	};
+
+	const clearAllFilters = async () => {
+		setIsClearing(true);
+		try {
+			// Enviar petición al backend para limpiar filtros
+			const response = await fetch('/api/filters/clear', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+
+			if (!response.ok) {
+				throw new Error('Error al limpiar filtros');
+			}
+
+			// Limpiar filtros localmente
+			hasUserInteractedRef.current = true;
+			setPropertyType([]);
+			setOperationType([]);
+			setPriceRange(PRICE_FILTER.DEFAULT_RANGE);
+			setLocalMinPrice(PRICE_FILTER.MIN.toString());
+			setLocalMaxPrice(PRICE_FILTER.MAX.toString());
+			setShowClearConfirmDialog(false);
+		} catch (error) {
+			console.error('Error al limpiar filtros:', error);
+		} finally {
+			setIsClearing(false);
+		}
 	};
 
 	const filterCount = propertyType.length + operationType.length;
@@ -196,7 +233,7 @@ export function FilterSidebar({
 					<div className="flex items-center justify-between border-b px-6 py-4">
 						<h2 className="text-lg font-semibold">Filtros</h2>
 						{hasActiveFilters && (
-							<Button variant="ghost" size="sm" onClick={clearAllFilters} className="h-8 px-3 text-sm">
+							<Button variant="ghost" size="sm" onClick={handleClearFiltersClick} className="h-8 px-3 text-sm">
 								Limpiar todo
 							</Button>
 						)}
@@ -330,6 +367,26 @@ export function FilterSidebar({
 					</div>
 				</div>
 			</SheetContent>
+
+			{/* Modal de confirmación para limpiar filtros */}
+			<Dialog open={showClearConfirmDialog} onOpenChange={setShowClearConfirmDialog}>
+				<DialogContent className="sm:max-w-[425px]">
+					<DialogHeader>
+						<DialogTitle>¿Limpiar todos los filtros?</DialogTitle>
+						<DialogDescription>
+							Esta acción eliminará todos los filtros de búsqueda activos. ¿Estás seguro de que deseas continuar?
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter className="gap-2 sm:gap-0">
+						<Button variant="outline" onClick={() => setShowClearConfirmDialog(false)} disabled={isClearing}>
+							Cancelar
+						</Button>
+						<Button onClick={clearAllFilters} disabled={isClearing} className="bg-red-500 hover:bg-red-600 text-white">
+							{isClearing ? 'Limpiando...' : 'Sí, limpiar filtros'}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</Sheet>
 	);
 }
