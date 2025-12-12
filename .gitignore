@@ -43,3 +43,4 @@ next-env.d.ts
 /ignore
 
 src/old_gga
+src/old_gga2
