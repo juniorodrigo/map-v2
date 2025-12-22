@@ -33,12 +33,12 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 
 	const [filters, setFilters] = React.useState<{
 		propertyType: string[];
-		priceRange: [number, number];
+		priceRange?: [number, number] | null;
 		currency: string;
 		operationType: string[];
 	}>({
 		propertyType: [] as string[],
-		priceRange: PRICE_FILTER.DEFAULT_RANGE,
+		priceRange: null,
 		currency: PRICE_FILTER.DEFAULT_CURRENCY,
 		operationType: [] as string[],
 	});
@@ -63,15 +63,21 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 			if (session.searchSubtype === 'similar-properties' && session.userInfo.similar_info) {
 				const similarInfo = session.userInfo.similar_info;
 
-				const minPrice = similarInfo.min_price ?? PRICE_FILTER.MIN;
-				const maxPrice = similarInfo.max_price ?? PRICE_FILTER.MAX;
+				const minPriceVal = similarInfo.min_price;
+				const maxPriceVal = similarInfo.max_price;
 				const userPropertyTypes = similarInfo.house_types || [];
 				const userOperationTypes = similarInfo.monetization_types || [];
+
+				// Si no hay min y max definidos, interpretamos que no existe filtro de precio
+				const priceRangeValue =
+					minPriceVal == null && maxPriceVal == null
+						? null
+						: ([minPriceVal ?? PRICE_FILTER.MIN, maxPriceVal ?? PRICE_FILTER.MAX] as [number, number]);
 
 				// Para similares, usamos MXN por defecto ya que los precios vienen en esa moneda
 				setFilters({
 					propertyType: userPropertyTypes,
-					priceRange: [minPrice, maxPrice],
+					priceRange: priceRangeValue,
 					currency: PRICE_FILTER.DEFAULT_CURRENCY,
 					operationType: userOperationTypes,
 				});
@@ -82,15 +88,20 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 			else if (session.userInfo.requirement_info) {
 				const requirement = session.userInfo.requirement_info;
 
-				const minPrice = requirement.minimum_price ?? PRICE_FILTER.MIN;
-				const maxPrice = requirement.maximum_price ?? PRICE_FILTER.MAX;
+				const minPriceVal = requirement.minimum_price;
+				const maxPriceVal = requirement.maximum_price;
 				const userCurrency = requirement.currency || PRICE_FILTER.DEFAULT_CURRENCY;
 				const userPropertyTypes = requirement.property_type || [];
 				const userOperationTypes = requirement.operation || [];
 
+				const priceRangeValue =
+					minPriceVal == null && maxPriceVal == null
+						? null
+						: ([minPriceVal ?? PRICE_FILTER.MIN, maxPriceVal ?? PRICE_FILTER.MAX] as [number, number]);
+
 				setFilters({
 					propertyType: userPropertyTypes,
-					priceRange: [minPrice, maxPrice],
+					priceRange: priceRangeValue,
 					currency: userCurrency,
 					operationType: userOperationTypes,
 				});
@@ -332,7 +343,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	const handleFiltersChange = React.useCallback(
 		async (newFilters: {
 			propertyType: string[];
-			priceRange: [number, number];
+			priceRange?: [number, number] | null;
 			currency: string;
 			operationType: string[];
 		}) => {

@@ -60,7 +60,7 @@ export interface PropertyData {
 
 export interface PropertyFilters {
 	propertyType: string[]; // Array de tipos: ["casa", "departamento", etc.]
-	priceRange: [number, number];
+	priceRange?: [number, number] | null;
 	currency: string; // "MXN" | "USD"
 	operationType: string[]; // Array de tipos: ["venta", "renta", "preventa", "renta-temporal"]
 	bounds?: {

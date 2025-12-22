@@ -33,12 +33,12 @@ const operationTypes = Object.entries(OPERATION_TYPE_MAPPINGS).map(([value, labe
 
 interface FilterSidebarProps {
 	propertyType?: string[];
-	priceRange?: [number, number];
+	priceRange?: [number, number] | null;
 	currency?: string;
 	operationType?: string[];
 	onFiltersChange?: (filters: {
 		propertyType: string[];
-		priceRange: [number, number];
+		priceRange: [number, number] | null;
 		currency: string;
 		operationType: string[];
 	}) => void;
@@ -46,20 +46,20 @@ interface FilterSidebarProps {
 
 export function FilterSidebar({
 	propertyType: propertyTypeProp = [],
-	priceRange: priceRangeProp = PRICE_FILTER.DEFAULT_RANGE,
+	priceRange: priceRangeProp = null,
 	currency: currencyProp = PRICE_FILTER.DEFAULT_CURRENCY,
 	operationType: operationTypeProp = [],
 	onFiltersChange,
 }: FilterSidebarProps) {
 	const [isOpen, setIsOpen] = React.useState(false);
 	const [propertyType, setPropertyType] = React.useState<string[]>(propertyTypeProp);
-	const [priceRange, setPriceRange] = React.useState<[number, number]>(priceRangeProp);
+	const [priceRange, setPriceRange] = React.useState<[number, number] | null>(priceRangeProp);
 	const [currency, setCurrency] = React.useState(currencyProp);
 	const [operationType, setOperationType] = React.useState<string[]>(operationTypeProp);
 
 	// Estados locales para los inputs (sin debounce)
-	const [localMinPrice, setLocalMinPrice] = React.useState<string>(priceRangeProp[0].toString());
-	const [localMaxPrice, setLocalMaxPrice] = React.useState<string>(priceRangeProp[1].toString());
+	const [localMinPrice, setLocalMinPrice] = React.useState<string>(priceRangeProp ? priceRangeProp[0].toString() : '');
+	const [localMaxPrice, setLocalMaxPrice] = React.useState<string>(priceRangeProp ? priceRangeProp[1].toString() : '');
 
 	// Timer para debounce de inputs de precio
 	const priceDebounceTimerRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -75,9 +75,9 @@ export function FilterSidebar({
 	React.useEffect(() => {
 		hasUserInteractedRef.current = false; // Reset al sincronizar con props externas
 		setPropertyType(propertyTypeProp);
-		setPriceRange(priceRangeProp);
-		setLocalMinPrice(priceRangeProp[0].toString());
-		setLocalMaxPrice(priceRangeProp[1].toString());
+		setPriceRange(priceRangeProp ?? null);
+		setLocalMinPrice(priceRangeProp ? priceRangeProp[0].toString() : '');
+		setLocalMaxPrice(priceRangeProp ? priceRangeProp[1].toString() : '');
 		setCurrency(currencyProp);
 		setOperationType(operationTypeProp);
 	}, [propertyTypeProp, priceRangeProp, currencyProp, operationTypeProp]);
@@ -92,13 +92,19 @@ export function FilterSidebar({
 		}
 
 		priceDebounceTimerRef.current = setTimeout(() => {
+			// Si ambos inputs están vacíos, interpretamos que el usuario quiere quitar el filtro
+			if (localMinPrice === '' && localMaxPrice === '') {
+				if (priceRange !== null) setPriceRange(null);
+				return;
+			}
+
 			const minPrice = Math.max(
 				PRICE_FILTER.MIN,
 				Math.min(Number(localMinPrice) || PRICE_FILTER.MIN, Number(localMaxPrice) || PRICE_FILTER.MAX)
 			);
 			const maxPrice = Math.min(PRICE_FILTER.MAX, Math.max(Number(localMaxPrice) || PRICE_FILTER.MAX, minPrice));
 
-			if (minPrice !== priceRange[0] || maxPrice !== priceRange[1]) {
+			if (!priceRange || minPrice !== priceRange[0] || maxPrice !== priceRange[1]) {
 				setPriceRange([minPrice, maxPrice]);
 			}
 		}, 800); // 800ms de espera
@@ -112,7 +118,12 @@ export function FilterSidebar({
 
 	// Función para notificar cambios solo cuando el usuario interactúa
 	const notifyFiltersChange = React.useCallback(
-		(filters: { propertyType: string[]; priceRange: [number, number]; currency: string; operationType: string[] }) => {
+		(filters: {
+			propertyType: string[];
+			priceRange: [number, number] | null;
+			currency: string;
+			operationType: string[];
+		}) => {
 			if (hasUserInteractedRef.current && onFiltersChange) {
 				onFiltersChange(filters);
 			}
@@ -198,9 +209,9 @@ export function FilterSidebar({
 			hasUserInteractedRef.current = true;
 			setPropertyType([]);
 			setOperationType([]);
-			setPriceRange(PRICE_FILTER.DEFAULT_RANGE);
-			setLocalMinPrice(PRICE_FILTER.MIN.toString());
-			setLocalMaxPrice(PRICE_FILTER.MAX.toString());
+			setPriceRange(null);
+			setLocalMinPrice('');
+			setLocalMaxPrice('');
 			setShowClearConfirmDialog(false);
 		} catch (error) {
 			console.error('Error al limpiar filtros:', error);
@@ -209,7 +220,7 @@ export function FilterSidebar({
 		}
 	};
 
-	const filterCount = propertyType.length + operationType.length;
+	const filterCount = propertyType.length + operationType.length + (hasPriceFilterActive(priceRange) ? 1 : 0);
 
 	return (
 		<Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -339,7 +350,7 @@ export function FilterSidebar({
 										</div>
 									</div>
 									<Slider
-										value={priceRange}
+										value={priceRange ?? PRICE_FILTER.DEFAULT_RANGE}
 										onValueChange={handlePriceRangeSliderChange}
 										min={PRICE_FILTER.MIN}
 										max={PRICE_FILTER.MAX}
@@ -347,8 +358,8 @@ export function FilterSidebar({
 										className="w-full"
 									/>
 									<div className="flex items-center justify-between text-xs text-muted-foreground">
-										<span>{PRICE_FILTER.DISPLAY_MIN_LABEL}</span>
-										<span>{PRICE_FILTER.DISPLAY_MAX_LABEL}</span>
+										<span>{priceRange ? formatPrice(priceRange[0]) : PRICE_FILTER.DISPLAY_MIN_LABEL}</span>
+										<span>{priceRange ? formatPrice(priceRange[1]) : PRICE_FILTER.DISPLAY_MAX_LABEL}</span>
 									</div>
 								</div>
 							</div>

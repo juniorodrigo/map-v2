@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
 		const propertyFilters: PropertyFilters = {
 			propertyType: filters.propertyType || [],
-			priceRange: filters.priceRange || PRICE_FILTER.DEFAULT_RANGE,
+			priceRange: filters.priceRange ?? null,
 			currency: filters.currency || PRICE_FILTER.DEFAULT_CURRENCY,
 			operationType: filters.operationType || [],
 			bounds: filters.bounds,

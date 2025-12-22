@@ -180,11 +180,10 @@ export async function buildPropertyFilter(
 		filter.house_type = { $in: dbPropertyTypes };
 	}
 
-	const [minPrice, uiMaxPrice] = filters.priceRange;
-	const maxPrice = getDbMaxPrice(uiMaxPrice);
-
-	// Solo aplicar filtro de monetización si hay tipos de operación seleccionados
-	if (filters.operationType && filters.operationType.length > 0) {
+	// Aplicar filtro de precio SOLO si el usuario lo estableció (priceRange presente)
+	if (filters.priceRange && filters.operationType && filters.operationType.length > 0) {
+		const [minPrice, uiMaxPrice] = filters.priceRange;
+		const maxPrice = getDbMaxPrice(uiMaxPrice);
 		const operationTypes = operationTypeCodesToLabels(filters.operationType);
 
 		const priceConditions = [];

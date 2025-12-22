@@ -38,7 +38,8 @@ export const PRICE_FILTER = {
 /**
  * Verifica si el rango de precio tiene filtros activos (diferentes a los valores por defecto)
  */
-export function hasPriceFilterActive(priceRange: [number, number]): boolean {
+export function hasPriceFilterActive(priceRange?: [number, number] | null): boolean {
+	if (!priceRange) return false;
 	return priceRange[0] > PRICE_FILTER.MIN || priceRange[1] < PRICE_FILTER.MAX;
 }
 

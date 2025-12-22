@@ -26,10 +26,8 @@ export async function POST(request: NextRequest) {
 
 		const lastRequirement: any = {
 			currency: filters.currency || PRICE_FILTER.DEFAULT_CURRENCY,
-			price_start: filters.priceRange?.[0] ?? PRICE_FILTER.MIN,
-			price_end: getDbMaxPrice(filters.priceRange?.[1] ?? PRICE_FILTER.MAX),
-			property_type: propertyTypes,
-			operation_type: operationTypes,
+			price_start: filters.priceRange ? filters.priceRange[0] : null,
+			price_end: filters.priceRange ? getDbMaxPrice(filters.priceRange[1]) : null,
 		};
 
 		if (location) {

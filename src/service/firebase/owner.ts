@@ -42,7 +42,7 @@ export async function getOwnerInfoByFirebaseId(ownerFirebaseId: string) {
 
 	const listingSearch = guSettings.listing_search;
 
-	console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX_______________XXXXXXXXXXXXXXXXXXXXXXXXXXXX', listingSearch);
+	console.log('X@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@', guSettings, '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
 
 	if (listingSearch === 'global_associations') {
 		ownerSettings = {

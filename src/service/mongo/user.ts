@@ -80,8 +80,10 @@ export async function getUserInfoByToken(token: string, database: string): Promi
 					operation: operationTypeLabelsToCode(operationTypeLabels),
 					property_type: propertyTypeLabelsToCode(propertyTypeLabels),
 					location_geometry: payload.last_requirement.geometry || null,
-					minimum_price: Number(payload.last_requirement.price_start ?? 0) || undefined,
-					maximum_price: Number(payload.last_requirement.price_end ?? 0) || undefined,
+					minimum_price:
+						payload.last_requirement.price_start != null ? Number(payload.last_requirement.price_start) : undefined,
+					maximum_price:
+						payload.last_requirement.price_end != null ? Number(payload.last_requirement.price_end) : undefined,
 					coordinates: payload.last_requirement?.geometry?.coordinates
 						? {
 								lat: payload.last_requirement.geometry.coordinates[1] ?? null,
