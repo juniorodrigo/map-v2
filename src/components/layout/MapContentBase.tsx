@@ -18,8 +18,8 @@ import { PRICE_FILTER } from '@/config/price-filter';
 
 export interface MapContentConfig {
 	searchType: SearchType;
-		renderResultsBadges?: (data: any, total: number, ownersCount: number) => React.ReactNode;
-		onMarkerClick?: (propertyId: string, property?: any) => void;
+	renderResultsBadges?: (data: any, total: number, ownersCount: number) => React.ReactNode;
+	onMarkerClick?: (propertyId: string, property?: any) => void;
 	markerProps?: (ownerId: string, selectedOwnerId: string | null) => Record<string, any>;
 }
 

@@ -26,7 +26,12 @@ interface ClusteredMarkersProps {
 
 const MIN_ZOOM_ON_CLICK = 14;
 
-export function ClusteredMarkers({ owners, selectedOwnerId, onMarkerClick, interactedProperties }: ClusteredMarkersProps) {
+export function ClusteredMarkers({
+	owners,
+	selectedOwnerId,
+	onMarkerClick,
+	interactedProperties,
+}: ClusteredMarkersProps) {
 	const map = useGoogleMap();
 	const clustererRef = React.useRef<MarkerClusterer | null>(null);
 	const markersRef = React.useRef<Map<string, google.maps.Marker>>(new Map());
@@ -158,7 +163,8 @@ export function ClusteredMarkers({ owners, selectedOwnerId, onMarkerClick, inter
 							position,
 							map,
 							icon: {
-								url: 'data:image/svg+xml;charset=UTF-8,' +
+								url:
+									'data:image/svg+xml;charset=UTF-8,' +
 									encodeURIComponent(`
 									<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
 										<circle cx="${size / 2}" cy="${size / 2}" r="${size / 2 - 2}" fill="#8F7BBD" stroke="white" stroke-width="3"/>
