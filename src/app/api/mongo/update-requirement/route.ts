@@ -30,6 +30,10 @@ export async function POST(request: NextRequest) {
 			price_end: filters.priceRange ? getDbMaxPrice(filters.priceRange[1]) : null,
 		};
 
+		// Añadir tipos de propiedad y operación para que se persistan en la DB
+		lastRequirement.property_type = propertyTypes;
+		lastRequirement.operation_type = operationTypes;
+
 		if (location) {
 			lastRequirement.geometry = {
 				type: 'Point',
@@ -43,6 +47,8 @@ export async function POST(request: NextRequest) {
 			update: { $set: { last_requirement: lastRequirement } },
 			dbName: database,
 		})) as any;
+
+		console.log('📤 Resultado updateOne:', updateResult);
 
 		// Verificar si la operación fue exitosa (matchedCount > 0 significa que se encontró el documento)
 		if (!updateResult || updateResult.matchedCount === 0) {
