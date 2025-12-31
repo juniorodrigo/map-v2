@@ -77,6 +77,11 @@ export function FloatingFilterBar({
 	// Timer para debounce de inputs de precio
 	const priceDebounceTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
+	// Timer para debounce de notificación cuando se usa el slider
+	const sliderDebounceTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+	// Ref para ignorar la notificación inmediata desde el efecto cuando el cambio viene del slider
+	const ignorePriceEffectRef = React.useRef(false);
+
 	// Ref para rastrear si el usuario ha interactuado manualmente con los filtros
 	const hasUserInteractedRef = React.useRef(false);
 
@@ -142,6 +147,12 @@ export function FloatingFilterBar({
 
 	// Notificar cambios de filtros al padre solo cuando el usuario los cambia manualmente
 	React.useEffect(() => {
+		// Si el cambio de precio vino del slider, ignoramos la notificación inmediata
+		if (ignorePriceEffectRef.current) {
+			// resetear la bandera y esperar a que el debounce del slider notifique
+			ignorePriceEffectRef.current = false;
+			return;
+		}
 		notifyFiltersChange({
 			propertyType,
 			priceRange,
@@ -171,7 +182,32 @@ export function FloatingFilterBar({
 		setPriceRange(value);
 		setLocalMinPrice(value[0].toString());
 		setLocalMaxPrice(value[1].toString());
+
+		// Indicar que el efecto no debe notificar inmediatamente (evita una petición por cada movimiento)
+		ignorePriceEffectRef.current = true;
+
+		// Debounce para notificar al padre una sola vez tras mover el slider
+		if (sliderDebounceTimerRef.current) {
+			clearTimeout(sliderDebounceTimerRef.current);
+		}
+		sliderDebounceTimerRef.current = setTimeout(() => {
+			// Usar la función de notificación para respetar la lógica existente
+			notifyFiltersChange({
+				propertyType,
+				priceRange: value,
+				currency,
+				operationType,
+			});
+		}, 300);
 	};
+
+	// Limpiar timers al desmontar
+	React.useEffect(() => {
+		return () => {
+			if (priceDebounceTimerRef.current) clearTimeout(priceDebounceTimerRef.current);
+			if (sliderDebounceTimerRef.current) clearTimeout(sliderDebounceTimerRef.current);
+		};
+	}, []);
 
 	const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		hasUserInteractedRef.current = true;
