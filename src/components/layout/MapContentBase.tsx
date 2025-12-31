@@ -83,6 +83,7 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 				});
 
 				setFiltersInitialized(true);
+				setLocationInitialized(true); // Para similares, no hay location específica
 			}
 			// Para otros casos, usar requirement_info
 			else if (session.userInfo.requirement_info) {
@@ -107,9 +108,15 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 				});
 
 				setFiltersInitialized(true);
+
+				// Inicializar searchLocation si hay coordinates
+				if (requirement.coordinates && requirement.coordinates.lat !== null && requirement.coordinates.lng !== null) {
+					setSearchLocation({ lat: requirement.coordinates.lat!, lng: requirement.coordinates.lng! });
+				}
+				setLocationInitialized(true);
 			}
 		}
-	}, [session.userInfo, session.searchSubtype, filtersInitialized]);
+	}, [session.userInfo, session.searchSubtype, filtersInitialized, setSearchLocation]);
 
 	// Inicializar interacted_properties desde session
 	React.useEffect(() => {
@@ -121,18 +128,6 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 			});
 		}
 	}, [session.userInfo?.interacted_properties]);
-
-	// Solo inicializar searchLocation para la búsqueda, NO hacer panTo aquí
-	React.useEffect(() => {
-		if (!locationInitialized && session.userInfo?.requirement_info?.coordinates) {
-			const { lat, lng } = session.userInfo.requirement_info.coordinates;
-
-			if (lat !== null && lng !== null) {
-				setSearchLocation({ lat, lng });
-				setLocationInitialized(true);
-			}
-		}
-	}, [session.userInfo, locationInitialized, setSearchLocation]);
 
 	// Ref para rastrear si el usuario ha cambiado la ubicación manualmente
 	const userChangedLocationRef = React.useRef(false);
@@ -201,8 +196,8 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	}, [filters, searchLocation, session.searchSubtype, session.userInfo?.similar_info?.ids]);
 
 	const canSearch = React.useMemo(() => {
-		return true;
-	}, []);
+		return filtersInitialized;
+	}, [filtersInitialized]);
 
 	const { data, isLoading, error, isFetched } = usePropertySearch({
 		filters: searchFilters,

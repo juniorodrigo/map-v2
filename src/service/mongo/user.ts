@@ -89,7 +89,12 @@ export async function getUserInfoByToken(token: string, database: string): Promi
 								lat: payload.last_requirement.geometry.coordinates[1] ?? null,
 								lng: payload.last_requirement.geometry.coordinates[0] ?? null,
 							}
-						: undefined,
+						: payload.last_requirement?.geometry?.location
+							? {
+									lat: payload.last_requirement.geometry.location.lat ?? null,
+									lng: payload.last_requirement.geometry.location.lng ?? null,
+								}
+							: undefined,
 				}
 			: null,
 		similar_info: lastSimilaries
