@@ -18,8 +18,8 @@ import { PRICE_FILTER } from '@/config/price-filter';
 
 export interface MapContentConfig {
 	searchType: SearchType;
-	renderResultsBadges?: (data: any, total: number, ownersCount: number) => React.ReactNode;
-	onMarkerClick?: (clusterId: string, ownerCluster: any) => void;
+		renderResultsBadges?: (data: any, total: number, ownersCount: number) => React.ReactNode;
+		onMarkerClick?: (propertyId: string, property?: any) => void;
 	markerProps?: (ownerId: string, selectedOwnerId: string | null) => Record<string, any>;
 }
 
@@ -368,13 +368,26 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 		[session.token, session.propertiesDb, searchLocation]
 	);
 
-	const handleMarkerClick = (clusterId: string) => {
-		setSelectedOwnerId(clusterId);
-		const ownerCluster = data?.owners?.find((o) => o.ownerId === clusterId);
-		if (ownerCluster && ownerCluster.properties.length > 0) {
+	const handleMarkerClick = (propertyId: string) => {
+		if (!data?.owners) return;
+
+		let foundProperty: PropertyData | null = null;
+		let foundOwnerId: string | null = null;
+
+		for (const owner of data.owners) {
+			const prop = owner.properties.find((p) => p._id === propertyId);
+			if (prop) {
+				foundProperty = prop;
+				foundOwnerId = owner.ownerId;
+				break;
+			}
+		}
+
+		if (foundProperty) {
+			setSelectedOwnerId(foundOwnerId);
 			// Hook personalizado para cada tipo
-			config.onMarkerClick?.(clusterId, ownerCluster);
-			setSelectedProperty(ownerCluster.properties[0]);
+			config.onMarkerClick?.(propertyId, foundProperty);
+			setSelectedProperty(foundProperty);
 		}
 	};
 

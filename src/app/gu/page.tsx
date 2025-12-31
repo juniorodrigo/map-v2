@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 export default function GuPage() {
 	const { session, isLoading } = useSession();
 
-	console.log('[GuPage] Session:', session, 'IsLoading:', isLoading);
+	// console.log('[GuPage] Session:', session, 'IsLoading:', isLoading);
 
 	useEffect(() => {
 		if (!isLoading && !session.isAuthenticated) {
