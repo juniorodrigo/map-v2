@@ -246,7 +246,7 @@ export function PropertyDetailModal({ property, isOpen, onClose, onPropertyViewe
 													>
 														<MdWhatsapp className="size-3.5 text-white" />
 													</a>
-													<span className="text-sm font-semibold">Test Marketmeet</span>
+													<span className="text-sm font-semibold">Marketmeet User</span>
 												</div>
 											</div>
 											{property.itSharesCommission && (
