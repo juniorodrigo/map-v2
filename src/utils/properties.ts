@@ -180,8 +180,14 @@ export async function buildPropertyFilter(
 		filter.house_type = { $in: dbPropertyTypes };
 	}
 
-	// Aplicar filtro de precio SOLO si el usuario lo estableció (priceRange presente)
-	if (filters.priceRange && filters.operationType && filters.operationType.length > 0) {
+	// Aplicar filtro de precio SOLO si el usuario lo estableció (priceRange presente y valores válidos)
+	// Ignorar si priceRange es [0, 0] que indica "sin filtro de precio"
+	if (
+		filters.priceRange &&
+		!(filters.priceRange[0] === 0 && filters.priceRange[1] === 0) &&
+		filters.operationType &&
+		filters.operationType.length > 0
+	) {
 		const [minPrice, uiMaxPrice] = filters.priceRange;
 		const maxPrice = getDbMaxPrice(uiMaxPrice);
 		const operationTypes = operationTypeCodesToLabels(filters.operationType);

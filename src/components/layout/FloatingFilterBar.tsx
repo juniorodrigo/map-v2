@@ -89,9 +89,14 @@ export function FloatingFilterBar({
 	React.useEffect(() => {
 		hasUserInteractedRef.current = false; // Reset al sincronizar con props externas
 		setPropertyType(propertyTypeProp);
-		setPriceRange(priceRangeProp);
-		setLocalMinPrice(priceRangeProp ? priceRangeProp[0].toString() : '');
-		setLocalMaxPrice(priceRangeProp ? priceRangeProp[1].toString() : '');
+
+		// Si los filtros de precio vienen como [0, 0] del servidor, ignorarlos
+		const effectivePriceRange =
+			priceRangeProp && priceRangeProp[0] === 0 && priceRangeProp[1] === 0 ? null : (priceRangeProp ?? null);
+
+		setPriceRange(effectivePriceRange);
+		setLocalMinPrice(effectivePriceRange ? effectivePriceRange[0].toString() : '');
+		setLocalMaxPrice(effectivePriceRange ? effectivePriceRange[1].toString() : '');
 		setCurrency(currencyProp);
 		setOperationType(operationTypeProp);
 	}, [propertyTypeProp, priceRangeProp, currencyProp, operationTypeProp]);

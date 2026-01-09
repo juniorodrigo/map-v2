@@ -182,8 +182,13 @@ export function MapContentBase({ config }: MapContentBaseProps) {
 	}, [searchLocation, session.token, session.propertiesDb, session.usersDb, filters]);
 
 	const searchFilters = React.useMemo<PropertyFilters>(() => {
+		// Normalizar priceRange: convertir [0, 0] a null
+		const normalizedPriceRange =
+			filters.priceRange && filters.priceRange[0] === 0 && filters.priceRange[1] === 0 ? null : filters.priceRange;
+
 		const baseFilters: PropertyFilters = {
 			...filters,
+			priceRange: normalizedPriceRange,
 			searchLocation: searchLocation || undefined,
 		};
 
