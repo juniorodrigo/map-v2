@@ -21,8 +21,6 @@ export function usePropertySearch({ filters, enabled = true }: UsePropertySearch
 				searchSubtype: session.searchSubtype,
 			};
 
-			console.log('🚀 Enviando solicitud de búsqueda de propiedades con el siguiente cuerpo:', requestBody);
-
 			const response = await fetch('/api/mongo/properties/search', {
 				method: 'POST',
 				headers: {

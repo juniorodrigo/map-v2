@@ -180,52 +180,57 @@ export async function buildPropertyFilter(
 		filter.house_type = { $in: dbPropertyTypes };
 	}
 
-	// Aplicar filtro de precio SOLO si el usuario lo estableció (priceRange presente y valores válidos)
-	// Ignorar si priceRange es [0, 0] que indica "sin filtro de precio"
-	if (
-		filters.priceRange &&
-		!(filters.priceRange[0] === 0 && filters.priceRange[1] === 0) &&
-		filters.operationType &&
-		filters.operationType.length > 0
-	) {
-		const [minPrice, uiMaxPrice] = filters.priceRange;
-		const maxPrice = getDbMaxPrice(uiMaxPrice);
+	// Aplicar filtro de tipo de operación (renta, venta, etc.)
+	if (filters.operationType && filters.operationType.length > 0) {
 		const operationTypes = operationTypeCodesToLabels(filters.operationType);
+		const elemMatchConditions: Record<string, unknown> = {
+			monetization_type: { $in: operationTypes },
+		};
 
-		const priceConditions = [];
+		// Aplicar filtro de precio SOLO si el usuario lo estableció (priceRange presente y valores válidos)
+		// Ignorar si priceRange es [0, 0] que indica "sin filtro de precio"
+		if (filters.priceRange && !(filters.priceRange[0] === 0 && filters.priceRange[1] === 0)) {
+			const [minPrice, uiMaxPrice] = filters.priceRange;
+			const maxPrice = getDbMaxPrice(uiMaxPrice);
 
-		if (filters.currency === 'MXN') {
-			priceConditions.push({
-				currency: 'MXN',
-				price: { $gte: minPrice, $lte: maxPrice },
-			});
-			priceConditions.push({
-				currency: 'USD',
-				price: {
-					$gte: minPrice / hardconstants.USD_TO_MXN_RATE,
-					$lte: maxPrice / hardconstants.USD_TO_MXN_RATE,
-				},
-			});
-		} else {
-			priceConditions.push({
-				currency: 'USD',
-				price: { $gte: minPrice, $lte: maxPrice },
-			});
-			priceConditions.push({
-				currency: 'MXN',
-				price: {
-					$gte: minPrice * hardconstants.USD_TO_MXN_RATE,
-					$lte: maxPrice * hardconstants.USD_TO_MXN_RATE,
-				},
-			});
+			const priceConditions = [];
+
+			if (filters.currency === 'MXN') {
+				priceConditions.push({
+					currency: 'MXN',
+					price: { $gte: minPrice, $lte: maxPrice },
+				});
+				priceConditions.push({
+					currency: 'USD',
+					price: {
+						$gte: minPrice / hardconstants.USD_TO_MXN_RATE,
+						$lte: maxPrice / hardconstants.USD_TO_MXN_RATE,
+					},
+				});
+			} else {
+				priceConditions.push({
+					currency: 'USD',
+					price: { $gte: minPrice, $lte: maxPrice },
+				});
+				priceConditions.push({
+					currency: 'MXN',
+					price: {
+						$gte: minPrice * hardconstants.USD_TO_MXN_RATE,
+						$lte: maxPrice * hardconstants.USD_TO_MXN_RATE,
+					},
+				});
+			}
+
+			elemMatchConditions.$or = priceConditions;
+		}
+
+		// Agregar filtro de comisión compartida si aplica
+		if (searchSubtype === 'shared-comission') {
+			elemMatchConditions.share_commission = true;
 		}
 
 		filter.prop_monetizations = {
-			$elemMatch: {
-				monetization_type: { $in: operationTypes },
-				$or: priceConditions,
-				...(searchSubtype === 'shared-comission' && { share_commission: true }),
-			},
+			$elemMatch: elemMatchConditions,
 		};
 	}
 

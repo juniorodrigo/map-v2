@@ -22,14 +22,12 @@ export async function searchProperties(
 	const collection =
 		searchType === 'marketmeet' ? env.mongo.collections.properties.gga : env.mongo.collections.properties.gu;
 
-	// console.log(
-	// 	'🔍 Filtros construidos para la búsqueda de propiedades:',
-	// 	collection,
-	// 	'_____',
-	// 	JSON.stringify(filter),
-	// 	'_____',
-	// 	dbName
-	// );
+	console.log(
+		'AAAAA Filtros construidos para la búsqueda de propiedades:',
+
+		JSON.stringify(filter),
+		'___________--'
+	);
 
 	const total = await mongoClient.count(collection, filter, dbName);
 
