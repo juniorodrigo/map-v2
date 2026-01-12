@@ -229,6 +229,11 @@ export async function buildPropertyFilter(
 			elemMatchConditions.share_commission = true;
 		}
 
+		// Agregar filtro de comisión compartida cuando sea all_properties y end-user
+		if (searchType === 'end-user' && ownerSettings.included_properties === 'all_properties') {
+			elemMatchConditions.share_commission = true;
+		}
+
 		filter.prop_monetizations = {
 			$elemMatch: elemMatchConditions,
 		};
